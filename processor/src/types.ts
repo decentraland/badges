@@ -4,12 +4,10 @@ import type {
   IFetchComponent,
   IHttpServerComponent,
   ILoggerComponent
-  // IMetricsComponent
 } from '@well-known-components/interfaces'
 import { Message } from '@aws-sdk/client-sqs'
 
 import { BadgeDefinition } from '@badges/common'
-// import { metricDeclarations } from './metrics'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -20,7 +18,6 @@ export type BaseComponents = {
   config: IConfigComponent
   fetch: IFetchComponent
   logs: ILoggerComponent
-  // metrics: IMetricsComponent<keyof typeof metricDeclarations>
 }
 
 // components used in runtime
