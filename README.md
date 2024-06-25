@@ -24,5 +24,5 @@ erDiagram
         timestamp awarded_at "Timestamp when the badge was awarded"
     }
 
-    UserBadges ||--|| BadgeCriteria : "badge_id"
+    BadgeCriteria ||--o{ UserBadges : "badge_id"
 ```
