@@ -1,0 +1,29 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "main": "dist/src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node --trace-warnings --abort-on-uncaught-exception --unhandled-rejections=strict dist/src/index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.600.0",
+    "aws-sdk": "^2.1646.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@dcl/eslint-config": "^2.1.0",
+    "@types/node": "^20.14.5",
+    "@types/prompts": "^2.4.9",
+    "@well-known-components/test-helpers": "^1.5.6",
+    "typescript": "^5.4.5"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "tabWidth": 2
+  }
+}

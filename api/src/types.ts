@@ -7,9 +7,7 @@ import type {
   IMetricsComponent
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { Message } from '@aws-sdk/client-sqs'
-
-import { BadgeDefinition, DbComponent } from '@badges/common'
+import { DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 
 export type GlobalContext = {
@@ -21,6 +19,7 @@ export type BaseComponents = {
   config: IConfigComponent
   fetch: IFetchComponent
   logs: ILoggerComponent
+  server: IHttpServerComponent<GlobalContext>
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
 }
 
@@ -28,10 +27,8 @@ export type BaseComponents = {
 export type AppComponents = BaseComponents & {
   db: DbComponent
   pg: IPgComponent
-  publisher: PublisherComponent
-  queue: QueueComponent
-  messageConsumer: MessageConsumerComponent
-  messageProcessor: MessageProcessorComponent
+  statusChecks: IBaseComponent
+  badgeManager: IBadgeManager
 }
 
 // components used in tests
@@ -51,27 +48,6 @@ export type HandlerContextWithPath<
   Path
 >
 
-export type BadgeGrantedEvent = {
-  type: 'badge-granted'
-  data: {
-    badge: BadgeDefinition
-  }
-}
-
-export type QueueMessage = any
-
-export type QueueComponent = {
-  send(message: QueueMessage): Promise<void>
-  receiveSingleMessage(): Promise<Message[]>
-  deleteMessage(receiptHandle: string): Promise<void>
-}
-
-export type PublisherComponent = {
-  publishMessage(event: BadgeGrantedEvent): Promise<string | undefined>
-}
-
-export type MessageConsumerComponent = IBaseComponent
-
-export type MessageProcessorComponent = {
-  process(message: any, messageHandle: string): Promise<void>
+export type IBadgeManager = {
+  getUserBadges(address: string): Promise<any>
 }

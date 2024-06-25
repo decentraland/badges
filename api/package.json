@@ -1,5 +1,5 @@
 {
-  "name": "@badges/processor",
+  "name": "@badges/api",
   "license": "Apache-2.0",
   "version": "0.0.0",
   "scripts": {
@@ -9,8 +9,6 @@
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },
   "dependencies": {
-    "@aws-sdk/client-sns": "^3.600.0",
-    "@aws-sdk/client-sqs": "^3.600.0",
     "@dcl/schemas": "^11.9.1",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^2.0.2",

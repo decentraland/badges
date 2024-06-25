@@ -1,6 +1,10 @@
 import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
 import { createLogComponent } from '@well-known-components/logger'
 import { createFetchComponent } from '@well-known-components/fetch-component'
+import { createPgComponent } from '@well-known-components/pg-component'
+import { createMetricsComponent } from '@well-known-components/metrics'
+import { createDbComponent } from '@badges/common'
+import { metricDeclarations } from './metrics'
 import { AppComponents } from './types'
 import { createSqsAdapter } from './adapters/sqs'
 import { createMemoryQueueAdapter } from './adapters/memory-queue'
@@ -16,6 +20,11 @@ export async function initComponents(): Promise<AppComponents> {
   const logger = logs.getLogger('components')
   const commitHash = (await config.getString('COMMIT_HASH')) || 'unknown'
   logger.info(`Initializing components. Version: ${commitHash}`)
+
+  const metrics = await createMetricsComponent(metricDeclarations, { config })
+
+  const pg = await createPgComponent({ logs, config, metrics })
+  const db = createDbComponent({ pg })
 
   const fetch = createFetchComponent()
 
@@ -36,6 +45,9 @@ export async function initComponents(): Promise<AppComponents> {
     config,
     fetch,
     logs,
+    metrics,
+    db,
+    pg,
     publisher,
     queue,
     messageProcessor,
