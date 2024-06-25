@@ -7,6 +7,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "test": "jest --forceExit --detectOpenHandles --coverage --verbose --passWithNoTests",
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },

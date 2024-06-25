@@ -1,5 +1,7 @@
 dist/
+test/
 *.js
 *.d.ts
 *.json
 src/index.ts
+coverage/
