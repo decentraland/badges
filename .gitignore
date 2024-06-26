@@ -7,4 +7,3 @@ contents
 .env
 yarn-error.log
 .env.local
-cli/yarn.lock
