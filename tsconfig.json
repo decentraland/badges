@@ -17,10 +17,9 @@
     "skipLibCheck": true,
     "noUnusedLocals": true
   },
-  "include": [
-    "src"
-  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/node_modules/*",
+    "**/dist/*"
   ]
 }

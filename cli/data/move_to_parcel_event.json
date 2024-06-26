@@ -1,0 +1,73 @@
+{
+  "timestamp": "2024-06-20T18:41:14.630Z",
+  "integrations": {
+    "All": true,
+    "Google AdWords New": false
+  },
+  "event": "Move to Parcel",
+  "type": "track",
+  "properties": {
+    "newParcel": "1,0",
+    "oldParcel": "0,-1",
+    "exactPosition": {
+      "x": 16.10417938232422,
+      "y": 106.51146392822265,
+      "z": 4.113419532775879
+    },
+    "context": "kernel",
+    "sessionId": "8c7a8d7d-8e18-4233-9d2f-4b64e823c115",
+    "realm": "main",
+    "position": "0,0",
+    "dcl_is_authenticated": true,
+    "dcl_is_guest": false,
+    "dcl_disabled_analytics": false,
+    "dcl_renderer_type": "web",
+    "dcl_kernel_platform": "macOS",
+    "dcl_eth_address": "0x5447c87068b3d99f50a439f98a2b420585b34a93"
+  },
+  "context": {
+    "page": {
+      "path": "/play/",
+      "referrer": "https://decentraland.org/auth/login?redirectTo=https%3A%2F%2Fdecentraland.org%2Fplay%2F%3FskipSetup%3Dtrue",
+      "search": "?skipSetup=true&realm=main&position=0%2C0&island=default4h0z",
+      "title": "Decentraland",
+      "url": "https://decentraland.org/play/?skipSetup=true&realm=main&position=0%2C0&island=default4h0z"
+    },
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "userAgentData": {
+      "brands": [
+        {
+          "brand": "Brave",
+          "version": "125"
+        },
+        {
+          "brand": "Chromium",
+          "version": "125"
+        },
+        {
+          "brand": "Not.A/Brand",
+          "version": "24"
+        }
+      ],
+      "mobile": false,
+      "platform": "macOS"
+    },
+    "locale": "en-US",
+    "library": {
+      "name": "analytics.js",
+      "version": "next-1.70.0"
+    },
+    "campaign": {},
+    "timezone": "America/Buenos_Aires"
+  },
+  "messageId": "ajs-next-1718908874630-2164b94f-8a8b-4fa9-beb2-a2ed85ea9a2c",
+  "anonymousId": "a4e21f9c-ef6c-4e42-ad83-c8825c0a8f7d",
+  "writeKey": "1plAT9a2wOOgbPCrTaU8rgGUMzgUTJtU",
+  "userId": null,
+  "sentAt": "2024-06-20T18:41:14.653Z",
+  "_metadata": {
+    "bundled": ["Segment.io"],
+    "unbundled": [],
+    "bundledIds": []
+  }
+}

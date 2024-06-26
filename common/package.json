@@ -1,0 +1,27 @@
+{
+  "name": "@badges/common",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --forceExit --detectOpenHandles --coverage --verbose --passWithNoTests",
+    "lint:check": "eslint '**/*.{js,ts}'",
+    "lint:fix": "eslint '**/*.{js,ts}' --fix"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@dcl/eslint-config": "^2.1.0",
+    "@types/node": "^20.14.5",
+    "typescript": "^5.4.5"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "tabWidth": 2
+  }
+}
