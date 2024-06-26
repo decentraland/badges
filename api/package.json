@@ -10,6 +10,7 @@
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },
   "dependencies": {
+    "@dcl/platform-server-commons": "^0.0.4",
     "@dcl/schemas": "^11.9.1",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^2.0.2",

@@ -7,11 +7,18 @@
     "processor",
     "api"
   ],
+  "engines": {
+    "node": "18.*",
+    "npm": "8.* || 9.*"
+  },
   "scripts": {
     "build": "yarn workspaces run build",
-    "start:local": "yarn workspace @badges/processor start & yarn workspace @badges/api start",
+    "start:local": "concurrently \"yarn workspace @badges/processor start\" \"yarn workspace @badges/api start\"",
     "test": "yarn workspaces run test --passWithNoTests",
     "lint:check": "yarn workspaces run lint:check",
     "lint:fix": "yarn workspaces run lint:fix"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

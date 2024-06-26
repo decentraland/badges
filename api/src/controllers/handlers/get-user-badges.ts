@@ -1,4 +1,4 @@
-import { InvalidRequestError } from '../../error.types'
+import { InvalidRequestError } from '@dcl/platform-server-commons'
 import { HandlerContextWithPath } from '../../types'
 import { EthAddress } from '@dcl/schemas'
 

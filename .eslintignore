@@ -1,5 +1,4 @@
 dist/
-test/
 *.js
 *.d.ts
 *.json
