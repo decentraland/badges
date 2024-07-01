@@ -21,7 +21,7 @@
     "@well-known-components/pg-component": "^1.0.0-20220606141021.commit-abcbff6"
   },
   "devDependencies": {
-    "@dcl/eslint-config": "^2.1.0",
+    "@dcl/eslint-config": "^2.2.1",
     "@types/node": "^20.14.5",
     "@well-known-components/test-helpers": "^1.5.6",
     "typescript": "^5.4.5"

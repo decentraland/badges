@@ -805,10 +805,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@dcl/eslint-config@^2.1.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-2.2.0.tgz#a0d750ea21caca648c56ab36f5240b806726ec02"
-  integrity sha512-8Voe15gwoCS96zGjRxlw4xbXssu2j8ktPsoz7XMVD9PKslv9NVMx/jHg/PlchHtr36N7IvuJmnN+OuIgoxA+/Q==
+"@dcl/eslint-config@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@dcl/eslint-config/-/eslint-config-2.2.1.tgz#f31d0dc35dbab09b754f80c93e616ed80e3a011c"
+  integrity sha512-9GBeC0+bzfAHsCtXGqgx5UnQDAzCym5lQGt0hysx3yNNcujcWswFaBU1iPMfp58qRFJangLonZmoP80SM3AMgg==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^6.21.0"
     "@typescript-eslint/parser" "^6.21.0"
