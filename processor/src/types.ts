@@ -8,9 +8,9 @@ import type {
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
-
-import { BadgeDefinition, DbComponent } from '@badges/common'
+import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
+import { Entity, Event } from '@dcl/schemas'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -32,6 +32,8 @@ export type AppComponents = BaseComponents & {
   queue: QueueComponent
   messageConsumer: MessageConsumerComponent
   messageProcessor: MessageProcessorComponent
+  eventDispatcher: IEventDispatcher
+  eventParser: IEventParser
 }
 
 // components used in tests
@@ -54,7 +56,7 @@ export type HandlerContextWithPath<
 export type BadgeGrantedEvent = {
   type: 'badge-granted'
   data: {
-    badge: BadgeDefinition
+    badge: Badge
   }
 }
 
@@ -73,5 +75,25 @@ export type PublisherComponent = {
 export type MessageConsumerComponent = IBaseComponent
 
 export type MessageProcessorComponent = {
-  process(message: any, messageHandle: string): Promise<void>
+  process(message: Event): Promise<void>
+}
+
+export type IEventDispatcher = {
+  registerObserver(eventData: { type: string; subType: string }[], observer: IObserver): void
+  dispatch(event: Event): Promise<any>
+}
+
+export type IObserver = {
+  check(event: Event): Promise<any>
+}
+
+export type IEventParser = {
+  parse(event: any): Promise<Event | undefined>
+}
+
+export class ParsingEventError extends Error {
+  constructor(message: string) {
+    super(message)
+    Error.captureStackTrace(this, this.constructor)
+  }
 }

@@ -28,7 +28,6 @@ export type AppComponents = BaseComponents & {
   db: DbComponent
   pg: IPgComponent
   statusChecks: IBaseComponent
-  badgeManager: IBadgeManager
 }
 
 // components used in tests
@@ -47,7 +46,3 @@ export type HandlerContextWithPath<
   }>,
   Path
 >
-
-export type IBadgeManager = {
-  getUserBadges(address: string): Promise<any>
-}

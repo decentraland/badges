@@ -11,10 +11,10 @@
     "lint:check": "eslint '**/*.{js,ts}'",
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },
-  "dependencies": {},
   "devDependencies": {
     "@dcl/eslint-config": "^2.1.0",
     "@types/node": "^20.14.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "prettier": {

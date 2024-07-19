@@ -1,10 +1,19 @@
 import { AppComponents, MessageProcessorComponent } from '../types'
+import { Event } from '@dcl/schemas'
 
-export function createMessageProcessorComponent({ logs }: Pick<AppComponents, 'logs'>): MessageProcessorComponent {
+export async function createMessageProcessorComponent({
+  logs,
+  eventDispatcher
+}: Pick<AppComponents, 'logs' | 'fetch' | 'config' | 'eventDispatcher'>): Promise<MessageProcessorComponent> {
   const logger = logs.getLogger('message-processor')
 
-  async function process(message: any, messageHandle: string): Promise<void> {
-    logger.info('Processing message', { message, messageHandle })
+  async function process(event: Event): Promise<void> {
+    logger.info(`Processing entity`, { eventType: event.type, eventSubType: event.subType, eventKey: event.key })
+
+    const grantedBadges = await eventDispatcher.dispatch(event)
+    if (!!grantedBadges) {
+      logger.info('Granted badges', { grantedBadges })
+    }
   }
 
   return {
