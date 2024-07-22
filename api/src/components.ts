@@ -9,7 +9,6 @@ import { createFetchComponent } from '@well-known-components/fetch-component'
 import { createMetricsComponent } from '@well-known-components/metrics'
 import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
-import { createBadgeManagerComponent } from './adapters/badge-manager'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createDbComponent } from '@badges/common'
 
@@ -39,8 +38,6 @@ export async function initComponents(): Promise<AppComponents> {
   const pg = await createPgComponent({ logs, config, metrics })
   const db = createDbComponent({ pg })
 
-  const badgeManager = await createBadgeManagerComponent()
-
   return {
     config,
     fetch,
@@ -49,7 +46,6 @@ export async function initComponents(): Promise<AppComponents> {
     server,
     statusChecks,
     pg,
-    db,
-    badgeManager
+    db
   }
 }

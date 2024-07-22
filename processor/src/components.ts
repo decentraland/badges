@@ -1,3 +1,4 @@
+import path from 'path'
 import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
 import { createLogComponent } from '@well-known-components/logger'
 import { createFetchComponent } from '@well-known-components/fetch-component'
@@ -11,6 +12,10 @@ import { createMemoryQueueAdapter } from './adapters/memory-queue'
 import { createSnsComponent } from './adapters/sns'
 import { createMessageProcessorComponent } from './logic/message-processor'
 import { createMessagesConsumerComponent } from './logic/consumer'
+import { createEventDispatcher } from './logic/event-dispatcher'
+import { Events } from '@dcl/schemas'
+import { createOpenForBusinessObserver } from './logic/badges/open-for-business'
+import { createEventParser } from './adapters/event-parser'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -23,7 +28,28 @@ export async function initComponents(): Promise<AppComponents> {
 
   const metrics = await createMetricsComponent(metricDeclarations, { config })
 
-  const pg = await createPgComponent({ logs, config, metrics })
+  let databaseUrl: string | undefined = await config.getString('PG_COMPONENT_PSQL_CONNECTION_STRING')
+  if (!databaseUrl) {
+    const dbUser = await config.requireString('PG_COMPONENT_PSQL_USER')
+    const dbDatabaseName = await config.requireString('PG_COMPONENT_PSQL_DATABASE')
+    const dbPort = await config.requireString('PG_COMPONENT_PSQL_PORT')
+    const dbHost = await config.requireString('PG_COMPONENT_PSQL_HOST')
+    const dbPassword = await config.requireString('PG_COMPONENT_PSQL_PASSWORD')
+    databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbDatabaseName}`
+  }
+
+  const pg = await createPgComponent(
+    { logs, config, metrics },
+    {
+      migration: {
+        databaseUrl,
+        dir: path.resolve(__dirname, 'migrations'),
+        migrationsTable: 'pgmigrations',
+        ignorePattern: '.*\\.map',
+        direction: 'up'
+      }
+    }
+  )
   const db = createDbComponent({ pg })
 
   const fetch = createFetchComponent()
@@ -33,12 +59,30 @@ export async function initComponents(): Promise<AppComponents> {
   const sqsEndpoint = await config.getString('AWS_SQS_ENDPOINT')
   const queue = sqsEndpoint ? await createSqsAdapter(sqsEndpoint) : createMemoryQueueAdapter()
 
-  const messageProcessor = createMessageProcessorComponent({ logs })
+  const eventDispatcher = createEventDispatcher()
+  eventDispatcher.registerObserver(
+    [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.STORE
+      },
+      {
+        type: Events.Type.BLOCKCHAIN,
+        subType: Events.SubType.Blockchain.COLLECTION_CREATED
+      }
+    ],
+    createOpenForBusinessObserver({ db, logs })
+  )
+
+  const eventParser = await createEventParser({ config, fetch })
+
+  const messageProcessor = await createMessageProcessorComponent({ logs, fetch, config, eventDispatcher })
 
   const messageConsumer = createMessagesConsumerComponent({
     logs,
     queue,
-    messageProcessor
+    messageProcessor,
+    eventParser
   })
 
   return {
@@ -51,6 +95,8 @@ export async function initComponents(): Promise<AppComponents> {
     publisher,
     queue,
     messageProcessor,
-    messageConsumer
+    messageConsumer,
+    eventDispatcher,
+    eventParser
   }
 }

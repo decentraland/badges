@@ -1,11 +1,13 @@
+import { Event } from '@dcl/schemas'
 import { AppComponents, MessageConsumerComponent } from '../types'
 import { sleep } from '../utils/timer'
 
 export function createMessagesConsumerComponent({
   logs,
   queue,
-  messageProcessor
-}: Pick<AppComponents, 'logs' | 'queue' | 'messageProcessor'>): MessageConsumerComponent {
+  messageProcessor,
+  eventParser
+}: Pick<AppComponents, 'logs' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
   const intervalToWaitInSeconds = 5 // wait time when no messages are found in the queue
   let isRunning = false
@@ -29,10 +31,17 @@ export function createMessagesConsumerComponent({
 
       for (const message of messages) {
         const { Body, ReceiptHandle } = message
-        let parsedMessage = undefined
+        let parsedMessage: Event | undefined
 
         try {
-          parsedMessage = JSON.parse(JSON.parse(Body!).Message)
+          const message = JSON.parse(JSON.parse(Body!).Message)
+          parsedMessage = await eventParser.parse(message)
+
+          if (!parsedMessage) {
+            logger.warn('Message is not a valid event', { message })
+            await removeMessageFromQueue(ReceiptHandle!, 'unknown')
+            continue
+          }
         } catch (error: any) {
           logger.error('Failed while parsing message from queue', {
             messageHandle: ReceiptHandle!,
@@ -42,8 +51,18 @@ export function createMessagesConsumerComponent({
           continue
         }
 
-        await messageProcessor.process(parsedMessage, ReceiptHandle!)
-        await queue.deleteMessage(ReceiptHandle!)
+        try {
+          await messageProcessor.process(parsedMessage)
+          await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
+        } catch (error: any) {
+          logger.error('Failed while processing message from queue', {
+            messageHandle: ReceiptHandle!,
+            entityId: parsedMessage?.key || 'unknown',
+            error: error?.message || 'Unexpected failure'
+          })
+          // TODO: Add a retry mechanism OR DLQ
+          await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
+        }
       }
     }
   }
