@@ -10,7 +10,7 @@ import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
 import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
-import { Entity, Event } from '@dcl/schemas'
+import { Event } from '@dcl/schemas'
 
 export type GlobalContext = {
   components: BaseComponents

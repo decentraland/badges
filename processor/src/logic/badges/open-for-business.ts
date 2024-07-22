@@ -64,7 +64,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         userAddress: userAddress!,
         badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
       })
-      updatedUserProgress.awarded_at = Date.now()
+      updatedUserProgress.awarded_at = Date.now() / 1000
       result = (await db.getBadgeDefinitions()).find(
         (b) => b.id === BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
       )!
