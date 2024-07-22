@@ -5,35 +5,38 @@ import { Badge, BadgeId, UserBadge } from '@badges/common'
 export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
   const logger = logs.getLogger('open-for-business-badge')
 
-  async function handleCatalystDeployment(userProgress: UserBadge): Promise<UserBadge> {
-    if (!userProgress.progress.storeCompleted) {
-      userProgress.progress.storeCompleted = true
-    }
-
-    return userProgress
+  const badge: Badge = {
+    id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+    name: 'Open for Business',
+    description: 'Complete Store Information and submit at least 1 collection',
+    image: 'lorem impsum' // TODO
   }
 
-  async function handleCollectionCreatedEvent(userProgress: UserBadge): Promise<UserBadge> {
-    if (!userProgress.progress.collectionSubmitted) {
-      userProgress.progress.collectionSubmitted = true
-    }
-
-    return userProgress
+  const functionsPerEvent = {
+    [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
+      getUserAddress: () => event.entity.metadata.owner,
+      updateUserProgress: (userProgress: UserBadge) => ({
+        ...userProgress,
+        progress: { ...userProgress.progress, storeCompleted: true }
+      })
+    }),
+    [Events.Type.BLOCKCHAIN]: (event: any) => ({
+      getUserAddress: () => event.metadata.creator,
+      updateUserProgress: (userProgress: UserBadge) => ({
+        ...userProgress,
+        progress: {
+          ...userProgress.progress,
+          collectionSubmitted: true
+        }
+      })
+    })
   }
 
   async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<any> {
     logger.info('Analyzing criteria')
     let result: Badge | undefined
-    let eventHandler: (userProgress: UserBadge) => Promise<UserBadge>
-    let userAddress: EthAddress
-
-    if (event.type === Events.Type.CATALYST_DEPLOYMENT) {
-      eventHandler = handleCatalystDeployment
-      userAddress = (event as CatalystDeploymentEvent).entity.metadata.owner
-    } else if (event.type === Events.Type.BLOCKCHAIN) {
-      eventHandler = handleCollectionCreatedEvent
-      userAddress = (event as CollectionCreatedEvent).metadata.creator
-    }
+    const functions = functionsPerEvent[event.type](event)
+    const userAddress: EthAddress = functions.getUserAddress()
 
     const userProgress: UserBadge =
       (await db.getUserProgressFor(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, userAddress!)) ||
@@ -52,27 +55,20 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
       return []
     }
 
-    const updatedUserProgress = await eventHandler!(userProgress)
-    logger.debug(`User progress updated`, {
-      userAddress: userAddress!,
-      badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-      userProgress: JSON.stringify(updatedUserProgress, null, 2)
-    })
+    const updatedUserProgress = functions.updateUserProgress(userProgress)
 
     if (updatedUserProgress.progress.storeCompleted && updatedUserProgress.progress.collectionSubmitted) {
-      logger.info('Granting badge', {
-        userAddress: userAddress!,
-        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
-      })
-      updatedUserProgress.awarded_at = Date.now() / 1000
-      result = (await db.getBadgeDefinitions()).find(
-        (b) => b.id === BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
-      )!
+      updatedUserProgress.awarded_at = Date.now()
+      result = badge
     }
+
     await db.saveUserProgress(updatedUserProgress)
 
     return result
   }
 
-  return { check }
+  return {
+    check,
+    badge
+  }
 }

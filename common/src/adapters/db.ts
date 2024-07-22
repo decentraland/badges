@@ -40,10 +40,10 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
     const query: SQLStatement = SQL`
       INSERT INTO user_progress (badge_id, user_address, progress, awarded_at)
-      VALUES (${userBadge.badge_id}, ${userBadge.user_address}, ${userBadge.progress}, to_timestamp(${userBadge.awarded_at}))
+      VALUES (${userBadge.badge_id}, ${userBadge.user_address}, ${userBadge.progress}, ${userBadge.awarded_at})
       ON CONFLICT (badge_id, user_address) DO UPDATE
        SET progress = ${userBadge.progress},
-       awarded_at = to_timestamp(${userBadge.awarded_at})
+       awarded_at = ${userBadge.awarded_at}
     `
 
     await pg.query<UserBadge>(query)

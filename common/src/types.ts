@@ -2,7 +2,7 @@ export type Badge = {
   id: BadgeId
   name: string
   description: string
-  criteria: any
+  image: string
 }
 
 export type UserBadge = {

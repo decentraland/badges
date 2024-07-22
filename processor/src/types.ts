@@ -85,6 +85,7 @@ export type IEventDispatcher = {
 
 export type IObserver = {
   check(event: Event): Promise<any>
+  badge: Badge
 }
 
 export type IEventParser = {

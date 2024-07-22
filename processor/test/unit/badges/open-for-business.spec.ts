@@ -6,12 +6,6 @@ import { AppComponents } from "../../../src/types"
 
 describe('Open for Business badge handler should', () => {
     const testAddress = '0xTest'
-    const badgeDefinition: Badge = {
-        id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-        name: 'Test name',
-        description: 'Test description',
-        criteria: {}
-    }
     function getMockedComponents(): Pick<AppComponents, 'db' | 'logs'> {
         return {
             db: createDbMock(),
@@ -54,7 +48,6 @@ describe('Open for Business badge handler should', () => {
         }
 
         db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
-        db.getBadgeDefinitions = jest.fn().mockResolvedValue([badgeDefinition])
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
@@ -92,7 +85,6 @@ describe('Open for Business badge handler should', () => {
         }
 
         db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
-        db.getBadgeDefinitions = jest.fn().mockResolvedValue([badgeDefinition])
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
@@ -147,8 +139,6 @@ describe('Open for Business badge handler should', () => {
             }
         }
 
-        db.getBadgeDefinitions = jest.fn().mockResolvedValue([badgeDefinition])
-
         db.getUserProgressFor = jest.fn()
             .mockResolvedValueOnce(currentUserProgress)
             .mockResolvedValueOnce({ ...currentUserProgress, progress: {
@@ -181,6 +171,5 @@ describe('Open for Business badge handler should', () => {
                 collectionSubmitted: true
             }
         })
-        expect(result).toMatchObject(badgeDefinition)
     })
 })
