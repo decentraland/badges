@@ -13,5 +13,6 @@ export type UserBadge = {
 }
 
 export enum BadgeId {
-  COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION = 'completed-store-and-submitted-one-collection'
+  COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION = 'completed-store-and-submitted-one-collection',
+  REGALLY_RARE = 'regally-rare'
 }
