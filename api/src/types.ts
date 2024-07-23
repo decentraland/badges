@@ -21,11 +21,11 @@ export type BaseComponents = {
   logs: ILoggerComponent
   server: IHttpServerComponent<GlobalContext>
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
+  db: DbComponent
 }
 
 // components used in runtime
 export type AppComponents = BaseComponents & {
-  db: DbComponent
   pg: IPgComponent
   statusChecks: IBaseComponent
 }
