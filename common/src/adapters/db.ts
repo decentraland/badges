@@ -1,6 +1,7 @@
 import SQL, { SQLStatement } from 'sql-template-strings'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Badge, BadgeId, UserBadge } from 'types'
+import { EthAddress } from '@dcl/schemas'
 
 export type DbComponents = {
   pg: IPgComponent
@@ -13,7 +14,8 @@ export type UpsertResult<T> = {
 
 export type DbComponent = {
   getBadgeDefinitions(): Promise<Badge[]>
-  getUserProgressFor(id: BadgeId, userAddress: string): Promise<UserBadge>
+  getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge>
+  getUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
 }
 
@@ -27,7 +29,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     return result.rows
   }
 
-  async function getUserProgressFor(id: BadgeId, userAddress: string): Promise<UserBadge> {
+  async function getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge> {
     const query: SQLStatement = SQL`
       SELECT * FROM user_progress
       WHERE badge_id = ${id} AND user_address = ${userAddress}
@@ -35,6 +37,16 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
     const result = await pg.query<UserBadge>(query)
     return result.rows[0]
+  }
+
+  async function getUserBadges(userAddress: EthAddress): Promise<UserBadge[]> {
+    const query: SQLStatement = SQL`
+      SELECT badge_id, awarded_at FROM user_progress
+      WHERE user_address = ${userAddress} AND awarded_at IS NOT NULL
+    `
+
+    const result = await pg.query<UserBadge>(query)
+    return result.rows
   }
 
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
@@ -52,6 +64,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   return {
     getBadgeDefinitions,
     getUserProgressFor,
+    getUserBadges,
     saveUserProgress
   }
 }
