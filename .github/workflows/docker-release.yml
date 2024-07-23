@@ -1,0 +1,23 @@
+name: Publish 'latest' image
+
+on:
+  release:
+    types:
+      - "created"
+
+jobs:
+  badges-processor-deployment:
+    uses: decentraland/platform-actions/.github/workflows/apps-docker-release.yml@main
+    with:
+      service-name: badges-processor
+      image-name: badges
+      deployment-environment: prd
+    secrets: inherit
+
+  badges-inbox-deployment:
+    uses: decentraland/platform-actions/.github/workflows/apps-docker-release.yml@main
+    with:
+      service-name: badges-api
+      image-name: badges
+      deployment-environment: prd
+    secrets: inherit

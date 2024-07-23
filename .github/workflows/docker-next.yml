@@ -1,0 +1,23 @@
+name: CI/CD on main branch
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  badges-processor-deployment:
+    uses: decentraland/platform-actions/.github/workflows/apps-docker-next.yml@main
+    with:
+      service-name: badges-processor
+      image-name: badges
+      deployment-environment: dev
+    secrets: inherit
+
+  badges-inbox-deployment:
+    uses: decentraland/platform-actions/.github/workflows/apps-docker-next.yml@main
+    with:
+      service-name: badges-api
+      image-name: badges
+      deployment-environment: dev
+    secrets: inherit
