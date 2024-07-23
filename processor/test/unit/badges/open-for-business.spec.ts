@@ -33,13 +33,13 @@ describe('Open for Business badge handler should', () => {
             type: Events.Type.CATALYST_DEPLOYMENT,
             subType: Events.SubType.CatalystDeployment.STORE,
             key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
-            timestamp: 1630051200,
+            timestamp: 1708380838534,
             entity: {
                 version: 'v3',
                 id: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
                 type: EntityType.STORE,
                 pointers: ['0xTest:store'],
-                timestamp: 1630051200,
+                timestamp: 1708380838534,
                 content: [],
                 metadata: {
                     owner: testAddress,

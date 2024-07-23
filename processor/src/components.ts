@@ -16,6 +16,9 @@ import { createEventDispatcher } from './logic/event-dispatcher'
 import { Events } from '@dcl/schemas'
 import { createOpenForBusinessObserver } from './logic/badges/open-for-business'
 import { createEventParser } from './adapters/event-parser'
+import { createBadgeContext } from './adapters/badge-context'
+import { createRegallyRareObserver } from './logic/badges/regally-rare'
+import { createEpicEnsembleObserver } from './logic/badges/epic-ensemble'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -59,6 +62,8 @@ export async function initComponents(): Promise<AppComponents> {
   const sqsEndpoint = await config.getString('AWS_SQS_ENDPOINT')
   const queue = sqsEndpoint ? await createSqsAdapter(sqsEndpoint) : createMemoryQueueAdapter()
 
+  const badgeContext = await createBadgeContext({ fetch, config })
+
   const eventDispatcher = createEventDispatcher()
   eventDispatcher.registerObserver(
     [
@@ -72,6 +77,26 @@ export async function initComponents(): Promise<AppComponents> {
       }
     ],
     createOpenForBusinessObserver({ db, logs })
+  )
+
+  eventDispatcher.registerObserver(
+    [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.PROFILE
+      }
+    ],
+    createRegallyRareObserver({ db, logs, badgeContext })
+  )
+
+  eventDispatcher.registerObserver(
+    [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.PROFILE
+      }
+    ],
+    createEpicEnsembleObserver({ db, logs, badgeContext })
   )
 
   const eventParser = await createEventParser({ config, fetch })
@@ -97,6 +122,7 @@ export async function initComponents(): Promise<AppComponents> {
     messageProcessor,
     messageConsumer,
     eventDispatcher,
-    eventParser
+    eventParser,
+    badgeContext
   }
 }

@@ -32,7 +32,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     })
   }
 
-  async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<any> {
+  async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<Badge | undefined> {
     logger.info('Analyzing criteria')
     let result: Badge | undefined
     const functions = functionsPerEvent[event.type](event)
@@ -40,11 +40,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
 
     const userProgress: UserBadge =
       (await db.getUserProgressFor(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, userAddress!)) ||
-      ({
-        user_address: userAddress!,
-        badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-        progress: {}
-      } as UserBadge)
+      initProgressFor(userAddress)
 
     if (userProgress.awarded_at) {
       logger.info('User already has badge', {
@@ -52,19 +48,32 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
       })
 
-      return []
+      return undefined
     }
 
     const updatedUserProgress = functions.updateUserProgress(userProgress)
 
     if (updatedUserProgress.progress.storeCompleted && updatedUserProgress.progress.collectionSubmitted) {
       updatedUserProgress.awarded_at = Date.now()
+      logger.info('Granting badge', {
+        userAddress: userAddress!,
+        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+        progress: updatedUserProgress.progress
+      })
       result = badge
     }
 
     await db.saveUserProgress(updatedUserProgress)
 
     return result
+  }
+
+  function initProgressFor(userAddress: EthAddress): UserBadge {
+    return {
+      user_address: userAddress,
+      badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+      progress: {}
+    }
   }
 
   return {

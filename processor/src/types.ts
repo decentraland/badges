@@ -10,7 +10,7 @@ import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
 import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
-import { Event } from '@dcl/schemas'
+import { Entity, Event } from '@dcl/schemas'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -34,6 +34,7 @@ export type AppComponents = BaseComponents & {
   messageProcessor: MessageProcessorComponent
   eventDispatcher: IEventDispatcher
   eventParser: IEventParser
+  badgeContext: IBadgeContext
 }
 
 // components used in tests
@@ -90,6 +91,10 @@ export type IObserver = {
 
 export type IEventParser = {
   parse(event: any): Promise<Event | undefined>
+}
+
+export type IBadgeContext = {
+  getWearablesWithRarity(wearables: string[]): Promise<Entity[]>
 }
 
 export class ParsingEventError extends Error {
