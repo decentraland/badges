@@ -14,5 +14,10 @@ export type UserBadge = {
 
 export enum BadgeId {
   COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION = 'completed-store-and-submitted-one-collection',
-  REGALLY_RARE = 'regally-rare'
+  REGALLY_RARE = 'regally-rare',
+  EPIC_ENSEMBLE = 'epic-ensemble',
+  LEGENDARY_LOOK = 'legendary-look',
+  EXOTIC_ELEGANCE = 'exotic-elegance',
+  MYTHIC_MODEL = 'mythic-model',
+  UNIQUE_UNICORN = 'unique-unicorn'
 }
