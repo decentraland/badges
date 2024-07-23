@@ -32,7 +32,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   async function getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge> {
     const query: SQLStatement = SQL`
       SELECT * FROM user_progress
-      WHERE badge_id = ${id} AND user_address = ${userAddress}
+      WHERE badge_id = ${id} AND user_address = ${userAddress.toLocaleLowerCase()}
     `
 
     const result = await pg.query<UserBadge>(query)
@@ -42,7 +42,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   async function getUserBadges(userAddress: EthAddress): Promise<UserBadge[]> {
     const query: SQLStatement = SQL`
       SELECT badge_id, awarded_at FROM user_progress
-      WHERE user_address = ${userAddress} AND awarded_at IS NOT NULL
+      WHERE user_address = ${userAddress.toLocaleLowerCase()} AND awarded_at IS NOT NULL
     `
 
     const result = await pg.query<UserBadge>(query)
@@ -52,7 +52,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
     const query: SQLStatement = SQL`
       INSERT INTO user_progress (badge_id, user_address, progress, awarded_at)
-      VALUES (${userBadge.badge_id}, ${userBadge.user_address}, ${userBadge.progress}, ${userBadge.awarded_at})
+      VALUES (${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${userBadge.awarded_at})
       ON CONFLICT (badge_id, user_address) DO UPDATE
        SET progress = ${userBadge.progress},
        awarded_at = ${userBadge.awarded_at}
