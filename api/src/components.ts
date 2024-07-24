@@ -46,18 +46,7 @@ export async function initComponents(): Promise<AppComponents> {
     databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbDatabaseName}`
   }
 
-  const pg = await createPgComponent(
-    { logs, config, metrics },
-    {
-      migration: {
-        databaseUrl,
-        dir: path.resolve(__dirname, 'migrations'),
-        migrationsTable: 'pgmigrations',
-        ignorePattern: '.*\\.map',
-        direction: 'up'
-      }
-    }
-  )
+  const pg = await createPgComponent({ logs, config, metrics })
   const db = createDbComponent({ pg })
 
   return {

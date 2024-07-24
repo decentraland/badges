@@ -14,7 +14,7 @@ jobs:
       deployment-environment: dev
     secrets: inherit
 
-  badges-inbox-deployment:
+  badges-api-deployment:
     uses: decentraland/platform-actions/.github/workflows/apps-docker-next.yml@main
     with:
       service-name: badges-api

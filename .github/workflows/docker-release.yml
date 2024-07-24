@@ -14,7 +14,7 @@ jobs:
       deployment-environment: prd
     secrets: inherit
 
-  badges-inbox-deployment:
+  badges-api-deployment:
     uses: decentraland/platform-actions/.github/workflows/apps-docker-release.yml@main
     with:
       service-name: badges-api
