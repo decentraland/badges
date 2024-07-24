@@ -11,6 +11,7 @@ import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createDbComponent } from '@badges/common'
+import path from 'path'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -35,7 +36,28 @@ export async function initComponents(): Promise<AppComponents> {
   const metrics = await createMetricsComponent(metricDeclarations, { config })
   await instrumentHttpServerWithPromClientRegistry({ server, metrics, config, registry: metrics.registry! })
 
-  const pg = await createPgComponent({ logs, config, metrics })
+  let databaseUrl: string | undefined = await config.getString('PG_COMPONENT_PSQL_CONNECTION_STRING')
+  if (!databaseUrl) {
+    const dbUser = await config.requireString('PG_COMPONENT_PSQL_USER')
+    const dbDatabaseName = await config.requireString('PG_COMPONENT_PSQL_DATABASE')
+    const dbPort = await config.requireString('PG_COMPONENT_PSQL_PORT')
+    const dbHost = await config.requireString('PG_COMPONENT_PSQL_HOST')
+    const dbPassword = await config.requireString('PG_COMPONENT_PSQL_PASSWORD')
+    databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbDatabaseName}`
+  }
+
+  const pg = await createPgComponent(
+    { logs, config, metrics },
+    {
+      migration: {
+        databaseUrl,
+        dir: path.resolve(__dirname, 'migrations'),
+        migrationsTable: 'pgmigrations',
+        ignorePattern: '.*\\.map',
+        direction: 'up'
+      }
+    }
+  )
   const db = createDbComponent({ pg })
 
   return {
