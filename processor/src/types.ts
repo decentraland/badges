@@ -22,6 +22,7 @@ export type BaseComponents = {
   fetch: IFetchComponent
   logs: ILoggerComponent
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
+  server: IHttpServerComponent<GlobalContext>
 }
 
 // components used in runtime

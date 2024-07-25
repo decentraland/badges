@@ -8,7 +8,7 @@ type UserBadgesResponse = {
   data: UserBadgeWithoutProgress[]
 }
 
-export async function getUserBadges(
+export async function getUserBadgesHandler(
   context: Pick<HandlerContextWithPath<'db' | 'logs', '/badges/:address'>, 'url' | 'components' | 'params'>
 ): Promise<IHttpServerComponent.IResponse> {
   const { db } = context.components

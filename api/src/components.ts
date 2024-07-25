@@ -11,7 +11,6 @@ import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createDbComponent } from '@badges/common'
-import path from 'path'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {

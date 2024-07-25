@@ -6,7 +6,7 @@ import { createPgComponent } from '@well-known-components/pg-component'
 import { createMetricsComponent } from '@well-known-components/metrics'
 import { createDbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
-import { AppComponents } from './types'
+import { AppComponents, GlobalContext } from './types'
 import { createSqsAdapter } from './adapters/sqs'
 import { createMemoryQueueAdapter } from './adapters/memory-queue'
 import { createSnsComponent } from './adapters/sns'
@@ -19,6 +19,7 @@ import { createEventParser } from './adapters/event-parser'
 import { createBadgeContext } from './adapters/badge-context'
 import { createRegallyRareObserver } from './logic/badges/regally-rare'
 import { createEpicEnsembleObserver } from './logic/badges/epic-ensemble'
+import { createServerComponent } from '@well-known-components/http-server'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -28,6 +29,16 @@ export async function initComponents(): Promise<AppComponents> {
   const logger = logs.getLogger('components')
   const commitHash = (await config.getString('COMMIT_HASH')) || 'unknown'
   logger.info(`Initializing components. Version: ${commitHash}`)
+
+  const server = await createServerComponent<GlobalContext>(
+    { config, logs },
+    {
+      cors: {
+        methods: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'POST', 'PUT'],
+        maxAge: 86400
+      }
+    }
+  )
 
   const metrics = await createMetricsComponent(metricDeclarations, { config })
 
@@ -114,6 +125,7 @@ export async function initComponents(): Promise<AppComponents> {
     config,
     fetch,
     logs,
+    server,
     metrics,
     db,
     pg,
