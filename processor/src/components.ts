@@ -19,7 +19,11 @@ import { createEventParser } from './adapters/event-parser'
 import { createBadgeContext } from './adapters/badge-context'
 import { createRegallyRareObserver } from './logic/badges/regally-rare'
 import { createEpicEnsembleObserver } from './logic/badges/epic-ensemble'
-import { createServerComponent, instrumentHttpServerWithPromClientRegistry } from '@well-known-components/http-server'
+import {
+  createServerComponent,
+  createStatusCheckComponent,
+  instrumentHttpServerWithPromClientRegistry
+} from '@well-known-components/http-server'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -40,6 +44,7 @@ export async function initComponents(): Promise<AppComponents> {
     }
   )
 
+  const statusChecks = await createStatusCheckComponent({ server, config })
   const metrics = await createMetricsComponent(metricDeclarations, { config })
   await instrumentHttpServerWithPromClientRegistry({ server, metrics, config, registry: metrics.registry! })
 
@@ -128,6 +133,7 @@ export async function initComponents(): Promise<AppComponents> {
     logs,
     server,
     metrics,
+    statusChecks,
     db,
     pg,
     publisher,
