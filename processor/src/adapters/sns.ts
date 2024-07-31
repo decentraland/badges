@@ -6,7 +6,7 @@ export async function createSnsComponent({ config }: Pick<AppComponents, 'config
   const optionalEndpoint = await config.getString('AWS_SNS_ENDPOINT')
 
   const client = new SNSClient({
-    endpoint: optionalEndpoint
+    endpoint: optionalEndpoint ? optionalEndpoint : undefined
   })
 
   async function publishMessage(event: BadgeGrantedEvent): Promise<string | undefined> {
