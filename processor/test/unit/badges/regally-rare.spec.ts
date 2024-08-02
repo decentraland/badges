@@ -144,6 +144,68 @@ describe('Regally Rare badge handler should', () => {
     expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.REGALLY_RARE, testAddress)
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
+
+  it('do not grant badge when the user already has the badge granted', async () => {
+    const { db, logs, badgeContext } = await getMockedComponents()
+
+    const wearablesUrn = [
+        wearableBaseUrn + '1:1',
+        wearableBaseUrn + '2:1',
+        wearableBaseUrn + '3:1'
+    ]
+
+    const currentUserProgress: UserBadge = {
+      user_address: testAddress,
+      badge_id: BadgeId.REGALLY_RARE,
+      awarded_at: 1708380838534,
+      progress: {
+        completedWith: wearablesUrn
+      }
+    }
+
+    const event: CatalystDeploymentEvent = {
+      type: Events.Type.CATALYST_DEPLOYMENT,
+      subType: Events.SubType.CatalystDeployment.PROFILE,
+      key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
+      timestamp: 1708380838534,
+      entity: {
+        version: 'v3',
+        id: 'bafkreid7ohlfwnary6k73rp7x7xa5uum53p6qchmxlcf3nbvkw5inss5li',
+        type: EntityType.PROFILE,
+        pointers: [testAddress],
+        timestamp: 1708380838534,
+        content: [],
+        metadata: {
+          avatars: [
+            {
+              hasClaimedName: false,
+              description: 'A second description',
+              tutorialStep: 256,
+              name: 'PaleAleTest',
+              avatar: {
+                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+                wearables: wearablesUrn
+              },
+              ethAddress: testAddress,
+              version: 36,
+              userId: testAddress,
+              hasConnectedWeb3: true
+            }
+          ]
+        }
+      }
+    }
+
+    db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
+
+    const handler = createRegallyRareObserver({ db, logs, badgeContext })
+
+    await handler.check(event)
+
+    expect(badgeContext.getWearablesWithRarity).not.toHaveBeenCalled()
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.REGALLY_RARE, testAddress)
+  })
 })
 
 function getWearableWithRarity(pointer: string, rarity: string) {
