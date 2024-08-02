@@ -1,5 +1,5 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Rarity } from '@dcl/schemas'
-import { AppComponents } from '../../types'
+import { AppComponents, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
 
 const AMOUNT_OF_RARE_WEARABLES_REQUIRED = 3
@@ -7,7 +7,7 @@ export function createEpicEnsembleObserver({
   db,
   logs,
   badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>) {
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
   const logger = logs.getLogger('epic-ensemble-badge')
 
   const badge: Badge = {

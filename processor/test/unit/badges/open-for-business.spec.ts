@@ -172,4 +172,58 @@ describe('Open for Business badge handler should', () => {
             }
         })
     })
+
+    it('do not grant badge when the user already has the badge granted', async () => { 
+        const { db, logs } = getMockedComponents()
+
+        const currentUserProgress: UserBadge = {
+            user_address: testAddress,
+            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            awarded_at: 1708380838534,
+            progress: {
+                storeCompleted: true,
+                collectionSubmitted: true
+            }
+        }
+
+        const storeDeploymentEvent: CatalystDeploymentEvent = {
+            type: Events.Type.CATALYST_DEPLOYMENT,
+            subType: Events.SubType.CatalystDeployment.STORE,
+            key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
+            timestamp: 1630051200,
+            entity: {
+                version: 'v3',
+                id: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
+                type: EntityType.STORE,
+                pointers: ['0xTest:store'],
+                timestamp: 1630051200,
+                content: [],
+                metadata: {
+                    owner: testAddress,
+                }
+            }
+        }
+
+        const collectionCreatedEvent: CollectionCreatedEvent = {
+            type: Events.Type.BLOCKCHAIN,
+            subType: Events.SubType.Blockchain.COLLECTION_CREATED,
+            key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
+            timestamp: 1630051200,
+            metadata: {
+                creator: testAddress,
+                name: 'Test collection'
+            }
+        }
+
+        db.getUserProgressFor = jest.fn()
+            .mockResolvedValueOnce(currentUserProgress)
+
+        const handler = createOpenForBusinessObserver({ db, logs })
+
+        let result = await handler.check(storeDeploymentEvent)
+
+        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, testAddress)
+        expect(db.saveUserProgress).not.toHaveBeenCalled()
+        expect(result).toBeUndefined()
+    })
 })

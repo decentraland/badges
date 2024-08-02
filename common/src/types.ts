@@ -19,5 +19,6 @@ export enum BadgeId {
   LEGENDARY_LOOK = 'legendary-look',
   EXOTIC_ELEGANCE = 'exotic-elegance',
   MYTHIC_MODEL = 'mythic-model',
-  UNIQUE_UNICORN = 'unique-unicorn'
+  UNIQUE_UNICORN = 'unique-unicorn',
+  DECENTRALAND_CITIZEN = 'decentraland-citizen'
 }
