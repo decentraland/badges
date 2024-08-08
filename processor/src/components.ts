@@ -24,6 +24,7 @@ import {
   createStatusCheckComponent,
   instrumentHttpServerWithPromClientRegistry
 } from '@well-known-components/http-server'
+import { createDecentralandCitizenObserver } from './logic/badges/decentraland-citizen'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -114,6 +115,16 @@ export async function initComponents(): Promise<AppComponents> {
       }
     ],
     createEpicEnsembleObserver({ db, logs, badgeContext })
+  )
+
+  eventDispatcher.registerObserver(
+    [
+      {
+        type: Events.Type.CLIENT,
+        subType: Events.SubType.Client.MOVE_TO_PARCEL
+      }
+    ],
+    createDecentralandCitizenObserver({ db, logs })
   )
 
   const eventParser = await createEventParser({ config, fetch })
