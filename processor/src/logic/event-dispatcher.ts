@@ -19,7 +19,7 @@ export function createEventDispatcher(): IEventDispatcher {
     if (list) {
       const checkings = list.map((observer) => observer.check(event))
       const badgesToGrant = await Promise.all(checkings)
-      return badgesToGrant
+      return badgesToGrant.flat()
     }
 
     return

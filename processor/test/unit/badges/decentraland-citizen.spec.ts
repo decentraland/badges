@@ -24,16 +24,17 @@ describe('Decentraland Citizen badge handler should', () => {
             key: 'aKey',
             timestamp: 1708380838534,
             metadata: {
-                authChain: {
+                authChain: [{
                     payload: 'auth-chain-payload',
                     type: AuthLinkType.SIGNER
-                },
+                }],
                 parcel: {
                     isEmptyParcel: false,
                     newParcel: '0,1',
                     oldParcel: '0,0',
                     sceneHash: 'aSceneHash'
                 },
+                sessionId: 'testsessionid',
                 timestamp: 1708380838504,
                 userAddress: testAddress,
                 realm: 'main'
@@ -50,12 +51,12 @@ describe('Decentraland Citizen badge handler should', () => {
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
             badge_id: BadgeId.DECENTRALAND_CITIZEN,
-            awarded_at: expect.any(Number),
+            completed_at: expect.any(Number),
             progress: {
                 visited: '0,1'
             }
         })
-        expect(result).toBe(handler.badge)
+        expect(result).toContain(handler.badge)
     })
 
     it('do not grant badge when the user already has the badge granted', async () => {
@@ -67,16 +68,17 @@ describe('Decentraland Citizen badge handler should', () => {
             key: 'aKey',
             timestamp: 1708380838534,
             metadata: {
-                authChain: {
+                authChain: [{
                     payload: 'auth-chain-payload',
                     type: AuthLinkType.SIGNER
-                },
+                }],
                 parcel: {
                     isEmptyParcel: false,
                     newParcel: '0,1',
                     oldParcel: '0,0',
                     sceneHash: 'aSceneHash'
                 },
+                sessionId: 'testSessionId',
                 timestamp: 1708380838504,
                 userAddress: testAddress,
                 realm: 'main'
@@ -86,7 +88,7 @@ describe('Decentraland Citizen badge handler should', () => {
         db.getUserProgressFor = jest.fn().mockResolvedValue({
             user_address: testAddress,
             badge_id: BadgeId.DECENTRALAND_CITIZEN,
-            awarded_at: 1708380838534,
+            completed_at: 1708380838534,
             progress: {
                 visited: '0,1'
             }

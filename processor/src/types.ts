@@ -11,6 +11,7 @@ import { Message } from '@aws-sdk/client-sqs'
 import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
+import { CachedEvent, CachedEventId } from './adapters/memory-cache'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -37,6 +38,7 @@ export type AppComponents = BaseComponents & {
   eventDispatcher: IEventDispatcher
   eventParser: IEventParser
   badgeContext: IBadgeContext
+  memoryStorage: EventMemoryStorage
 }
 
 // components used in tests
@@ -95,8 +97,14 @@ export type IEventParser = {
   parse(event: any): Promise<Event | undefined>
 }
 
+export type EventMemoryStorage = {
+  set(key: CachedEventId, events: CachedEvent[]): void
+  get(key: CachedEventId): CachedEvent[]
+}
+
 export type IBadgeContext = {
   getWearablesWithRarity(wearables: string[]): Promise<Entity[]>
+  getEntityById(id: string): Promise<Entity>
 }
 
 export class ParsingEventError extends Error {

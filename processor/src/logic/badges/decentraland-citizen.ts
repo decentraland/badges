@@ -7,13 +7,13 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
 
   const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
 
-  async function check(event: MoveToParcelEvent): Promise<Badge | undefined> {
+  async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
     const userAddress = event.metadata.userAddress
 
     const userProgress: UserBadge =
       (await db.getUserProgressFor(BadgeId.DECENTRALAND_CITIZEN, userAddress)) || initProgressFor(userAddress)
 
-    if (userProgress.awarded_at) {
+    if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress,
         badgeId: BadgeId.DECENTRALAND_CITIZEN
@@ -22,18 +22,18 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
       return undefined
     }
 
-    userProgress.awarded_at = Date.now()
+    userProgress.completed_at = Date.now()
     userProgress.progress = {
       visited: event.metadata.parcel.newParcel
     }
     logger.info('Granting badge', {
-      userrAddress: userAddress,
+      userAddress: userAddress,
       badgeId: BadgeId.DECENTRALAND_CITIZEN,
       progress: userProgress.progress
     })
 
     await db.saveUserProgress(userProgress)
-    return badge
+    return [badge]
   }
 
   function initProgressFor(userAddress: EthAddress): UserBadge {
