@@ -426,6 +426,105 @@ describe('Traveler badge handler should', () => {
     )
     expect(result).toBeUndefined()
   })
+
+  it('do not grant tier badge when a user spends less than a minute in a scene and then two more events arrived after a minute', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+
+    const event: MoveToParcelEvent = {
+      type: Events.Type.CLIENT,
+      subType: Events.SubType.Client.MOVE_TO_PARCEL,
+      key: 'aKey',
+      timestamp: 1708380838534,
+      metadata: {
+        authChain: [
+          {
+            payload: 'auth-chain-payload',
+            type: AuthLinkType.SIGNER
+          }
+        ],
+        parcel: {
+          isEmptyParcel: false,
+          newParcel: '0,1',
+          oldParcel: undefined,
+          sceneHash: 'aSceneHash'
+        },
+        sessionId: 'testsessionid',
+        timestamp: 1708380838504,
+        userAddress: testAddress,
+        realm: 'main'
+      }
+    }
+
+    memoryStorage.get = jest.fn().mockReturnValue([
+      {
+        type: event.type,
+        subType: event.subType,
+        timestamp: event.timestamp - 2 * 60 * 1000, // 2 minutes before
+        userAddress: event.metadata.userAddress,
+        sessionId: event.metadata.sessionId,
+        metadata: {
+          sceneTitle: 'scene-A',
+          acknowledged: false
+        }
+      },
+      {
+        type: event.type,
+        subType: event.subType,
+        timestamp: event.timestamp  - 1.5 * 60 * 1000, // a minute and a half before
+        userAddress: event.metadata.userAddress,
+        sessionId: event.metadata.sessionId,
+        metadata: {
+          sceneTitle: 'scene-B',
+          acknowledged: false
+        }
+      }
+    ])
+    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: 'scene-C'
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+
+    const result = await handler.check(event)
+
+    expect(memoryStorage.set).toHaveBeenCalledWith(
+      {
+        eventSubType: event.subType,
+        userAddress: event.metadata.userAddress,
+        sessionId: event.metadata.sessionId
+      },
+      [
+        {
+            type: event.type,
+            subType: event.subType,
+            timestamp: event.timestamp,
+            userAddress: event.metadata.userAddress,
+            sessionId: event.metadata.sessionId,
+            metadata: {
+              sceneTitle: 'scene-A',
+              acknowledged: false
+            }
+        },
+        {
+          type: event.type,
+          subType: event.subType,
+          timestamp: event.timestamp,
+          userAddress: event.metadata.userAddress,
+          sessionId: event.metadata.sessionId,
+          metadata: {
+            sceneTitle: 'scene-C',
+            acknowledged: false
+          }
+        }
+      ]
+    )
+    expect(result).toContain(handler.badge)
+  })
 })
 
 function createRandomSceneTitles(amount: number): string[] {
