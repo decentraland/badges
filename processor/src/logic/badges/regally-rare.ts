@@ -1,6 +1,6 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Rarity } from '@dcl/schemas'
 import { AppComponents, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
 const AMOUNT_OF_RARE_WEARABLES_REQUIRED = 3
 export function createRegallyRareObserver({
@@ -10,12 +10,7 @@ export function createRegallyRareObserver({
 }: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
   const logger = logs.getLogger('regally-rare-badge')
 
-  const badge: Badge = {
-    id: BadgeId.REGALLY_RARE,
-    name: 'Regally Rare',
-    description: 'Equip at least 3 wearables of rarity “rare” at the same time',
-    image: 'lorem impsum' // TODO
-  }
+  const badge: Badge = badges.get(BadgeId.REGALLY_RARE)!
 
   async function check(event: CatalystDeploymentEvent): Promise<Badge | undefined> {
     logger.info('Analyzing criteria')
