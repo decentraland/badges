@@ -1,16 +1,11 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
 import { AppComponents, IObserver } from '../../types'
 import { EthAddress, MoveToParcelEvent } from '@dcl/schemas'
 
 export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
   const logger = logs.getLogger('decentraland-citizen-badge')
 
-  const badge: Badge = {
-    id: BadgeId.DECENTRALAND_CITIZEN,
-    name: 'Decentraland Citizen',
-    description: 'Landed in Decentraland',
-    image: 'lorem impsum' // TODO
-  }
+  const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
 
   async function check(event: MoveToParcelEvent): Promise<Badge | undefined> {
     const userAddress = event.metadata.userAddress

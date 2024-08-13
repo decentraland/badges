@@ -1,6 +1,6 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Rarity } from '@dcl/schemas'
 import { AppComponents, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
 const AMOUNT_OF_RARE_WEARABLES_REQUIRED = 3
 export function createEpicEnsembleObserver({
@@ -10,12 +10,7 @@ export function createEpicEnsembleObserver({
 }: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
   const logger = logs.getLogger('epic-ensemble-badge')
 
-  const badge: Badge = {
-    id: BadgeId.EPIC_ENSEMBLE,
-    name: 'Epic Ensemble',
-    description: 'Equip at least 3 wearables of rarity "epic” at the same time',
-    image: 'lorem impsum' // TODO
-  }
+  const badge: Badge = badges.get(BadgeId.EPIC_ENSEMBLE)!
 
   async function check(event: CatalystDeploymentEvent): Promise<Badge | undefined> {
     logger.info('Analyzing criteria')

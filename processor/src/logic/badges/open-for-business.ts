@@ -1,16 +1,11 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
 import { AppComponents, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
 export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
   const logger = logs.getLogger('open-for-business-badge')
 
-  const badge: Badge = {
-    id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-    name: 'Open for Business',
-    description: 'Complete Store Information and submit at least 1 collection',
-    image: 'lorem impsum' // TODO
-  }
+  const badge: Badge = badges.get(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION)!
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
