@@ -48,7 +48,6 @@ export function createTravelerObserver({
       return undefined
     }
 
-    // const sceneWasAlreadyVisitedBy = (sceneTitle: string) => (user: UserBadge): boolean => {
     const cacheKeyRelatedToEvent = `${userAddress}-${event.metadata.sessionId}-${event.subType}`
     const movementEvents: { sceneTitle: string; on: number }[] = [
       ...(memoryStorage.get(cacheKeyRelatedToEvent) || []),
@@ -62,7 +61,7 @@ export function createTravelerObserver({
     if (isFirstMovement(movementEvents) || userAlreadyVisitedScene(sceneTitle, userProgress)) {
       return undefined
     } else {
-      // calculate how much time the user spent on sceneTitle
+      // calculate how long the user spent on sceneTitle
       const aggregatedTimeSpentOnUnvisitedScenes = movementEvents.reduce(
         (acc: { [key: string]: number }, movementEvent: any, index: number) => {
           if (userAlreadyVisitedScene(movementEvent.sceneTitle, userProgress)) {
