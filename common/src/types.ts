@@ -16,7 +16,7 @@ export type Badge = {
   name: string
   description: string
   image?: string
-  tier?: BadgeTier
+  tiers?: BadgeTier[]
 }
 
 export type UserBadge = {

@@ -3,11 +3,217 @@ import { createDbMock } from '../../mocks/db-mock'
 import { AppComponents } from '../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../src/logic/badges/traveler'
-import { BadgeId } from '@badges/common'
+import { Badge, BadgeId } from '@badges/common'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
+  const testSessionId = 'testsessionid'
+  const testSceneTitles = {
+    SCENE_TITLE_A: 'scene-title-a',
+    SCENE_TITLE_B: 'scene-title-b',
+    SCENE_TITLE_C: 'scene-title-c'
+  }
+  const timestamps = {
+    now: () => Date.now(),
+    oneMinuteBefore: (from: number) => from - 60 * 1000,
+    twoMinutesBefore: (from: number) => from - 2 * 60 * 1000,
+    tenSecondsBefore: (from: number) => from - 10 * 1000,
+    thirtySecondsBefore: (from: number) => from - 30 * 1000,
+    thirtySecondsInFuture: (from: number) => from + 30 * 1000
+  }
 
+  it('save arriving event in the cache when it is the first move of the user on this session', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const event: MoveToParcelEvent = createMovementEvent()
+    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+
+    memoryStorage.get = jest.fn().mockReturnValue(undefined)
+    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: testSceneTitles.SCENE_TITLE_A
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const result = await handler.check(event)
+
+    expect(result).toBeUndefined()
+    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
+    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+  })
+
+  it('save arriving event in the cache when the scenes was already visited by the user in the past', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const event: MoveToParcelEvent = createMovementEvent()
+    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+
+    memoryStorage.get = jest.fn().mockReturnValue(undefined)
+    db.getUserProgressFor = jest.fn().mockResolvedValue({
+      user_address: testAddress,
+      badge_id: BadgeId.TRAVELER,
+      progress: {
+        global: {
+          scenesVisited: 1,
+          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
+        }
+      }
+    })
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: testSceneTitles.SCENE_TITLE_A
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const result = await handler.check(event)
+
+    expect(result).toBeUndefined()
+    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
+    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+  })
+
+  it('mark scene as visited and grant first tier of badge if the user spent more than a minute on it', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const event: MoveToParcelEvent = createMovementEvent()
+    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+
+    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    memoryStorage.get = jest.fn().mockReturnValue([{
+      sceneTitle: testSceneTitles.SCENE_TITLE_A,
+      on: timestamps.twoMinutesBefore(event.timestamp)
+    }])
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: testSceneTitles.SCENE_TITLE_A
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const result = await handler.check(event)
+
+    expect(result).toContainEqual(mapBadgeToHaveTierNth(0, handler.badge))
+    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
+    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).toHaveBeenCalledWith({
+      user_address: testAddress,
+      badge_id: BadgeId.TRAVELER,
+      progress: {
+        global: {
+          scenesVisited: 1,
+          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
+        },
+        achievedBadgesIds: [1]
+      }
+    })
+  })
+
+  it('mark scene as visited and grant first tier of badge if the user spent more than (or exactly) a minute on it in 2 different visits', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const event: MoveToParcelEvent = createMovementEvent({
+      sessionId: testSessionId,
+      timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
+    })
+    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+
+    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    memoryStorage.get = jest.fn().mockReturnValue([{
+      sceneTitle: testSceneTitles.SCENE_TITLE_A,
+      on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
+    }, {
+      sceneTitle: testSceneTitles.SCENE_TITLE_B,
+      on: timestamps.tenSecondsBefore(event.timestamp)
+    }])
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: testSceneTitles.SCENE_TITLE_A
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const result = await handler.check(event)
+
+    expect(result).toContainEqual(mapBadgeToHaveTierNth(0, handler.badge))
+    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
+    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).toHaveBeenCalledWith({
+      user_address: testAddress,
+      badge_id: BadgeId.TRAVELER,
+      progress: {
+        global: {
+          scenesVisited: 1,
+          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
+        },
+        achievedBadgesIds: [1]
+      }
+    })
+  })
+
+  it('mark scene as visited and grant second tier of badge if the user spent more than (or exactly) a minute on a scene for the 50th time', async () => {
+    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const event: MoveToParcelEvent = createMovementEvent({
+      sessionId: testSessionId,
+      timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
+    })
+    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+
+    const visitedSceneTitles = createRandomSceneTitles(49)
+    db.getUserProgressFor = jest.fn().mockResolvedValue({
+      user_address: testAddress,
+      badge_id: BadgeId.TRAVELER,
+      progress: {
+        global: {
+          scenesVisited: 49,
+          scenesTitlesVisited: visitedSceneTitles
+        },
+        achievedBadgesIds: [1]
+      }
+    })
+    memoryStorage.get = jest.fn().mockReturnValue([{
+      sceneTitle: testSceneTitles.SCENE_TITLE_A,
+      on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
+    }, {
+      sceneTitle: testSceneTitles.SCENE_TITLE_B,
+      on: timestamps.tenSecondsBefore(event.timestamp)
+    }])
+    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+      metadata: {
+        display: {
+          title: testSceneTitles.SCENE_TITLE_A
+        }
+      }
+    })
+
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const result = await handler.check(event)
+
+    expect(result).toContainEqual(mapBadgeToHaveTierNth(1, handler.badge))
+    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
+    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).toHaveBeenCalledWith({
+      user_address: testAddress,
+      badge_id: BadgeId.TRAVELER,
+      progress: {
+        global: {
+          scenesVisited: 50,
+          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles]
+        },
+        achievedBadgesIds: [1, 2]
+      }
+    })
+  })
+
+  // Helpers
   async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'memoryStorage'>> {
     return {
       db: createDbMock(),
@@ -23,14 +229,12 @@ describe('Traveler badge handler should', () => {
     }
   }
 
-  it('save arriving event in the cache when a user moves to a parcel for the first time', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
+  function createMovementEvent(options: { sessionId: string; timestamp: number } = { sessionId: testSessionId, timestamp: Date.now() }): MoveToParcelEvent {
+    return {
       type: Events.Type.CLIENT,
       subType: Events.SubType.Client.MOVE_TO_PARCEL,
       key: 'aKey',
-      timestamp: 1708380838534,
+      timestamp: options.timestamp,
       metadata: {
         authChain: [
           {
@@ -44,489 +248,22 @@ describe('Traveler badge handler should', () => {
           oldParcel: undefined,
           sceneHash: 'aSceneHash'
         },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
+        sessionId: options.sessionId,
+        timestamp: options.timestamp,
         userAddress: testAddress,
         realm: 'main'
       }
     }
+  }
 
-    memoryStorage.get = jest.fn().mockReturnValue([])
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'aSceneTitle'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'aSceneTitle',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result).toBeUndefined()
-  })
-
-  it('only save arriving event in the cache when a user moves to a parcel for second time within a minute', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
-      type: Events.Type.CLIENT,
-      subType: Events.SubType.Client.MOVE_TO_PARCEL,
-      key: 'aKey',
-      timestamp: 1708380838534,
-      metadata: {
-        authChain: [
-          {
-            payload: 'auth-chain-payload',
-            type: AuthLinkType.SIGNER
-          }
-        ],
-        parcel: {
-          isEmptyParcel: false,
-          newParcel: '0,1',
-          oldParcel: undefined,
-          sceneHash: 'aSceneHash'
-        },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
-        userAddress: testAddress,
-        realm: 'main'
-      }
+  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
+    return {
+      ...badge, 
+      tiers: [badge.tiers[index]]
     }
+  }
 
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp - 50,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'anotherSceneTitle',
-          acknowledged: false
-        }
-      }
-    ])
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'aSceneTitle'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp - 50,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'anotherSceneTitle',
-            acknowledged: false
-          }
-        },
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'aSceneTitle',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result).toBeUndefined()
-  })
-
-  it('grant first tier badge when a user moves to a parcel for the second time exceeding a minute', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
-      type: Events.Type.CLIENT,
-      subType: Events.SubType.Client.MOVE_TO_PARCEL,
-      key: 'aKey',
-      timestamp: 1708380838534,
-      metadata: {
-        authChain: [
-          {
-            payload: 'auth-chain-payload',
-            type: AuthLinkType.SIGNER
-          }
-        ],
-        parcel: {
-          isEmptyParcel: false,
-          newParcel: '0,1',
-          oldParcel: undefined,
-          sceneHash: 'aSceneHash'
-        },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
-        userAddress: testAddress,
-        realm: 'main'
-      }
-    }
-
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp - 2 * 60 * 1000, // 2 minutes before
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'anotherSceneTitle',
-          acknowledged: false
-        }
-      }
-    ])
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'aSceneTitle'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'aSceneTitle',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result[0]).toMatchObject({...handler.badge, tier: { tierId: 1 }})
-  })
-
-  it('grant second tier badge when a user moves to a parcel for the second time exceeding a minute but already has visited 49 scenes before', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
-      type: Events.Type.CLIENT,
-      subType: Events.SubType.Client.MOVE_TO_PARCEL,
-      key: 'aKey',
-      timestamp: 1708380838534,
-      metadata: {
-        authChain: [
-          {
-            payload: 'auth-chain-payload',
-            type: AuthLinkType.SIGNER
-          }
-        ],
-        parcel: {
-          isEmptyParcel: false,
-          newParcel: '0,1',
-          oldParcel: undefined,
-          sceneHash: 'aSceneHash'
-        },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
-        userAddress: testAddress,
-        realm: 'main'
-      }
-    }
-
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp  - 2 * 60 * 1000, // 2 minutes before
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'anotherSceneTitle',
-          acknowledged: false
-        }
-      }
-    ])
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
-        user_address: testAddress,
-        badge_id: BadgeId.TRAVELER,
-        progress: {
-          global: {
-            scenesVisited: 49,
-            scenesTitlesVisited: createRandomSceneTitles(49)
-          },
-          achievedBadgesIds: [1]
-        }
-      })
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'aSceneTitle'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'aSceneTitle',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result[0]).toMatchObject({...handler.badge, tier: { tierId: 2 }})
-  })
-
-  it('do not grant second tier badge when a user moves to a parcel for the second time exceeding a minute but the visiting scene is repeated', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
-      type: Events.Type.CLIENT,
-      subType: Events.SubType.Client.MOVE_TO_PARCEL,
-      key: 'aKey',
-      timestamp: 1708380838534,
-      metadata: {
-        authChain: [
-          {
-            payload: 'auth-chain-payload',
-            type: AuthLinkType.SIGNER
-          }
-        ],
-        parcel: {
-          isEmptyParcel: false,
-          newParcel: '0,1',
-          oldParcel: undefined,
-          sceneHash: 'aSceneHash'
-        },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
-        userAddress: testAddress,
-        realm: 'main'
-      }
-    }
-
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp  - 2 * 60 * 1000, // 2 minutes before
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'scene-1',
-          acknowledged: false
-        }
-      }
-    ])
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
-        user_address: testAddress,
-        badge_id: BadgeId.TRAVELER,
-        progress: {
-          global: {
-            scenesVisited: 49,
-            scenesTitlesVisited: createRandomSceneTitles(49)
-          },
-          achievedBadgesIds: [1]
-        }
-      })
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'aSceneTitle'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'aSceneTitle',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result).toBeUndefined()
-  })
-
-  it('do not grant tier badge when a user spends less than a minute in a scene and then two more events arrived after a minute', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
-
-    const event: MoveToParcelEvent = {
-      type: Events.Type.CLIENT,
-      subType: Events.SubType.Client.MOVE_TO_PARCEL,
-      key: 'aKey',
-      timestamp: 1708380838534,
-      metadata: {
-        authChain: [
-          {
-            payload: 'auth-chain-payload',
-            type: AuthLinkType.SIGNER
-          }
-        ],
-        parcel: {
-          isEmptyParcel: false,
-          newParcel: '0,1',
-          oldParcel: undefined,
-          sceneHash: 'aSceneHash'
-        },
-        sessionId: 'testsessionid',
-        timestamp: 1708380838504,
-        userAddress: testAddress,
-        realm: 'main'
-      }
-    }
-
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp - 2 * 60 * 1000, // 2 minutes before
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'scene-A',
-          acknowledged: false
-        }
-      },
-      {
-        type: event.type,
-        subType: event.subType,
-        timestamp: event.timestamp  - 1.5 * 60 * 1000, // a minute and a half before
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId,
-        metadata: {
-          sceneTitle: 'scene-B',
-          acknowledged: false
-        }
-      }
-    ])
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
-      metadata: {
-        display: {
-          title: 'scene-C'
-        }
-      }
-    })
-
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-
-    const result = await handler.check(event)
-
-    expect(memoryStorage.set).toHaveBeenCalledWith(
-      {
-        eventSubType: event.subType,
-        userAddress: event.metadata.userAddress,
-        sessionId: event.metadata.sessionId
-      },
-      [
-        {
-            type: event.type,
-            subType: event.subType,
-            timestamp: event.timestamp,
-            userAddress: event.metadata.userAddress,
-            sessionId: event.metadata.sessionId,
-            metadata: {
-              sceneTitle: 'scene-A',
-              acknowledged: false
-            }
-        },
-        {
-          type: event.type,
-          subType: event.subType,
-          timestamp: event.timestamp,
-          userAddress: event.metadata.userAddress,
-          sessionId: event.metadata.sessionId,
-          metadata: {
-            sceneTitle: 'scene-C',
-            acknowledged: false
-          }
-        }
-      ]
-    )
-    expect(result).toContain(handler.badge)
-  })
-})
-
-function createRandomSceneTitles(amount: number): string[] {
+  function createRandomSceneTitles(amount: number): string[] {
     return Array.from({ length: amount }, (_, i) => `scene-${i}`)
-}
+  }
+})

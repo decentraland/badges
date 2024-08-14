@@ -11,7 +11,6 @@ import { Message } from '@aws-sdk/client-sqs'
 import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
-import { CachedEvent, CachedEventId } from './adapters/memory-cache'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -98,8 +97,8 @@ export type IEventParser = {
 }
 
 export type EventMemoryStorage = {
-  set(key: CachedEventId, events: CachedEvent[]): void
-  get(key: CachedEventId): CachedEvent[]
+  set(key: string, value: any): void
+  get(key: string): any
 }
 
 export type IBadgeContext = {
