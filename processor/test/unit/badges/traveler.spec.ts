@@ -85,10 +85,12 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    memoryStorage.get = jest.fn().mockReturnValue([{
-      sceneTitle: testSceneTitles.SCENE_TITLE_A,
-      on: timestamps.twoMinutesBefore(event.timestamp)
-    }])
+    memoryStorage.get = jest.fn().mockReturnValue([
+      {
+        sceneTitle: testSceneTitles.SCENE_TITLE_A,
+        on: timestamps.twoMinutesBefore(event.timestamp)
+      }
+    ])
     badgeContext.getEntityById = jest.fn().mockResolvedValue({
       metadata: {
         display: {
@@ -111,7 +113,12 @@ describe('Traveler badge handler should', () => {
           scenesVisited: 1,
           scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
         },
-        achievedBadgesIds: [1]
+        achievedTiers: [
+          {
+            completed_at: expect.any(Number),
+            tierId: 1
+          }
+        ]
       }
     })
   })
@@ -125,13 +132,16 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    memoryStorage.get = jest.fn().mockReturnValue([{
-      sceneTitle: testSceneTitles.SCENE_TITLE_A,
-      on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
-    }, {
-      sceneTitle: testSceneTitles.SCENE_TITLE_B,
-      on: timestamps.tenSecondsBefore(event.timestamp)
-    }])
+    memoryStorage.get = jest.fn().mockReturnValue([
+      {
+        sceneTitle: testSceneTitles.SCENE_TITLE_A,
+        on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
+      },
+      {
+        sceneTitle: testSceneTitles.SCENE_TITLE_B,
+        on: timestamps.tenSecondsBefore(event.timestamp)
+      }
+    ])
     badgeContext.getEntityById = jest.fn().mockResolvedValue({
       metadata: {
         display: {
@@ -154,7 +164,12 @@ describe('Traveler badge handler should', () => {
           scenesVisited: 1,
           scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
         },
-        achievedBadgesIds: [1]
+        achievedTiers: [
+          {
+            completed_at: expect.any(Number),
+            tierId: 1
+          }
+        ]
       }
     })
   })
@@ -176,16 +191,24 @@ describe('Traveler badge handler should', () => {
           scenesVisited: 49,
           scenesTitlesVisited: visitedSceneTitles
         },
-        achievedBadgesIds: [1]
+        achievedTiers: [
+          {
+            completed_at: timestamps.twoMinutesBefore(timestamps.now()),
+            tierId: 1
+          }
+        ]
       }
     })
-    memoryStorage.get = jest.fn().mockReturnValue([{
-      sceneTitle: testSceneTitles.SCENE_TITLE_A,
-      on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
-    }, {
-      sceneTitle: testSceneTitles.SCENE_TITLE_B,
-      on: timestamps.tenSecondsBefore(event.timestamp)
-    }])
+    memoryStorage.get = jest.fn().mockReturnValue([
+      {
+        sceneTitle: testSceneTitles.SCENE_TITLE_A,
+        on: timestamps.tenSecondsBefore(timestamps.oneMinuteBefore(event.timestamp))
+      },
+      {
+        sceneTitle: testSceneTitles.SCENE_TITLE_B,
+        on: timestamps.tenSecondsBefore(event.timestamp)
+      }
+    ])
     badgeContext.getEntityById = jest.fn().mockResolvedValue({
       metadata: {
         display: {
@@ -208,7 +231,16 @@ describe('Traveler badge handler should', () => {
           scenesVisited: 50,
           scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles]
         },
-        achievedBadgesIds: [1, 2]
+        achievedTiers: [
+          {
+            completed_at: expect.any(Number),
+            tierId: 1
+          },
+          {
+            completed_at: expect.any(Number),
+            tierId: 2
+          }
+        ]
       }
     })
   })
@@ -229,7 +261,9 @@ describe('Traveler badge handler should', () => {
     }
   }
 
-  function createMovementEvent(options: { sessionId: string; timestamp: number } = { sessionId: testSessionId, timestamp: Date.now() }): MoveToParcelEvent {
+  function createMovementEvent(
+    options: { sessionId: string; timestamp: number } = { sessionId: testSessionId, timestamp: Date.now() }
+  ): MoveToParcelEvent {
     return {
       type: Events.Type.CLIENT,
       subType: Events.SubType.Client.MOVE_TO_PARCEL,
@@ -258,7 +292,7 @@ describe('Traveler badge handler should', () => {
 
   function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
     return {
-      ...badge, 
+      ...badge,
       tiers: [badge.tiers[index]]
     }
   }

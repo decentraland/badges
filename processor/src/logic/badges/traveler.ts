@@ -108,14 +108,18 @@ export function createTravelerObserver({
       const newAchievedBadges = tieredBadges.filter(
         (badge) =>
           badge.criteria.scenesVisited <= userProgress.progress.global.scenesVisited &&
-          !userProgress.progress.achievedBadgesIds.includes(badge.tierId)
+          !userProgress.progress.achievedTiers.find(
+            (achievedTier: { tierId: number; completed_at: number }) => achievedTier.tierId === badge.tierId
+          )
       )
 
       if (newAchievedBadges.length) {
-        userProgress.progress.achievedBadgesIds.push(...newAchievedBadges.map((badge) => badge.tierId))
+        userProgress.progress.achievedTiers.push(
+          ...newAchievedBadges.map((badge) => ({ tierId: badge.tierId, completed_at: Date.now() }))
+        )
       }
 
-      if (userProgress.progress.achievedBadgesIds.length === tieredBadges.length) {
+      if (userProgress.progress.achievedTiers.length === tieredBadges.length) {
         userProgress.completed_at = Date.now()
       }
 
@@ -141,7 +145,7 @@ export function createTravelerObserver({
           scenesVisited: 0,
           scenesTitlesVisited: []
         },
-        achievedBadgesIds: []
+        achievedTiers: []
       }
     }
   }
