@@ -37,6 +37,7 @@ export type AppComponents = BaseComponents & {
   eventDispatcher: IEventDispatcher
   eventParser: IEventParser
   badgeContext: IBadgeContext
+  memoryStorage: EventMemoryStorage
 }
 
 // components used in tests
@@ -95,8 +96,14 @@ export type IEventParser = {
   parse(event: any): Promise<Event | undefined>
 }
 
+export type EventMemoryStorage = {
+  set(key: string, value: any): void
+  get(key: string): any
+}
+
 export type IBadgeContext = {
   getWearablesWithRarity(wearables: string[]): Promise<Entity[]>
+  getEntityById(id: string): Promise<Entity>
 }
 
 export class ParsingEventError extends Error {

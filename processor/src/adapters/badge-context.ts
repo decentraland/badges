@@ -1,9 +1,12 @@
 import { Entity } from '@dcl/schemas'
 import { createContentClient } from 'dcl-catalyst-client'
-import { AppComponents } from '../types'
+import { AppComponents, IBadgeContext } from '../types'
 import { getTokenIdAndAssetUrn, isExtendedUrn, parseUrn } from '@dcl/urn-resolver'
 
-export async function createBadgeContext({ fetch, config }: Pick<AppComponents, 'fetch' | 'config'>) {
+export async function createBadgeContext({
+  fetch,
+  config
+}: Pick<AppComponents, 'fetch' | 'config'>): Promise<IBadgeContext> {
   const loadBalancer = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
 
   const contentClient = createContentClient({
@@ -27,5 +30,11 @@ export async function createBadgeContext({ fetch, config }: Pick<AppComponents, 
     return fetchedWearables
   }
 
-  return { getWearablesWithRarity }
+  async function getEntityById(id: string): Promise<Entity> {
+    const fetchedEntity: Entity = await contentClient.fetchEntityById(id)
+
+    return fetchedEntity
+  }
+
+  return { getWearablesWithRarity, getEntityById }
 }

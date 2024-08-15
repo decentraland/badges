@@ -13,7 +13,8 @@ describe('Regally Rare badge handler should', () => {
     return {
       db: createDbMock(),
       badgeContext: {
-        getWearablesWithRarity: jest.fn()
+        getWearablesWithRarity: jest.fn(),
+        getEntityById: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any })
     }
@@ -82,7 +83,8 @@ describe('Regally Rare badge handler should', () => {
         completedWith: wearablesUrn
       }
     })
-    expect(result).toBe(handler.badge)
+
+    expect(result).toContain(handler.badge)
   })
 
   it('do not grant badge when a Profile deployment contains less than three rare wearables', async () => {
@@ -157,7 +159,7 @@ describe('Regally Rare badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.REGALLY_RARE,
-      awarded_at: 1708380838534,
+      completed_at: 1708380838534,
       progress: {
         completedWith: wearablesUrn
       }

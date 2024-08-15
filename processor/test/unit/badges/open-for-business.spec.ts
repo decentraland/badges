@@ -165,7 +165,7 @@ describe('Open for Business badge handler should', () => {
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            awarded_at: expect.any(Number),
+            completed_at: expect.any(Number),
             progress: {
                 storeCompleted: true,
                 collectionSubmitted: true
@@ -179,7 +179,7 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            awarded_at: 1708380838534,
+            completed_at: 1708380838534,
             progress: {
                 storeCompleted: true,
                 collectionSubmitted: true

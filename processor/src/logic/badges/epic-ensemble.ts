@@ -12,15 +12,15 @@ export function createEpicEnsembleObserver({
 
   const badge: Badge = badges.get(BadgeId.EPIC_ENSEMBLE)!
 
-  async function check(event: CatalystDeploymentEvent): Promise<Badge | undefined> {
+  async function check(event: CatalystDeploymentEvent): Promise<Badge[] | undefined> {
     logger.info('Analyzing criteria')
-    let result: Badge | undefined
+    let result: Badge[] | undefined
     const userAddress = event.entity.pointers[0]
 
     const userProgress: UserBadge =
       (await db.getUserProgressFor(BadgeId.EPIC_ENSEMBLE, userAddress!)) || initProgressFor(userAddress)
 
-    if (userProgress.awarded_at) {
+    if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
         badgeId: BadgeId.EPIC_ENSEMBLE
@@ -35,7 +35,7 @@ export function createEpicEnsembleObserver({
     const rareWearablesEquipped = wearablesWithRarity.filter((wearable) => wearable.metadata?.rarity === Rarity.EPIC)
 
     if (rareWearablesEquipped.length >= AMOUNT_OF_RARE_WEARABLES_REQUIRED) {
-      userProgress.awarded_at = Date.now()
+      userProgress.completed_at = Date.now()
       userProgress.progress = { completedWith: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
       logger.info('Granting badge', {
         userAddress: userAddress!,
@@ -43,7 +43,7 @@ export function createEpicEnsembleObserver({
         progress: userProgress.progress
       })
       await db.saveUserProgress(userProgress)
-      result = badge
+      result = [badge]
     }
 
     return result

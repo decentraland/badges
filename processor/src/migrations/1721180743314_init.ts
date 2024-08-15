@@ -6,7 +6,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     user_address: { type: 'varchar(255)', notNull: true },
     badge_id: { type: 'varchar(255)', notNull: true },
     progress: { type: 'json', notNull: true },
-    awarded_at: { type: 'bigint', notNull: false }
+    completed_at: { type: 'bigint', notNull: false }
   })
 
   pgm.addConstraint('user_progress', 'pk_user_progress', {

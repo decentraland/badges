@@ -25,6 +25,7 @@ import {
   instrumentHttpServerWithPromClientRegistry
 } from '@well-known-components/http-server'
 import { createDecentralandCitizenObserver } from './logic/badges/decentraland-citizen'
+import { createEventMemoryStorage } from './adapters/memory-cache'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -80,6 +81,7 @@ export async function initComponents(): Promise<AppComponents> {
   const sqsEndpoint = await config.getString('AWS_SQS_ENDPOINT')
   const queue = sqsEndpoint ? await createSqsAdapter(sqsEndpoint) : createMemoryQueueAdapter()
 
+  const memoryStorage = createEventMemoryStorage()
   const badgeContext = await createBadgeContext({ fetch, config })
 
   const eventDispatcher = createEventDispatcher()
@@ -153,6 +155,7 @@ export async function initComponents(): Promise<AppComponents> {
     messageConsumer,
     eventDispatcher,
     eventParser,
-    badgeContext
+    badgeContext,
+    memoryStorage
   }
 }
