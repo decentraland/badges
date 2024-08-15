@@ -29,7 +29,7 @@ describe('Traveler badge handler should', () => {
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
     db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
@@ -56,13 +56,17 @@ describe('Traveler badge handler should', () => {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 1,
-          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
-        }
+        steps: 1,
+        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
+        achievedTiers: [
+          {
+            completed_at: timestamps.twoMinutesBefore(event.timestamp),
+            tierId: 'traveler-starter'
+          }
+        ]
       }
     })
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
@@ -91,7 +95,7 @@ describe('Traveler badge handler should', () => {
         on: timestamps.twoMinutesBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
@@ -109,14 +113,12 @@ describe('Traveler badge handler should', () => {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 1,
-          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
-        },
+        steps: 1,
+        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
         achievedTiers: [
           {
             completed_at: expect.any(Number),
-            tierId: 1
+            tierId: 'traveler-starter'
           }
         ]
       }
@@ -142,7 +144,7 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
@@ -160,14 +162,12 @@ describe('Traveler badge handler should', () => {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 1,
-          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A]
-        },
+        steps: 1,
+        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
         achievedTiers: [
           {
             completed_at: expect.any(Number),
-            tierId: 1
+            tierId: 'traveler-starter'
           }
         ]
       }
@@ -187,14 +187,12 @@ describe('Traveler badge handler should', () => {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 49,
-          scenesTitlesVisited: visitedSceneTitles
-        },
+        steps: 49,
+        scenesTitlesVisited: visitedSceneTitles,
         achievedTiers: [
           {
             completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-            tierId: 1
+            tierId: 'traveler-starter'
           }
         ]
       }
@@ -209,7 +207,7 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityById = jest.fn().mockResolvedValue({
+    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
@@ -227,18 +225,16 @@ describe('Traveler badge handler should', () => {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 50,
-          scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles]
-        },
+        steps: 50,
+        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles],
         achievedTiers: [
           {
             completed_at: expect.any(Number),
-            tierId: 1
+            tierId: 'traveler-starter'
           },
           {
             completed_at: expect.any(Number),
-            tierId: 2
+            tierId: 'traveler-bronze'
           }
         ]
       }
@@ -251,7 +247,8 @@ describe('Traveler badge handler should', () => {
       db: createDbMock(),
       badgeContext: {
         getWearablesWithRarity: jest.fn(),
-        getEntityById: jest.fn()
+        getEntityById: jest.fn(),
+        getEntityByPointer: jest.fn()
       },
       memoryStorage: {
         get: jest.fn(),

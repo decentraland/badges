@@ -58,6 +58,7 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
+                steps: 1,
                 storeCompleted: true
             }
         })
@@ -95,6 +96,7 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
+                steps: 1,
                 collectionSubmitted: true
             }
         })
@@ -142,6 +144,7 @@ describe('Open for Business badge handler should', () => {
         db.getUserProgressFor = jest.fn()
             .mockResolvedValueOnce(currentUserProgress)
             .mockResolvedValueOnce({ ...currentUserProgress, progress: {
+                steps: 1,
                 storeCompleted: true
             }})
 
@@ -153,6 +156,7 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
+                steps: 1,
                 storeCompleted: true
             }
         })
@@ -167,6 +171,7 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             completed_at: expect.any(Number),
             progress: {
+                steps: 2,
                 storeCompleted: true,
                 collectionSubmitted: true
             }
@@ -181,6 +186,7 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             completed_at: 1708380838534,
             progress: {
+                steps: 2,
                 storeCompleted: true,
                 collectionSubmitted: true
             }

@@ -14,7 +14,8 @@ describe('Regally Rare badge handler should', () => {
       db: createDbMock(),
       badgeContext: {
         getWearablesWithRarity: jest.fn(),
-        getEntityById: jest.fn()
+        getEntityById: jest.fn(),
+        getEntityByPointer: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any })
     }

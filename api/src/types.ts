@@ -7,7 +7,7 @@ import type {
   IMetricsComponent
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { DbComponent } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, DbComponent, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
 
 export type GlobalContext = {
@@ -22,6 +22,7 @@ export type BaseComponents = {
   server: IHttpServerComponent<GlobalContext>
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
   db: DbComponent
+  badgeService: IBadgeService
 }
 
 // components used in runtime
@@ -46,3 +47,37 @@ export type HandlerContextWithPath<
   }>,
   Path
 >
+
+export type IBadgeService = {
+  getBadge(id: BadgeId): Badge
+  getAllBadges(): Badge[]
+  getUserStates(address: string): Promise<UserBadge[]>
+  calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses
+}
+
+type TierProgress = {
+  tierId: number
+  name: string
+  description: string
+  criteria: { steps: number }
+  completedAt?: Date | null
+}
+
+type BadgeProgress = {
+  id: number
+  name: string
+  description: string
+  category: string
+  isTier: boolean
+  completedAt?: Date | null
+  progress: {
+    stepsDone: number
+    stepsTarget: number | null
+  }
+  tiers: TierProgress[]
+}
+
+export type BadgesProgresses = {
+  achieved: BadgeProgress[]
+  notAchieved: BadgeProgress[]
+}

@@ -26,6 +26,7 @@ import {
 } from '@well-known-components/http-server'
 import { createDecentralandCitizenObserver } from './logic/badges/decentraland-citizen'
 import { createEventMemoryStorage } from './adapters/memory-cache'
+import { createTravelerObserver } from './logic/badges/traveler'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -127,6 +128,16 @@ export async function initComponents(): Promise<AppComponents> {
       }
     ],
     createDecentralandCitizenObserver({ db, logs })
+  )
+
+  eventDispatcher.registerObserver(
+    [
+      {
+        type: Events.Type.CLIENT,
+        subType: Events.SubType.Client.MOVE_TO_PARCEL
+      }
+    ],
+    createTravelerObserver({ db, logs, badgeContext, memoryStorage })
   )
 
   const eventParser = await createEventParser({ config, fetch })

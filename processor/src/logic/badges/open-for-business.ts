@@ -12,7 +12,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
       getUserAddress: () => event.entity.metadata.owner,
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
-        progress: { ...userProgress.progress, storeCompleted: true }
+        progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, storeCompleted: true }
       })
     }),
     [Events.Type.BLOCKCHAIN]: (event: any) => ({
@@ -21,6 +21,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         ...userProgress,
         progress: {
           ...userProgress.progress,
+          steps: (userProgress.progress.steps || 0) + 1,
           collectionSubmitted: true
         }
       })

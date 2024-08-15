@@ -15,7 +15,7 @@ export type UpsertResult<T> = {
 export type DbComponent = {
   getBadgeDefinitions(): Promise<Badge[]>
   getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge>
-  getUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
+  getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
 }
 
@@ -39,10 +39,10 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     return result.rows[0]
   }
 
-  async function getUserBadges(userAddress: EthAddress): Promise<UserBadge[]> {
+  async function getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]> {
     const query: SQLStatement = SQL`
-      SELECT badge_id, completed_at FROM user_progress
-      WHERE user_address = ${userAddress.toLocaleLowerCase()} AND completed_at IS NOT NULL
+      SELECT badge_id, progress, completed_at FROM user_progress
+      WHERE user_address = ${userAddress.toLocaleLowerCase()}
     `
 
     const result = await pg.query<UserBadge>(query)
@@ -64,7 +64,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   return {
     getBadgeDefinitions,
     getUserProgressFor,
-    getUserBadges,
+    getAllUserProgresses,
     saveUserProgress
   }
 }
