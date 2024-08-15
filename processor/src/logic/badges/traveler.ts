@@ -60,79 +60,79 @@ export function createTravelerObserver({
     memoryStorage.set(cacheKeyRelatedToEvent, movementEvents)
     if (isFirstMovement(movementEvents) || userAlreadyVisitedScene(sceneTitle, userProgress)) {
       return undefined
-    } else {
-      // calculate how long the user spent on sceneTitle
-      const aggregatedTimeSpentOnUnvisitedScenes = movementEvents.reduce(
-        (acc: { [key: string]: number }, movementEvent: any, index: number) => {
-          if (userAlreadyVisitedScene(movementEvent.sceneTitle, userProgress)) {
-            return acc
-          }
-
-          const timeSpent =
-            index === movementEvents.length - 1 ? undefined : movementEvents[index + 1].on - movementEvent.on
-
-          if (timeSpent === undefined) {
-            return acc
-          }
-
-          if (!acc[movementEvent.sceneTitle]) {
-            acc[movementEvent.sceneTitle] = 0
-          }
-          acc[movementEvent.sceneTitle] += timeSpent
-
-          return acc
-        },
-        {}
-      )
-
-      // find sceneTitles where the user spent more than one minute
-      const sceneTitlesWhereUserSpentMoreThanOneMinute = Object.entries(aggregatedTimeSpentOnUnvisitedScenes)
-        .filter(([_sceneTitle, timeSpent]) => (timeSpent as number) >= 60 * 1000)
-        .map(([sceneTitle]) => sceneTitle)
-
-      const seenSceneTitles = new Set([
-        ...sceneTitlesWhereUserSpentMoreThanOneMinute,
-        ...userProgress.progress.global.scenesTitlesVisited
-      ])
-
-      userProgress.progress = {
-        ...userProgress.progress,
-        global: {
-          scenesVisited: seenSceneTitles.size,
-          scenesTitlesVisited: Array.from(seenSceneTitles)
-        }
-      }
-
-      // find all badges that the user has achieved
-      const newAchievedBadges = tieredBadges.filter(
-        (badge) =>
-          badge.criteria.scenesVisited <= userProgress.progress.global.scenesVisited &&
-          !userProgress.progress.achievedTiers.find(
-            (achievedTier: { tierId: number; completed_at: number }) => achievedTier.tierId === badge.tierId
-          )
-      )
-
-      if (newAchievedBadges.length) {
-        userProgress.progress.achievedTiers.push(
-          ...newAchievedBadges.map((badge) => ({ tierId: badge.tierId, completed_at: Date.now() }))
-        )
-      }
-
-      if (userProgress.progress.achievedTiers.length === tieredBadges.length) {
-        userProgress.completed_at = Date.now()
-      }
-
-      await db.saveUserProgress(userProgress)
-
-      return newAchievedBadges.length
-        ? [
-            {
-              ...badge,
-              tiers: newAchievedBadges
-            }
-          ]
-        : undefined
     }
+
+    // calculate how long the user spent on sceneTitle
+    const aggregatedTimeSpentOnUnvisitedScenes = movementEvents.reduce(
+      (acc: { [key: string]: number }, movementEvent: any, index: number) => {
+        if (userAlreadyVisitedScene(movementEvent.sceneTitle, userProgress)) {
+          return acc
+        }
+
+        const timeSpent =
+          index === movementEvents.length - 1 ? undefined : movementEvents[index + 1].on - movementEvent.on
+
+        if (timeSpent === undefined) {
+          return acc
+        }
+
+        if (!acc[movementEvent.sceneTitle]) {
+          acc[movementEvent.sceneTitle] = 0
+        }
+        acc[movementEvent.sceneTitle] += timeSpent
+
+        return acc
+      },
+      {}
+    )
+
+    // find sceneTitles where the user spent more than (or at least) one minute
+    const sceneTitlesWhereUserSpentMoreThanOneMinute = Object.entries(aggregatedTimeSpentOnUnvisitedScenes)
+      .filter(([_sceneTitle, timeSpent]) => (timeSpent as number) >= 60 * 1000)
+      .map(([sceneTitle]) => sceneTitle)
+
+    const seenSceneTitles = new Set([
+      ...sceneTitlesWhereUserSpentMoreThanOneMinute,
+      ...userProgress.progress.global.scenesTitlesVisited
+    ])
+
+    userProgress.progress = {
+      ...userProgress.progress,
+      global: {
+        scenesVisited: seenSceneTitles.size,
+        scenesTitlesVisited: Array.from(seenSceneTitles)
+      }
+    }
+
+    // find all tiers that the user has achieved on this movement
+    const newAchievedBadges = tieredBadges.filter(
+      (badge) =>
+        badge.criteria.scenesVisited <= userProgress.progress.global.scenesVisited &&
+        !userProgress.progress.achievedTiers.find(
+          (achievedTier: { tierId: number; completed_at: number }) => achievedTier.tierId === badge.tierId
+        )
+    )
+
+    if (newAchievedBadges.length) {
+      userProgress.progress.achievedTiers.push(
+        ...newAchievedBadges.map((badge) => ({ tierId: badge.tierId, completed_at: Date.now() }))
+      )
+    }
+
+    if (userProgress.progress.achievedTiers.length === tieredBadges.length) {
+      userProgress.completed_at = Date.now()
+    }
+
+    await db.saveUserProgress(userProgress)
+
+    return newAchievedBadges.length
+      ? [
+          {
+            ...badge,
+            tiers: newAchievedBadges
+          }
+        ]
+      : undefined
   }
 
   function initProgressFor(userAddress: EthAddress): UserBadge {
