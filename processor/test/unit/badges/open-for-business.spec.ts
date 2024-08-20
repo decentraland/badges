@@ -26,7 +26,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const event: CatalystDeploymentEvent = {
@@ -59,8 +60,9 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
                 steps: 1,
-                storeCompleted: true
-            }
+                store_completed: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
     })
@@ -71,7 +73,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const event: CollectionCreatedEvent = {
@@ -97,8 +100,9 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
                 steps: 1,
-                collectionSubmitted: true
-            }
+                collection_submitted: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
     })
@@ -109,7 +113,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const storeDeploymentEvent: CatalystDeploymentEvent = {
@@ -145,7 +150,7 @@ describe('Open for Business badge handler should', () => {
             .mockResolvedValueOnce(currentUserProgress)
             .mockResolvedValueOnce({ ...currentUserProgress, progress: {
                 steps: 1,
-                storeCompleted: true
+                store_completed: true
             }})
 
         const handler = createOpenForBusinessObserver({ db, logs })
@@ -157,8 +162,9 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
                 steps: 1,
-                storeCompleted: true
-            }
+                store_completed: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
 
@@ -172,9 +178,10 @@ describe('Open for Business badge handler should', () => {
             completed_at: expect.any(Number),
             progress: {
                 steps: 2,
-                storeCompleted: true,
-                collectionSubmitted: true
-            }
+                store_completed: true,
+                collection_submitted: true
+            },
+            updated_at: expect.any(Number)
         })
     })
 
@@ -187,9 +194,10 @@ describe('Open for Business badge handler should', () => {
             completed_at: 1708380838534,
             progress: {
                 steps: 2,
-                storeCompleted: true,
-                collectionSubmitted: true
-            }
+                store_completed: true,
+                collection_submitted: true
+            },
+            updated_at: 1708380838534
         }
 
         const storeDeploymentEvent: CatalystDeploymentEvent = {

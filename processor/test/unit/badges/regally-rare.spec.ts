@@ -33,7 +33,8 @@ describe('Regally Rare badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.REGALLY_RARE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -81,7 +82,7 @@ describe('Regally Rare badge handler should', () => {
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       ...currentUserProgress,
       progress: {
-        completedWith: wearablesUrn
+        completed_with: wearablesUrn
       }
     })
 
@@ -100,7 +101,8 @@ describe('Regally Rare badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.REGALLY_RARE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -162,8 +164,9 @@ describe('Regally Rare badge handler should', () => {
       badge_id: BadgeId.REGALLY_RARE,
       completed_at: 1708380838534,
       progress: {
-        completedWith: wearablesUrn
-      }
+        completed_with: wearablesUrn
+      },
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {

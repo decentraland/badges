@@ -12,7 +12,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
       getUserAddress: () => event.entity.metadata.owner,
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
-        progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, storeCompleted: true }
+        progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, store_completed: true }
       })
     }),
     [Events.Type.BLOCKCHAIN]: (event: any) => ({
@@ -22,7 +22,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         progress: {
           ...userProgress.progress,
           steps: (userProgress.progress.steps || 0) + 1,
-          collectionSubmitted: true
+          collection_submitted: true
         }
       })
     })
@@ -49,7 +49,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
 
     const updatedUserProgress = functions.updateUserProgress(userProgress)
 
-    if (updatedUserProgress.progress.storeCompleted && updatedUserProgress.progress.collectionSubmitted) {
+    if (updatedUserProgress.progress.store_completed && updatedUserProgress.progress.collection_submitted) {
       updatedUserProgress.completed_at = Date.now()
       logger.info('Granting badge', {
         userAddress: userAddress!,
@@ -64,7 +64,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     return result
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
       badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,

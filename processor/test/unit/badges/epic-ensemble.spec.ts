@@ -33,7 +33,8 @@ describe('Epic Ensemble badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.EPIC_ENSEMBLE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -81,7 +82,7 @@ describe('Epic Ensemble badge handler should', () => {
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       ...currentUserProgress,
       progress: {
-        completedWith: wearablesUrn
+        completed_with: wearablesUrn
       }
     })
     expect(result).toContain(handler.badge)
@@ -99,7 +100,8 @@ describe('Epic Ensemble badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.EPIC_ENSEMBLE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -162,8 +164,9 @@ describe('Epic Ensemble badge handler should', () => {
       badge_id: BadgeId.EPIC_ENSEMBLE,
       completed_at: 1708380838534,
       progress: {
-        completedWith: wearablesUrn
-      }
+        completed_with: wearablesUrn
+      },
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {

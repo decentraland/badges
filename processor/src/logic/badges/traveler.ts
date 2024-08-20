@@ -18,7 +18,7 @@ export function createTravelerObserver({
   }
 
   function userAlreadyVisitedScene(sceneTitle: string, userProgress: UserBadge): boolean {
-    return userProgress.progress.scenesTitlesVisited.includes(sceneTitle)
+    return userProgress.progress.scenes_titles_visited.includes(sceneTitle)
   }
 
   async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
@@ -94,12 +94,12 @@ export function createTravelerObserver({
 
     const seenSceneTitles = new Set([
       ...sceneTitlesWhereUserSpentMoreThanOneMinute,
-      ...userProgress.progress.scenesTitlesVisited
+      ...userProgress.progress.scenes_titles_visited
     ])
 
     userProgress.progress = {
       ...userProgress.progress,
-      scenesTitlesVisited: Array.from(seenSceneTitles),
+      scenes_titles_visited: Array.from(seenSceneTitles),
       steps: seenSceneTitles.size
     }
 
@@ -107,21 +107,21 @@ export function createTravelerObserver({
     const newAchievedBadges = tieredBadges.filter(
       (badge) =>
         badge.criteria.steps <= userProgress.progress.steps &&
-        !userProgress.progress.achievedTiers.find(
-          (achievedTier: { tierId: string; completed_at: number }) => achievedTier.tierId === badge.tierId
+        !userProgress.achieved_tiers!.find(
+          (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === badge.tierId
         )
     )
 
     if (newAchievedBadges.length) {
-      userProgress.progress.achievedTiers.push(
+      userProgress.achieved_tiers!.push(
         ...newAchievedBadges.map((newAchievedBadge) => ({
-          tierId: newAchievedBadge.tierId,
+          tier_id: newAchievedBadge.tierId,
           completed_at: Date.now()
         }))
       )
     }
 
-    if (userProgress.progress.achievedTiers.length === tieredBadges.length) {
+    if (userProgress.achieved_tiers!.length === tieredBadges.length) {
       userProgress.completed_at = Date.now()
     }
 
@@ -137,15 +137,15 @@ export function createTravelerObserver({
       : undefined
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 0,
-        scenesTitlesVisited: [],
-        achievedTiers: []
-      }
+        scenes_titles_visited: []
+      },
+      achieved_tiers: []
     }
   }
 

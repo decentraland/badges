@@ -36,7 +36,7 @@ export function createRegallyRareObserver({
 
     if (rareWearablesEquipped.length >= AMOUNT_OF_RARE_WEARABLES_REQUIRED) {
       userProgress.completed_at = Date.now()
-      userProgress.progress = { completedWith: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
+      userProgress.progress = { completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
       logger.info('Granting badge', {
         userAddress: userAddress!,
         badgeId: BadgeId.REGALLY_RARE,
@@ -49,7 +49,7 @@ export function createRegallyRareObserver({
     return result
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
       badge_id: BadgeId.REGALLY_RARE,

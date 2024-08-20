@@ -17,7 +17,14 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getAllUserProgresses(address)
   }
 
-  function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses {
+  function calculateUserProgress(
+    allBadges: Badge[],
+    userProgresses: UserBadge[],
+    options: { includeNotAchievedBadges: boolean; unlockedBadgesLimit: number | undefined } = {
+      includeNotAchievedBadges: false,
+      unlockedBadgesLimit: undefined
+    }
+  ): BadgesProgresses {
     const badgesProgresses: BadgesProgresses = allBadges.reduce(
       (accumulator, badge) => {
         const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id)
@@ -25,7 +32,9 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
         const isTierBadge = badge.tiers && badge.tiers.length > 0
         if (
           badgeProgress &&
-          (badgeProgress.completed_at || (isTierBadge && badgeProgress.progress.achievedTiers.length > 0))
+          (badgeProgress.completed_at || (isTierBadge && badgeProgress.achieved_tiers!.length > 0)) &&
+          !!options.unlockedBadgesLimit &&
+          accumulator.achieved.length < options.unlockedBadgesLimit
         ) {
           const nextTierCriteria = isTierBadge ? calculateNextTierCriteriaTarget(badge, badgeProgress) : undefined
 
@@ -45,8 +54,8 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             },
             tiers: isTierBadge
               ? badge.tiers?.map((tier) => {
-                  const achievedTier = badgeProgress.progress.achievedTiers.find(
-                    (achievedTier: any) => achievedTier.tierId === tier.tierId
+                  const achievedTier = badgeProgress.achieved_tiers!.find(
+                    (achievedTier) => achievedTier.tier_id === tier.tierId
                   )
                   return {
                     tierId: tier.tierId,
@@ -58,7 +67,7 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
                 })
               : []
           })
-        } else {
+        } else if (options.includeNotAchievedBadges) {
           accumulator.notAchieved.push({
             id: badge.id,
             name: badge.name,
@@ -83,12 +92,12 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
   }
 
   function calculateNextTierCriteriaTarget(badge: Badge, userProgress: UserBadge): BadgeTier | undefined {
-    const lastAccomplishedTarget = userProgress.progress.achievedTiers.length
-      ? userProgress.progress.achievedTiers[userProgress.progress.achievedTiers.length - 1]
+    const lastAccomplishedTarget = userProgress.achieved_tiers!.length
+      ? userProgress.achieved_tiers![userProgress.achieved_tiers!.length - 1]
       : undefined
 
     const nextTierToAccomplish = lastAccomplishedTarget
-      ? badge.tiers![badge.tiers!.findIndex((tier) => tier.tierId === lastAccomplishedTarget.tierId) + 1]
+      ? badge.tiers![badge.tiers!.findIndex((tier) => tier.tierId === lastAccomplishedTarget.tier_id) + 1]
       : badge.tiers![0]
 
     return nextTierToAccomplish

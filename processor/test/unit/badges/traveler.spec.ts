@@ -57,14 +57,14 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
-        achievedTiers: [
-          {
-            completed_at: timestamps.twoMinutesBefore(event.timestamp),
-            tierId: 'traveler-starter'
-          }
-        ]
-      }
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+      },
+      achieved_tiers: [
+        {
+          completed_at: timestamps.twoMinutesBefore(event.timestamp),
+          tier_id: 'traveler-starter'
+        }
+      ]
     })
     badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
@@ -114,14 +114,14 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
-        achievedTiers: [
-          {
-            completed_at: expect.any(Number),
-            tierId: 'traveler-starter'
-          }
-        ]
-      }
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+      },
+      achieved_tiers: [
+        {
+          completed_at: expect.any(Number),
+          tier_id: 'traveler-starter'
+        }
+      ]
     })
   })
 
@@ -163,14 +163,14 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A],
-        achievedTiers: [
-          {
-            completed_at: expect.any(Number),
-            tierId: 'traveler-starter'
-          }
-        ]
-      }
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+      },
+      achieved_tiers: [
+        {
+          completed_at: expect.any(Number),
+          tier_id: 'traveler-starter'
+        }
+      ]
     })
   })
 
@@ -188,14 +188,14 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 49,
-        scenesTitlesVisited: visitedSceneTitles,
-        achievedTiers: [
-          {
-            completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-            tierId: 'traveler-starter'
-          }
-        ]
-      }
+        scenes_titles_visited: visitedSceneTitles,
+      },
+      achieved_tiers: [
+        {
+          completed_at: timestamps.twoMinutesBefore(timestamps.now()),
+          tier_id: 'traveler-starter'
+        }
+      ]
     })
     memoryStorage.get = jest.fn().mockReturnValue([
       {
@@ -226,18 +226,18 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 50,
-        scenesTitlesVisited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles],
-        achievedTiers: [
-          {
-            completed_at: expect.any(Number),
-            tierId: 'traveler-starter'
-          },
-          {
-            completed_at: expect.any(Number),
-            tierId: 'traveler-bronze'
-          }
-        ]
-      }
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles],
+      },
+      achieved_tiers: [
+        {
+          completed_at: expect.any(Number),
+          tier_id: 'traveler-starter'
+        },
+        {
+          completed_at: expect.any(Number),
+          tier_id: 'traveler-bronze'
+        }
+      ]
     })
   })
 
