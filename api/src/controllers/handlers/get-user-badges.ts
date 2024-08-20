@@ -13,18 +13,11 @@ export async function getUserBadgesHandler(
   const logger = logs.getLogger('get-user-badges-progress')
 
   const address = context.params.address
-  const shouldIncludeLocked: boolean = context.url.searchParams.get('includeLocked') === 'true'
-  const unlockedLimit: number | undefined = context.url.searchParams.has('unlockedLimit')
-    ? parseInt(context.url.searchParams.get('unlockedLimit') || '0', 10)
-    : undefined
 
   logger.debug('Getting badges progress for user', { address })
   const allBadges: Badge[] = badgeService.getAllBadges()
   const achievedBadges: UserBadge[] = await badgeService.getUserStates(address)
-  const badgesProgresses: BadgesProgresses = badgeService.calculateUserProgress(allBadges, achievedBadges, {
-    includeNotAchievedBadges: shouldIncludeLocked,
-    unlockedBadgesLimit: unlockedLimit
-  })
+  const badgesProgresses: BadgesProgresses = badgeService.calculateUserProgress(allBadges, achievedBadges)
 
   return {
     body: {

@@ -52,11 +52,7 @@ export type IBadgeService = {
   getBadge(id: BadgeId): Badge
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
-  calculateUserProgress(
-    allBadges: Badge[],
-    userProgresses: UserBadge[],
-    options: { includeNotAchievedBadges: boolean; unlockedBadgesLimit: number | undefined }
-  ): BadgesProgresses
+  calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses
 }
 
 type TierProgress = {
