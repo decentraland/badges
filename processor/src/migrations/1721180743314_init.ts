@@ -15,7 +15,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     primaryKey: ['user_address', 'badge_id']
   })
 
-  pgm.createIndex('user_progress', 'achievedTiers', {
+  pgm.createIndex('user_progress', 'achieved_tiers', {
     method: 'gin'
   })
 }
