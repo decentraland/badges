@@ -51,11 +51,13 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
     const updatedAt = Date.now()
+    const achievedTiersJson = userBadge.achieved_tiers !== undefined ? JSON.stringify(userBadge.achieved_tiers) : null
     const query: SQLStatement = SQL`
-      INSERT INTO user_progress (badge_id, user_address, progress, updated_at, completed_at)
-      VALUES (${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${updatedAt}, ${userBadge.completed_at})
+      INSERT INTO user_progress (badge_id, user_address, progress, achieved_tiers, updated_at, completed_at)
+      VALUES (${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${achievedTiersJson}::jsonb, ${updatedAt}, ${userBadge.completed_at})
       ON CONFLICT (badge_id, user_address) DO UPDATE
        SET progress = ${userBadge.progress},
+       achieved_tiers = ${achievedTiersJson}::jsonb,
        completed_at = ${userBadge.completed_at},
        updated_at = ${updatedAt}
     `
