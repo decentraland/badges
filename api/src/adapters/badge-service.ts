@@ -18,74 +18,69 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
   }
 
   function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses {
-    try {
-      const badgesProgresses: BadgesProgresses = allBadges.reduce(
-        (accumulator, badge) => {
-          const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id)
+    const badgesProgresses: BadgesProgresses = allBadges.reduce(
+      (accumulator, badge) => {
+        const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id)
 
-          const isTierBadge = badge.tiers && badge.tiers.length > 0
-          if (
-            badgeProgress &&
-            (badgeProgress.completed_at ||
-              (isTierBadge && badgeProgress.achieved_tiers && badgeProgress.achieved_tiers.length > 0))
-          ) {
-            const nextTierCriteria = isTierBadge ? calculateNextTierCriteriaTarget(badge, badgeProgress) : undefined
+        const isTierBadge = badge.tiers && badge.tiers.length > 0
+        if (
+          badgeProgress &&
+          (badgeProgress.completed_at ||
+            (isTierBadge && badgeProgress.achieved_tiers && badgeProgress.achieved_tiers.length > 0))
+        ) {
+          const nextTierCriteria = isTierBadge ? calculateNextTierCriteriaTarget(badge, badgeProgress) : undefined
 
-            const calculatedNextTarget =
-              !!nextTierCriteria && isTierBadge ? nextTierCriteria.criteria.steps : badge.criteria.steps
+          const calculatedNextTarget =
+            !!nextTierCriteria && isTierBadge ? nextTierCriteria.criteria.steps : badge.criteria.steps
 
-            accumulator.achieved.push({
-              id: badge.id,
-              name: badge.name,
-              description: badge.description,
-              category: badge.category,
-              isTier: !!isTierBadge,
-              completedAt: badgeProgress.completed_at,
-              progress: {
-                stepsDone: badgeProgress.progress.steps,
-                stepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget
-              },
-              tiers: isTierBadge
-                ? badge.tiers?.map((tier) => {
-                    const achievedTier = badgeProgress.achieved_tiers!.find(
-                      (achievedTier) => achievedTier.tier_id === tier.tierId
-                    )
-                    return {
-                      tierId: tier.tierId,
-                      name: tier.tierName,
-                      description: tier.description,
-                      criteria: tier.criteria,
-                      completedAt: achievedTier?.completed_at
-                    }
-                  })
-                : []
-            })
-          } else {
-            accumulator.notAchieved.push({
-              id: badge.id,
-              name: badge.name,
-              description: badge.description,
-              category: badge.category,
-              isTier: !!isTierBadge,
-              completedAt: null,
-              progress: {
-                stepsDone: badgeProgress?.progress.steps || 0,
-                stepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps
-              },
-              tiers: isTierBadge ? badge.tiers : []
-            })
-          }
+          accumulator.achieved.push({
+            id: badge.id,
+            name: badge.name,
+            description: badge.description,
+            category: badge.category,
+            isTier: !!isTierBadge,
+            completedAt: badgeProgress.completed_at,
+            progress: {
+              stepsDone: badgeProgress.progress.steps,
+              stepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget
+            },
+            tiers: isTierBadge
+              ? badge.tiers?.map((tier) => {
+                  const achievedTier = badgeProgress.achieved_tiers!.find(
+                    (achievedTier) => achievedTier.tier_id === tier.tierId
+                  )
+                  return {
+                    tierId: tier.tierId,
+                    name: tier.tierName,
+                    description: tier.description,
+                    criteria: tier.criteria,
+                    completedAt: achievedTier?.completed_at
+                  }
+                })
+              : []
+          })
+        } else {
+          accumulator.notAchieved.push({
+            id: badge.id,
+            name: badge.name,
+            description: badge.description,
+            category: badge.category,
+            isTier: !!isTierBadge,
+            completedAt: null,
+            progress: {
+              stepsDone: badgeProgress?.progress.steps || 0,
+              stepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps
+            },
+            tiers: isTierBadge ? badge.tiers : []
+          })
+        }
 
-          return accumulator
-        },
-        { achieved: [] as any, notAchieved: [] as any }
-      )
+        return accumulator
+      },
+      { achieved: [] as any, notAchieved: [] as any }
+    )
 
-      return badgesProgresses
-    } catch (error: any) {
-      console.log({ error: JSON.stringify(error), message: error?.message, stack: error?.stack })
-      throw error
-    }
+    return badgesProgresses
   }
 
   function calculateNextTierCriteriaTarget(badge: Badge, userProgress: UserBadge): BadgeTier | undefined {

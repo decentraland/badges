@@ -7,7 +7,7 @@ import type {
   IMetricsComponent
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { Badge, BadgeId, BadgeTier, DbComponent, UserBadge } from '@badges/common'
+import { Badge, BadgeId, DbComponent, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
 
 export type GlobalContext = {
