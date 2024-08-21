@@ -9,6 +9,7 @@ import type {
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Badge, BadgeId, DbComponent, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
+import { EthAddress } from '@dcl/schemas'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -52,7 +53,9 @@ export type IBadgeService = {
   getBadge(id: BadgeId): Badge
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
+  getUserStateFor(badgeId: BadgeId, userAddress: EthAddress): Promise<UserBadge | undefined>
   calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses
+  calculateProgress(badge: Badge, userProgress: UserBadge | undefined): any
 }
 
 type TierProgress = {
@@ -74,10 +77,15 @@ type BadgeProgress = {
     stepsDone: number
     stepsTarget: number | null
   }
-  tiers: TierProgress[]
+  _links: {
+    [key: string]: {
+      href: string
+      method?: string
+    }
+  }
 }
 
 export type BadgesProgresses = {
   achieved: BadgeProgress[]
-  notAchieved?: BadgeProgress[]
+  notAchieved: BadgeProgress[]
 }
