@@ -5,6 +5,7 @@ export function createDbMock(db: Partial<DbComponent> = {}): DbComponent {
     getBadgeDefinitions: jest.fn(),
     getUserProgressFor: jest.fn(),
     getAllUserProgresses: jest.fn(),
+    getLatestUserBadges: jest.fn(),
     saveUserProgress: jest.fn(),
     ...db
   }

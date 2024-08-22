@@ -16,6 +16,7 @@ export type DbComponent = {
   getBadgeDefinitions(): Promise<Badge[]>
   getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge>
   getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
+  getLatestUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
 }
 
@@ -49,6 +50,38 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     return result.rows
   }
 
+  async function getLatestUserBadges(userAddress: EthAddress): Promise<UserBadge[]> {
+    const query: SQLStatement = SQL`
+      WITH badge_achievements AS (
+        SELECT 
+          badge_id,
+          completed_at AS achievement_date,
+          updated_at
+        FROM user_progress
+        WHERE user_address = ${userAddress.toLocaleLowerCase()} 
+          AND completed_at IS NOT NULL
+          
+        UNION ALL
+        
+        SELECT 
+          badge_id,
+          (tier->>'completed_at')::bigint AS achievement_date,
+          updated_at
+        FROM user_progress,
+        jsonb_array_elements(achieved_tiers) AS tier
+        WHERE user_address = ${userAddress.toLocaleLowerCase()} 
+          AND achieved_tiers IS NOT NULL
+      )
+      SELECT badge_id, achievement_date, updated_at
+      FROM badge_achievements
+      ORDER BY achievement_date DESC
+      LIMIT 5
+    `
+
+    const result = await pg.query<UserBadge>(query)
+    return result.rows
+  }
+
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
     const updatedAt = Date.now()
     const achievedTiersJson = userBadge.achieved_tiers !== undefined ? JSON.stringify(userBadge.achieved_tiers) : null
@@ -69,6 +102,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     getBadgeDefinitions,
     getUserProgressFor,
     getAllUserProgresses,
+    getLatestUserBadges,
     saveUserProgress
   }
 }

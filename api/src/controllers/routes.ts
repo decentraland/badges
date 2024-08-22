@@ -7,6 +7,7 @@ import { getBadgesHandler } from './handlers/get-badges'
 import { getBadgeCategoriesHandler } from './handlers/get-categories'
 import { getBadgeDetailsHandler } from './handlers/get-badge-details'
 import { getBadgeTiersHandler } from './handlers/get-badge-tiers'
+import { getUserBadgesPreviewHandler } from './handlers/get-user-badges-preview'
 
 export async function setupRouter(_: GlobalContext): Promise<Router<GlobalContext>> {
   const router = new Router<GlobalContext>()
@@ -17,6 +18,7 @@ export async function setupRouter(_: GlobalContext): Promise<Router<GlobalContex
   router.get('/badges/:id/tiers', getBadgeTiersHandler)
 
   router.get('/users/:address/badges', getUserBadgesHandler)
+  router.get('/users/:address/preview', getUserBadgesPreviewHandler)
 
   router.get('/categories', getBadgeCategoriesHandler)
 
