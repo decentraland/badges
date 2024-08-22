@@ -1,6 +1,12 @@
 import { IHttpServerComponent } from '@well-known-components/interfaces'
-import { Badge, BadgeId } from '@badges/common'
+import { Badge, BadgeId, BadgeTier } from '@badges/common'
 import { HandlerContextWithPath } from '../../types'
+
+type Response = {
+  data: {
+    tiers: BadgeTier[]
+  }
+}
 
 function parseBadgeId(id: string): BadgeId | undefined {
   if (Object.values(BadgeId).includes(id as BadgeId)) {
@@ -33,6 +39,6 @@ export async function getBadgeTiersHandler(
       data: {
         tiers: badge.tiers || []
       }
-    }
+    } as Response
   }
 }

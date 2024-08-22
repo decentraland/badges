@@ -54,29 +54,5 @@ export type IBadgeService = {
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
   getUserStateFor(badgeId: BadgeId, userAddress: EthAddress): Promise<UserBadge | undefined>
-  calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses
-}
-
-type BadgeProgress = {
-  id: number
-  name: string
-  description: string
-  category: string
-  isTier: boolean
-  completedAt?: Date | null
-  progress: {
-    stepsDone: number
-    stepsTarget: number | null
-  }
-  _links: {
-    [key: string]: {
-      href: string
-      method?: string
-    }
-  }
-}
-
-export type BadgesProgresses = {
-  achieved: BadgeProgress[]
-  notAchieved: BadgeProgress[]
+  calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any }
 }

@@ -2,8 +2,8 @@ import { HandlerContextWithPath } from '../../types'
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { BadgeCategory } from '@badges/common'
 
-type UserBadgesResponse = {
-  data: BadgeCategory[]
+type Response = {
+  data: { categories: BadgeCategory[] }
 }
 
 export async function getBadgeCategoriesHandler(
@@ -11,7 +11,9 @@ export async function getBadgeCategoriesHandler(
 ): Promise<IHttpServerComponent.IResponse> {
   return {
     body: {
-      data: Object.values(BadgeCategory)
-    } as UserBadgesResponse
+      data: {
+        categories: Object.values(BadgeCategory)
+      }
+    } as Response
   }
 }

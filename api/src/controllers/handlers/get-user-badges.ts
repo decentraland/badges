@@ -1,6 +1,28 @@
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { Badge, UserBadge } from '@badges/common'
-import { BadgesProgresses, HandlerContextWithPath } from '../../types'
+import { HandlerContextWithPath } from '../../types'
+
+type BadgeProgress = {
+  id: number
+  name: string
+  description: string
+  category: string
+  isTier: boolean
+  completedAt: Date | null
+  progress: {
+    stepsDone: number
+    nextStepsTarget: number | null
+    totalStepsTarget: number
+    lastCompletedTierAt: Date | null
+    lastCompletedTierName: string | null
+    lastCompletedTierImage: string | null
+  }
+}
+
+export type BadgesProgresses = {
+  achieved: BadgeProgress[]
+  notAchieved: BadgeProgress[]
+}
 
 type UserBadgesProgress = {
   data: BadgesProgresses

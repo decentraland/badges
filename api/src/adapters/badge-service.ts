@@ -1,5 +1,5 @@
 import { EthAddress } from '@dcl/schemas'
-import { AppComponents, BadgesProgresses, IBadgeService } from '../types'
+import { AppComponents, IBadgeService } from '../types'
 import { Badge, BadgeId, badges, BadgeTier, UserBadge } from '@badges/common'
 
 export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeService {
@@ -21,8 +21,8 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getUserProgressFor(badgeId, userAddress)
   }
 
-  function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses {
-    const badgesProgresses: BadgesProgresses = allBadges.reduce(
+  function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any } {
+    const badgesProgresses = allBadges.reduce(
       (accumulator, badge) => {
         const isTierBadge = badge.tiers && badge.tiers.length > 0
         const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id) || {
