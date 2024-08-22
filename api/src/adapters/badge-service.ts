@@ -9,6 +9,10 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return badges.get(id)!
   }
 
+  function getBadges(ids: BadgeId[]): Badge[] {
+    return ids.map((id) => getBadge(id))
+  }
+
   function getAllBadges(): Badge[] {
     return Array.from(badges.values())
   }
@@ -17,8 +21,8 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getAllUserProgresses(address)
   }
 
-  async function getUserStateFor(badgeId: BadgeId, userAddress: EthAddress): Promise<UserBadge | undefined> {
-    return db.getUserProgressFor(badgeId, userAddress)
+  async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadge[]> {
+    return db.getLatestUserBadges(address)
   }
 
   function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any } {
@@ -102,9 +106,10 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
 
   return {
     getBadge,
+    getBadges,
     getAllBadges,
     getUserStates,
-    getUserStateFor,
+    getLatestAchievedBadges,
     calculateUserProgress
   }
 }

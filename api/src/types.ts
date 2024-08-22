@@ -51,8 +51,9 @@ export type HandlerContextWithPath<
 
 export type IBadgeService = {
   getBadge(id: BadgeId): Badge
+  getBadges(ids: BadgeId[]): Badge[]
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
-  getUserStateFor(badgeId: BadgeId, userAddress: EthAddress): Promise<UserBadge | undefined>
+  getLatestAchievedBadges(address: EthAddress): Promise<UserBadge[]>
   calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any }
 }
