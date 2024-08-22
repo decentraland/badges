@@ -85,7 +85,7 @@ export async function initComponents(): Promise<AppComponents> {
   const memoryStorage = createEventMemoryStorage()
   const badgeContext = await createBadgeContext({ fetch, config })
 
-  const eventDispatcher = createEventDispatcher()
+  const eventDispatcher = createEventDispatcher({ logs })
   eventDispatcher.registerObserver(
     [
       {

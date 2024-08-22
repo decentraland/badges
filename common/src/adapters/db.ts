@@ -31,7 +31,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
   async function getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge> {
     const query: SQLStatement = SQL`
-      SELECT badge_id, progress, achieved_tiers, completed_at, updated_at FROM user_progress
+      SELECT badge_id, user_address, progress, achieved_tiers, completed_at, updated_at FROM user_progress
       WHERE badge_id = ${id} AND user_address = ${userAddress.toLocaleLowerCase()}
     `
 
@@ -41,7 +41,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
   async function getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]> {
     const query: SQLStatement = SQL`
-      SELECT badge_id, progress, achieved_tiers, completed_at, updated_at FROM user_progress
+      SELECT badge_id, user_address, progress, achieved_tiers, completed_at, updated_at FROM user_progress
       WHERE user_address = ${userAddress.toLocaleLowerCase()}
     `
 
