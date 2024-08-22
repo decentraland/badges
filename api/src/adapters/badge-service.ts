@@ -21,26 +21,6 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getUserProgressFor(badgeId, userAddress)
   }
 
-  function calculateProgress(badge: Badge, userProgress: UserBadge | undefined) {
-    const isTierBadge = badge.tiers && badge.tiers.length > 0
-    const parsedUserProgress = userProgress || {
-      badge_id: badge.id,
-      progress: { steps: 0 },
-      achieved_tiers: isTierBadge ? [] : undefined,
-      completed_at: undefined
-    }
-
-    const tierProgress = isTierBadge ? getCurrentTierProgress(badge, parsedUserProgress) : undefined
-    const calculatedNextTarget =
-      !!tierProgress?.nextTier && isTierBadge ? tierProgress.nextTier.criteria.steps : badge.criteria.steps
-
-    return {
-      stepsDone: parsedUserProgress.progress.steps,
-      stepsTarget: parsedUserProgress.completed_at ? null : calculatedNextTarget,
-      tierProgress
-    }
-  }
-
   function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses {
     const badgesProgresses: BadgesProgresses = allBadges.reduce(
       (accumulator, badge) => {
@@ -66,7 +46,8 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             completedAt: badgeProgress.completed_at,
             progress: {
               stepsDone: badgeProgress.progress.steps,
-              stepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget
+              stepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
+              lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null
             }
           })
         } else {
@@ -116,7 +97,6 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     getAllBadges,
     getUserStates,
     getUserStateFor,
-    calculateUserProgress,
-    calculateProgress
+    calculateUserProgress
   }
 }

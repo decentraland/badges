@@ -9,7 +9,7 @@ function parseBadgeId(id: string): BadgeId | undefined {
   return undefined
 }
 
-export async function getBadgeDetailsHandler(
+export async function getBadgeTiersHandler(
   context: Pick<HandlerContextWithPath<'badgeService', '/badges/:id'>, 'url' | 'components' | 'params'>
 ): Promise<IHttpServerComponent.IResponse> {
   const { badgeService } = context.components
@@ -31,7 +31,7 @@ export async function getBadgeDetailsHandler(
   return {
     body: {
       data: {
-        badge
+        tiers: badge.tiers || []
       }
     }
   }

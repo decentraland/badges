@@ -55,15 +55,6 @@ export type IBadgeService = {
   getUserStates(address: string): Promise<UserBadge[]>
   getUserStateFor(badgeId: BadgeId, userAddress: EthAddress): Promise<UserBadge | undefined>
   calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): BadgesProgresses
-  calculateProgress(badge: Badge, userProgress: UserBadge | undefined): any
-}
-
-type TierProgress = {
-  tierId: number
-  name: string
-  description: string
-  criteria: { steps: number }
-  completedAt?: Date | null
 }
 
 type BadgeProgress = {
