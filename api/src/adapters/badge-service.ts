@@ -46,8 +46,13 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             completedAt: badgeProgress.completed_at,
             progress: {
               stepsDone: badgeProgress.progress.steps,
-              stepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
-              lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null
+              nextStepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
+              totalStepsTarget: isTierBadge
+                ? badge.tiers![badge.tiers!.length - 1].criteria.steps
+                : badge.criteria.steps,
+              lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null,
+              lastCompletedTierName: isTierBadge ? tierProgress?.currentTier?.tierName : null,
+              lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.image : null
             }
           })
         } else {
@@ -60,7 +65,10 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             completedAt: null,
             progress: {
               stepsDone: badgeProgress.progress.steps,
-              stepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps
+              nextStepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps,
+              totalStepsTarget: isTierBadge
+                ? badge.tiers![badge.tiers!.length - 1].criteria.steps
+                : badge.criteria.steps
             }
           })
         }
