@@ -26,7 +26,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const event: CatalystDeploymentEvent = {
@@ -58,8 +59,10 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
-                storeCompleted: true
-            }
+                steps: 1,
+                store_completed: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
     })
@@ -70,7 +73,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const event: CollectionCreatedEvent = {
@@ -95,8 +99,10 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
-                collectionSubmitted: true
-            }
+                steps: 1,
+                collection_submitted: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
     })
@@ -107,7 +113,8 @@ describe('Open for Business badge handler should', () => {
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-            progress: {}
+            progress: {},
+            updated_at: 1708380838534
         }
 
         const storeDeploymentEvent: CatalystDeploymentEvent = {
@@ -142,7 +149,8 @@ describe('Open for Business badge handler should', () => {
         db.getUserProgressFor = jest.fn()
             .mockResolvedValueOnce(currentUserProgress)
             .mockResolvedValueOnce({ ...currentUserProgress, progress: {
-                storeCompleted: true
+                steps: 1,
+                store_completed: true
             }})
 
         const handler = createOpenForBusinessObserver({ db, logs })
@@ -153,8 +161,10 @@ describe('Open for Business badge handler should', () => {
             user_address: testAddress,
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             progress: {
-                storeCompleted: true
-            }
+                steps: 1,
+                store_completed: true
+            },
+            updated_at: expect.any(Number)
         })
         expect(result).toBeUndefined()
 
@@ -167,9 +177,11 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             completed_at: expect.any(Number),
             progress: {
-                storeCompleted: true,
-                collectionSubmitted: true
-            }
+                steps: 2,
+                store_completed: true,
+                collection_submitted: true
+            },
+            updated_at: expect.any(Number)
         })
     })
 
@@ -181,9 +193,11 @@ describe('Open for Business badge handler should', () => {
             badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
             completed_at: 1708380838534,
             progress: {
-                storeCompleted: true,
-                collectionSubmitted: true
-            }
+                steps: 2,
+                store_completed: true,
+                collection_submitted: true
+            },
+            updated_at: 1708380838534
         }
 
         const storeDeploymentEvent: CatalystDeploymentEvent = {

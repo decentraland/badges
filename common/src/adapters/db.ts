@@ -15,7 +15,7 @@ export type UpsertResult<T> = {
 export type DbComponent = {
   getBadgeDefinitions(): Promise<Badge[]>
   getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge>
-  getUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
+  getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
 }
 
@@ -31,7 +31,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
   async function getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge> {
     const query: SQLStatement = SQL`
-      SELECT * FROM user_progress
+      SELECT badge_id, progress, achieved_tiers, completed_at, updated_at FROM user_progress
       WHERE badge_id = ${id} AND user_address = ${userAddress.toLocaleLowerCase()}
     `
 
@@ -39,10 +39,10 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     return result.rows[0]
   }
 
-  async function getUserBadges(userAddress: EthAddress): Promise<UserBadge[]> {
+  async function getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]> {
     const query: SQLStatement = SQL`
-      SELECT badge_id, completed_at FROM user_progress
-      WHERE user_address = ${userAddress.toLocaleLowerCase()} AND completed_at IS NOT NULL
+      SELECT badge_id, progress, achieved_tiers, completed_at, updated_at FROM user_progress
+      WHERE user_address = ${userAddress.toLocaleLowerCase()}
     `
 
     const result = await pg.query<UserBadge>(query)
@@ -50,12 +50,16 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   }
 
   async function saveUserProgress(userBadge: UserBadge): Promise<void> {
+    const updatedAt = Date.now()
+    const achievedTiersJson = userBadge.achieved_tiers !== undefined ? JSON.stringify(userBadge.achieved_tiers) : null
     const query: SQLStatement = SQL`
-      INSERT INTO user_progress (badge_id, user_address, progress, completed_at)
-      VALUES (${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${userBadge.completed_at})
+      INSERT INTO user_progress (badge_id, user_address, progress, achieved_tiers, updated_at, completed_at)
+      VALUES (${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${achievedTiersJson}::jsonb, ${updatedAt}, ${userBadge.completed_at})
       ON CONFLICT (badge_id, user_address) DO UPDATE
        SET progress = ${userBadge.progress},
-       completed_at = ${userBadge.completed_at}
+       achieved_tiers = ${achievedTiersJson}::jsonb,
+       completed_at = ${userBadge.completed_at},
+       updated_at = ${updatedAt}
     `
 
     await pg.query<UserBadge>(query)
@@ -64,7 +68,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   return {
     getBadgeDefinitions,
     getUserProgressFor,
-    getUserBadges,
+    getAllUserProgresses,
     saveUserProgress
   }
 }

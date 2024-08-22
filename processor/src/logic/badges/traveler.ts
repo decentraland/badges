@@ -18,12 +18,12 @@ export function createTravelerObserver({
   }
 
   function userAlreadyVisitedScene(sceneTitle: string, userProgress: UserBadge): boolean {
-    return userProgress.progress.global.scenesTitlesVisited.includes(sceneTitle)
+    return userProgress.progress.scenes_titles_visited.includes(sceneTitle)
   }
 
   async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
     // if tile is not a valid scene, return
-    if (event.metadata.parcel.isEmptyParcel || !event.metadata.parcel.sceneHash) {
+    if (event.metadata.parcel.isEmptyParcel || !event.metadata.parcel.newParcel) {
       return undefined
     }
 
@@ -41,7 +41,8 @@ export function createTravelerObserver({
       return undefined
     }
 
-    const scene: Entity = await badgeContext.getEntityById(event.metadata.parcel.sceneHash)
+    const parsedPointer = event.metadata.parcel.newParcel.replace(/[()\s]/g, '')
+    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer)
     const sceneTitle: string | undefined = scene.metadata.display?.title || undefined
 
     if (!sceneTitle) {
@@ -53,7 +54,7 @@ export function createTravelerObserver({
       ...(memoryStorage.get(cacheKeyRelatedToEvent) || []),
       {
         sceneTitle,
-        on: event.timestamp
+        on: new Date(event.timestamp).getTime()
       }
     ]
 
@@ -93,33 +94,34 @@ export function createTravelerObserver({
 
     const seenSceneTitles = new Set([
       ...sceneTitlesWhereUserSpentMoreThanOneMinute,
-      ...userProgress.progress.global.scenesTitlesVisited
+      ...userProgress.progress.scenes_titles_visited
     ])
 
     userProgress.progress = {
       ...userProgress.progress,
-      global: {
-        scenesVisited: seenSceneTitles.size,
-        scenesTitlesVisited: Array.from(seenSceneTitles)
-      }
+      scenes_titles_visited: Array.from(seenSceneTitles),
+      steps: seenSceneTitles.size
     }
 
     // find all tiers that the user has achieved on this movement
     const newAchievedBadges = tieredBadges.filter(
       (badge) =>
-        badge.criteria.scenesVisited <= userProgress.progress.global.scenesVisited &&
-        !userProgress.progress.achievedTiers.find(
-          (achievedTier: { tierId: number; completed_at: number }) => achievedTier.tierId === badge.tierId
+        badge.criteria.steps <= userProgress.progress.steps &&
+        !userProgress.achieved_tiers!.find(
+          (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === badge.tierId
         )
     )
 
     if (newAchievedBadges.length) {
-      userProgress.progress.achievedTiers.push(
-        ...newAchievedBadges.map((badge) => ({ tierId: badge.tierId, completed_at: Date.now() }))
+      userProgress.achieved_tiers!.push(
+        ...newAchievedBadges.map((newAchievedBadge) => ({
+          tier_id: newAchievedBadge.tierId,
+          completed_at: Date.now()
+        }))
       )
     }
 
-    if (userProgress.progress.achievedTiers.length === tieredBadges.length) {
+    if (userProgress.achieved_tiers!.length === tieredBadges.length) {
       userProgress.completed_at = Date.now()
     }
 
@@ -135,17 +137,15 @@ export function createTravelerObserver({
       : undefined
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
-        global: {
-          scenesVisited: 0,
-          scenesTitlesVisited: []
-        },
-        achievedTiers: []
-      }
+        steps: 0,
+        scenes_titles_visited: []
+      },
+      achieved_tiers: []
     }
   }
 

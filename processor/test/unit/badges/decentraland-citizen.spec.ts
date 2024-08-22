@@ -53,6 +53,7 @@ describe('Decentraland Citizen badge handler should', () => {
             badge_id: BadgeId.DECENTRALAND_CITIZEN,
             completed_at: expect.any(Number),
             progress: {
+                steps: 1,
                 visited: '0,1'
             }
         })

@@ -2,7 +2,7 @@ import { HandlerContextWithPath } from '../../types'
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { Badge, badges } from '@badges/common'
 
-type UserBadgesResponse = {
+type Response = {
   data: Badge[]
 }
 
@@ -12,6 +12,6 @@ export async function getBadgesHandler(
   return {
     body: {
       data: Array.from(badges.values())
-    } as UserBadgesResponse
+    } as Response
   }
 }

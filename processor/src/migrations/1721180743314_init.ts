@@ -5,12 +5,18 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable('user_progress', {
     user_address: { type: 'varchar(255)', notNull: true },
     badge_id: { type: 'varchar(255)', notNull: true },
-    progress: { type: 'json', notNull: true },
-    completed_at: { type: 'bigint', notNull: false }
+    progress: { type: 'jsonb', notNull: true },
+    achieved_tiers: { type: 'jsonb', notNull: false, default: null },
+    completed_at: { type: 'bigint', notNull: false, default: null },
+    updated_at: { type: 'bigint', notNull: true }
   })
 
   pgm.addConstraint('user_progress', 'pk_user_progress', {
     primaryKey: ['user_address', 'badge_id']
+  })
+
+  pgm.createIndex('user_progress', 'achieved_tiers', {
+    method: 'gin'
   })
 }
 
