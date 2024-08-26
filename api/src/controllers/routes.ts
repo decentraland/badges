@@ -8,8 +8,9 @@ import { getBadgeCategoriesHandler } from './handlers/get-categories'
 import { getBadgeDetailsHandler } from './handlers/get-badge-details'
 import { getBadgeTiersHandler } from './handlers/get-badge-tiers'
 import { getUserBadgesPreviewHandler } from './handlers/get-user-badges-preview'
+import { resetUserProgress } from './handlers/reset-user-progress'
 
-export async function setupRouter(_: GlobalContext): Promise<Router<GlobalContext>> {
+export async function setupRouter(context: GlobalContext): Promise<Router<GlobalContext>> {
   const router = new Router<GlobalContext>()
   router.use(errorHandler)
 
@@ -23,6 +24,12 @@ export async function setupRouter(_: GlobalContext): Promise<Router<GlobalContex
   router.get('/categories', getBadgeCategoriesHandler)
 
   router.get('/status', getStatusHandler)
+
+  // manage workflow
+  const shouldExposeEndpointsToManageWorkflows = (await context.components.config.getString('ENV')) === 'dev'
+  if (shouldExposeEndpointsToManageWorkflows) {
+    router.delete('/users/:address/badges/:id', resetUserProgress)
+  }
 
   return router
 }

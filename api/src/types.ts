@@ -60,4 +60,5 @@ export type IBadgeService = {
     userProgresses: UserBadge[],
     shouldIncludeNotAchieved: boolean
   ): { achieved: any; notAchieved: any }
+  resetUserProgressFor(badgeId: BadgeId, address: EthAddress): Promise<void>
 }

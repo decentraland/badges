@@ -18,6 +18,7 @@ export type DbComponent = {
   getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
   getLatestUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
+  deleteUserProgress(badgeId: BadgeId, userAddress: EthAddress): Promise<void>
 }
 
 export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent {
@@ -98,11 +99,21 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     await pg.query<UserBadge>(query)
   }
 
+  async function deleteUserProgress(badgeId: BadgeId, userAddress: EthAddress): Promise<void> {
+    const query: SQLStatement = SQL`
+      DELETE FROM user_progress
+      WHERE badge_id = ${badgeId} AND user_address = ${userAddress.toLocaleLowerCase()}
+    `
+
+    await pg.query<UserBadge>(query)
+  }
+
   return {
     getBadgeDefinitions,
     getUserProgressFor,
     getAllUserProgresses,
     getLatestUserBadges,
-    saveUserProgress
+    saveUserProgress,
+    deleteUserProgress
   }
 }
