@@ -33,10 +33,15 @@ export async function getUserBadgesHandler(
 ): Promise<IHttpServerComponent.IResponse> {
   const { badgeService } = context.components
   const address = context.params.address
+  const shouldIncludeNotAchieved = context.url.searchParams.get('includeNotAchieved') === 'true'
 
   const allBadges: Badge[] = badgeService.getAllBadges()
   const achievedBadges: UserBadge[] = await badgeService.getUserStates(address)
-  const badgesProgresses: BadgesProgresses = badgeService.calculateUserProgress(allBadges, achievedBadges)
+  const badgesProgresses: BadgesProgresses = badgeService.calculateUserProgress(
+    allBadges,
+    achievedBadges,
+    shouldIncludeNotAchieved
+  )
 
   return {
     body: {

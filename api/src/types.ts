@@ -55,5 +55,9 @@ export type IBadgeService = {
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
   getLatestAchievedBadges(address: EthAddress): Promise<UserBadge[]>
-  calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any }
+  calculateUserProgress(
+    allBadges: Badge[],
+    userProgresses: UserBadge[],
+    shouldIncludeNotAchieved: boolean
+  ): { achieved: any; notAchieved: any }
 }

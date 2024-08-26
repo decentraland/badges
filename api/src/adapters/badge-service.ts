@@ -25,7 +25,11 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getLatestUserBadges(address)
   }
 
-  function calculateUserProgress(allBadges: Badge[], userProgresses: UserBadge[]): { achieved: any; notAchieved: any } {
+  function calculateUserProgress(
+    allBadges: Badge[],
+    userProgresses: UserBadge[],
+    shouldIncludeNotAchieved: boolean = false
+  ): { achieved: any; notAchieved: any } {
     const badgesProgresses = allBadges.reduce(
       (accumulator, badge) => {
         const isTierBadge = badge.tiers && badge.tiers.length > 0
@@ -49,6 +53,10 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             isTier: !!isTierBadge,
             completedAt: badgeProgress.completed_at,
             progress: {
+              achievedTiers: badgeProgress.achieved_tiers?.map((achievedTier) => ({
+                tierId: achievedTier.tier_id,
+                completedAt: achievedTier.completed_at
+              })),
               stepsDone: badgeProgress.progress.steps,
               nextStepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
               totalStepsTarget: isTierBadge
@@ -59,7 +67,7 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
               lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.image : null
             }
           })
-        } else {
+        } else if (shouldIncludeNotAchieved) {
           accumulator.notAchieved.push({
             id: badge.id,
             name: badge.name,
