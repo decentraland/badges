@@ -112,12 +112,17 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return { nextTier: nextTierToAccomplish, currentTier: currentAchievedTier }
   }
 
+  async function resetUserProgressFor(badgeId: BadgeId, address: EthAddress): Promise<void> {
+    return db.deleteUserProgress(badgeId, address)
+  }
+
   return {
     getBadge,
     getBadges,
     getAllBadges,
     getUserStates,
     getLatestAchievedBadges,
-    calculateUserProgress
+    calculateUserProgress,
+    resetUserProgressFor
   }
 }
