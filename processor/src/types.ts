@@ -113,3 +113,10 @@ export class ParsingEventError extends Error {
     Error.captureStackTrace(this, this.constructor)
   }
 }
+
+export type BadgeProcessorResult =
+  | undefined
+  | {
+      badgeGranted: Badge
+      userAddress: string
+    }

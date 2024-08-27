@@ -1,5 +1,5 @@
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
-import { AppComponents, IObserver } from '../../types'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Entity, EthAddress, MoveToParcelEvent } from '@dcl/schemas'
 
 export function createTravelerObserver({
@@ -21,7 +21,7 @@ export function createTravelerObserver({
     return userProgress.progress.scenes_titles_visited.includes(sceneTitle)
   }
 
-  async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
+  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult> {
     // if tile is not a valid scene, return
     if (event.metadata.parcel.isEmptyParcel || !event.metadata.parcel.newParcel) {
       return undefined
@@ -129,12 +129,13 @@ export function createTravelerObserver({
     await db.saveUserProgress(userProgress)
 
     return newAchievedBadges.length
-      ? [
-          {
+      ? {
+          badgeGranted: {
             ...badge,
             tiers: newAchievedBadges
-          }
-        ]
+          },
+          userAddress
+        }
       : undefined
   }
 

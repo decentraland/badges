@@ -1,4 +1,4 @@
-import { AppComponents, MessageProcessorComponent } from '../types'
+import { AppComponents, BadgeProcessorResult, MessageProcessorComponent } from '../types'
 import { Event } from '@dcl/schemas'
 
 export async function createMessageProcessorComponent({
@@ -10,9 +10,11 @@ export async function createMessageProcessorComponent({
   async function process(event: Event): Promise<void> {
     logger.info(`Processing entity`, { eventType: event.type, eventSubType: event.subType, eventKey: event.key })
 
-    const grantedBadges = await eventDispatcher.dispatch(event)
-    if (!!grantedBadges) {
-      logger.info('Granted badges', { grantedBadges })
+    const processorsResult = (await eventDispatcher.dispatch(event)).filter((result: BadgeProcessorResult) => !!result)
+    if (!!processorsResult.length) {
+      logger.info('Granted badges', {
+        grantedBadges: processorsResult.map((result: BadgeProcessorResult) => result!.badgeGranted)
+      })
     }
   }
 
