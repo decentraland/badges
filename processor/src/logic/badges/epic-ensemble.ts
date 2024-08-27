@@ -12,9 +12,9 @@ export function createEpicEnsembleObserver({
 
   const badge: Badge = badges.get(BadgeId.EPIC_ENSEMBLE)!
 
-  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult> {
+  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
-    let result: BadgeProcessorResult
+    let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
 
     const userProgress: UserBadge =

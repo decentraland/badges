@@ -11,6 +11,7 @@ import { Message } from '@aws-sdk/client-sqs'
 import { Badge, DbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
+import { BadgeGrantedEvent } from '@dcl/schemas/dist/platform/events/services'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -57,13 +58,6 @@ export type HandlerContextWithPath<
   Path
 >
 
-export type BadgeGrantedEvent = {
-  type: 'badge-granted'
-  data: {
-    badge: Badge
-  }
-}
-
 export type QueueMessage = any
 
 export type QueueComponent = {
@@ -73,7 +67,10 @@ export type QueueComponent = {
 }
 
 export type PublisherComponent = {
-  publishMessage(event: BadgeGrantedEvent): Promise<string | undefined>
+  publishMessages(events: BadgeGrantedEvent[]): Promise<{
+    successfulMessageIds: string[]
+    failedEvents: BadgeGrantedEvent[]
+  }>
 }
 
 export type MessageConsumerComponent = IBaseComponent
@@ -114,9 +111,7 @@ export class ParsingEventError extends Error {
   }
 }
 
-export type BadgeProcessorResult =
-  | undefined
-  | {
-      badgeGranted: Badge
-      userAddress: string
-    }
+export type BadgeProcessorResult = {
+  badgeGranted: Badge
+  userAddress: string
+}

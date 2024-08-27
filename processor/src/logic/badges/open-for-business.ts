@@ -28,7 +28,9 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     })
   }
 
-  async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<BadgeProcessorResult> {
+  async function check(
+    event: CatalystDeploymentEvent | CollectionCreatedEvent
+  ): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
     let result: BadgeProcessorResult | undefined
     const functions = functionsPerEvent[event.type](event)

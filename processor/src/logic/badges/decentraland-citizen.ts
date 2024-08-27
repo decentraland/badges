@@ -7,7 +7,7 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
 
   const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
 
-  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult> {
+  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
 
     const userProgress: UserBadge =

@@ -142,7 +142,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const eventParser = await createEventParser({ config, fetch })
 
-  const messageProcessor = await createMessageProcessorComponent({ logs, fetch, config, eventDispatcher })
+  const messageProcessor = await createMessageProcessorComponent({ logs, config, eventDispatcher, publisher })
 
   const messageConsumer = createMessagesConsumerComponent({
     logs,

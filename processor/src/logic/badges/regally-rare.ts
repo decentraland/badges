@@ -12,9 +12,9 @@ export function createRegallyRareObserver({
 
   const badge: Badge = badges.get(BadgeId.REGALLY_RARE)!
 
-  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult> {
+  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
-    let result: BadgeProcessorResult
+    let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
 
     const userProgress: UserBadge =

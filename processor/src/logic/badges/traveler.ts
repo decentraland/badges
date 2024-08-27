@@ -21,7 +21,7 @@ export function createTravelerObserver({
     return userProgress.progress.scenes_titles_visited.includes(sceneTitle)
   }
 
-  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult> {
+  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     // if tile is not a valid scene, return
     if (event.metadata.parcel.isEmptyParcel || !event.metadata.parcel.newParcel) {
       return undefined
