@@ -106,7 +106,10 @@ describe('Traveler badge handler should', () => {
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
     const result = await handler.check(event)
 
-    expect(result).toContainEqual(mapBadgeToHaveTierNth(0, handler.badge))
+    expect(result).toMatchObject({
+      badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
+      userAddress: testAddress
+    })
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
     expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
@@ -155,7 +158,10 @@ describe('Traveler badge handler should', () => {
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
     const result = await handler.check(event)
 
-    expect(result).toContainEqual(mapBadgeToHaveTierNth(0, handler.badge))
+    expect(result).toMatchObject({
+      badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
+      userAddress: testAddress
+    })
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
     expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
@@ -218,7 +224,10 @@ describe('Traveler badge handler should', () => {
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
     const result = await handler.check(event)
 
-    expect(result).toContainEqual(mapBadgeToHaveTierNth(1, handler.badge))
+    expect(result).toMatchObject({
+      badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
+      userAddress: testAddress
+    })
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
     expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({

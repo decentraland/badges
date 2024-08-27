@@ -183,6 +183,10 @@ describe('Open for Business badge handler should', () => {
             },
             updated_at: expect.any(Number)
         })
+        expect(result).toMatchObject({
+            badgeGranted: handler.badge,
+            userAddress: testAddress
+        })
     })
 
     it('do not grant badge when the user already has the badge granted', async () => { 
