@@ -44,11 +44,12 @@ export async function createMessageProcessorComponent({
             key: generateEventKey(result),
             timestamp: Date.now(),
             metadata: {
-              address: result.userAddress,
               badgeId: result.badgeGranted.id,
               badgeName: result.badgeGranted.name,
-              badgeTierId: !!result.badgeGranted.tiers?.length ? result.badgeGranted.tiers[0].tierId : undefined,
-              badgeImageUrl: result.badgeGranted.image ?? '' // TODO: remove this fallback when all badges have an image
+              badgeImageUrl: !!result.badgeGranted.tiers?.length
+                ? result.badgeGranted.tiers.pop()?.image
+                : result.badgeGranted.image,
+              badgeTierName: !!result.badgeGranted.tiers?.length ? result.badgeGranted.tiers.pop()?.tierName : undefined
             }
           }) as BadgeGrantedEvent
       )
