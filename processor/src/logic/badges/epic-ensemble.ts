@@ -1,5 +1,5 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Rarity } from '@dcl/schemas'
-import { AppComponents, IObserver } from '../../types'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
 const AMOUNT_OF_RARE_WEARABLES_REQUIRED = 3
@@ -12,9 +12,9 @@ export function createEpicEnsembleObserver({
 
   const badge: Badge = badges.get(BadgeId.EPIC_ENSEMBLE)!
 
-  async function check(event: CatalystDeploymentEvent): Promise<Badge[] | undefined> {
+  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
-    let result: Badge[] | undefined
+    let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
 
     const userProgress: UserBadge =
@@ -43,7 +43,10 @@ export function createEpicEnsembleObserver({
         progress: userProgress.progress
       })
       await db.saveUserProgress(userProgress)
-      result = [badge]
+      result = {
+        badgeGranted: badge,
+        userAddress: userAddress!
+      }
     }
 
     return result

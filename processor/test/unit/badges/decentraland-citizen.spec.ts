@@ -57,7 +57,10 @@ describe('Decentraland Citizen badge handler should', () => {
                 visited: '0,1'
             }
         })
-        expect(result).toContain(handler.badge)
+        expect(result).toMatchObject({
+            badgeGranted: handler.badge,
+            userAddress: testAddress
+        })
     })
 
     it('do not grant badge when the user already has the badge granted', async () => {

@@ -866,20 +866,10 @@
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/schemas@^13.3.1":
-  version "13.3.1"
-  resolved "https://registry.npmjs.org/@dcl/schemas/-/schemas-13.3.1.tgz"
-  integrity sha512-+AzopUrK4pqHEvufKQzh4BWgSy0Zr7+wY07qaGLpVYpRFPcEBd7T7kSrEimuamfKkD2Fp+YEoeV95y8alCMcZw==
-  dependencies:
-    ajv "^8.11.0"
-    ajv-errors "^3.0.0"
-    ajv-keywords "^5.1.0"
-    mitt "^3.0.1"
-
-"@dcl/schemas@^13.5.0":
-  version "13.5.0"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-13.5.0.tgz#8e736e83bfe8f5b7f048821fdc64f6bdc129c0e3"
-  integrity sha512-uoZiRdi2hlkBauHvq9u4n7UqAiJ3sKoqiJxM5/y+JlmUBshSK6VtX11DBSv4tR1O2XBg6mFJhcx54t07mmag/g==
+"@dcl/schemas@^13.8.5":
+  version "13.8.5"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-13.8.5.tgz#0224c91cb78dacce372c65234390fe00b5f04c34"
+  integrity sha512-SO0pHJi3xfjwMMbVVLsXm/qrt1L7VCO09MA+eefsGPmfbboiUIBM2mxJFBMxrCn/F/+SSxI3uLHo8xytCjFdkg==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"

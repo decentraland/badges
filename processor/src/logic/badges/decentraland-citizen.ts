@@ -1,5 +1,5 @@
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
-import { AppComponents, IObserver } from '../../types'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { EthAddress, MoveToParcelEvent } from '@dcl/schemas'
 
 export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
@@ -7,7 +7,7 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
 
   const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
 
-  async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
+  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
 
     const userProgress: UserBadge =
@@ -34,7 +34,10 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
     })
 
     await db.saveUserProgress(userProgress)
-    return [badge]
+    return {
+      badgeGranted: badge,
+      userAddress: userAddress
+    }
   }
 
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {

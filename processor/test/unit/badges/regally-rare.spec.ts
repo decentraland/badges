@@ -86,7 +86,10 @@ describe('Regally Rare badge handler should', () => {
       }
     })
 
-    expect(result).toContain(handler.badge)
+    expect(result).toMatchObject({
+      badgeGranted: handler.badge,
+      userAddress: testAddress
+    })
   })
 
   it('do not grant badge when a Profile deployment contains less than three rare wearables', async () => {

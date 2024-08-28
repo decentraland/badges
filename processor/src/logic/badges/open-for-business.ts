@@ -1,5 +1,5 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
-import { AppComponents, IObserver } from '../../types'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
 export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
@@ -28,9 +28,11 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     })
   }
 
-  async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<Badge[] | undefined> {
+  async function check(
+    event: CatalystDeploymentEvent | CollectionCreatedEvent
+  ): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
-    let result: Badge[] | undefined
+    let result: BadgeProcessorResult | undefined
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = functions.getUserAddress()
 
@@ -56,7 +58,11 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
         progress: updatedUserProgress.progress
       })
-      result = [badge]
+
+      result = {
+        badgeGranted: badge,
+        userAddress: userAddress!
+      }
     }
 
     await db.saveUserProgress(updatedUserProgress)
