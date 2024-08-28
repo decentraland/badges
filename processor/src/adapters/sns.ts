@@ -2,6 +2,15 @@ import { PublishBatchCommand, SNSClient } from '@aws-sdk/client-sns'
 import { AppComponents, PublisherComponent } from '../types'
 import { BadgeGrantedEvent } from '@dcl/schemas'
 
+function chunk<T>(theArray: T[], size: number): T[][] {
+  return theArray.reduce((acc: T[][], _, i) => {
+    if (i % size === 0) {
+      acc.push(theArray.slice(i, i + size))
+    }
+    return acc
+  }, [])
+}
+
 export async function createSnsComponent({ config }: Pick<AppComponents, 'config'>): Promise<PublisherComponent> {
   // SNS PublishBatch can handle up to 10 messages in a single request
   const MAX_BATCH_SIZE = 10
@@ -16,13 +25,12 @@ export async function createSnsComponent({ config }: Pick<AppComponents, 'config
     successfulMessageIds: string[]
     failedEvents: BadgeGrantedEvent[]
   }> {
-    const batches = []
-
     // split events into batches of 10
-    for (let i = 0; i < events.length; i += MAX_BATCH_SIZE) {
-      const batch = events.slice(i, i + MAX_BATCH_SIZE)
+    const batches = chunk(events, MAX_BATCH_SIZE)
+
+    const publishBatchPromises = batches.map(async (batch, batchIndex) => {
       const entries = batch.map((event, index) => ({
-        Id: `msg_${i + index}`,
+        Id: `msg_${batchIndex * MAX_BATCH_SIZE + index}`,
         Message: JSON.stringify(event),
         MessageAttributes: {
           type: {
@@ -36,10 +44,6 @@ export async function createSnsComponent({ config }: Pick<AppComponents, 'config
         }
       }))
 
-      batches.push({ batch, entries })
-    }
-
-    const publishBatchPromises = batches.map(async ({ batch, entries }) => {
       const command = new PublishBatchCommand({
         TopicArn: snsArn,
         PublishBatchRequestEntries: entries
