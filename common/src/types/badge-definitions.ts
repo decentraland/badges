@@ -7,13 +7,24 @@ export type UserBadge = {
   updated_at: number
 }
 
+type BadgeAssets = {
+  '2d': {
+    normal: string
+  }
+  '3d': {
+    normal: string
+    hrm: string
+    basecolor: string
+  }
+}
+
 export type Badge = {
   id: BadgeId
   name: string
   category: string
   description: string
   criteria?: { steps: number } & any
-  image?: string
+  assets?: BadgeAssets
   tiers?: BadgeTier[]
 }
 
@@ -27,18 +38,18 @@ export type BadgeTier = {
   tierName: string
   criteria?: { steps: number } & any
   description: string
-  image: string
+  assets?: BadgeAssets
 }
 
 export enum BadgeId {
   COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION = 'completed-store-and-submitted-one-collection',
-  REGALLY_RARE = 'regally-rare',
-  EPIC_ENSEMBLE = 'epic-ensemble',
-  LEGENDARY_LOOK = 'legendary-look',
-  EXOTIC_ELEGANCE = 'exotic-elegance',
-  MYTHIC_MODEL = 'mythic-model',
-  UNIQUE_UNICORN = 'unique-unicorn',
-  DECENTRALAND_CITIZEN = 'decentraland-citizen',
+  REGALLY_RARE = 'regally_rare',
+  EPIC_ENSEMBLE = 'epic_ensemble',
+  LEGENDARY_LOOK = 'legendary_look',
+  EXOTIC_ELEGANCE = 'exotic_elegance',
+  MYTHIC_MODEL = 'mythic_model',
+  UNIQUE_UNICORN = 'unique_unicorn',
+  DECENTRALAND_CITIZEN = 'dclcitizen',
   TRAVELER = 'traveler'
 }
 

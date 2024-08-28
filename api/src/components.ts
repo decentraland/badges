@@ -10,7 +10,7 @@ import { createMetricsComponent } from '@well-known-components/metrics'
 import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
 import { createPgComponent } from '@well-known-components/pg-component'
-import { createDbComponent } from '@badges/common'
+import { createBadgeStorage, createDbComponent } from '@badges/common'
 import { createBadgeService } from './adapters/badge-service'
 
 // Initialize all the components of the app
@@ -48,7 +48,9 @@ export async function initComponents(): Promise<AppComponents> {
 
   const pg = await createPgComponent({ logs, config, metrics })
   const db = createDbComponent({ pg })
-  const badgeService = createBadgeService({ db })
+
+  const badgeStorage = await createBadgeStorage({ config })
+  const badgeService = createBadgeService({ db, badgeStorage })
 
   return {
     config,
@@ -59,6 +61,7 @@ export async function initComponents(): Promise<AppComponents> {
     statusChecks,
     pg,
     db,
+    badgeStorage,
     badgeService
   }
 }

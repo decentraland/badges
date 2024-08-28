@@ -12,7 +12,8 @@
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },
   "dependencies": {
-    "@dcl/schemas": "^13.8.5"
+    "@dcl/schemas": "^13.8.5",
+    "@well-known-components/interfaces": "^1.4.3"
   },
   "devDependencies": {
     "@dcl/eslint-config": "^2.1.0",

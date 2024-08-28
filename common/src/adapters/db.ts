@@ -56,7 +56,8 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
       WITH badge_achievements AS (
         SELECT 
           badge_id,
-          completed_at AS achievement_date,
+          completed_at,
+          achieved_tiers,
           updated_at
         FROM user_progress
         WHERE user_address = ${userAddress.toLocaleLowerCase()} 
@@ -66,16 +67,17 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
         
         SELECT 
           badge_id,
-          (tier->>'completed_at')::bigint AS achievement_date,
+          (tier->>'completed_at')::bigint AS completed_at,
+          achieved_tiers,
           updated_at
         FROM user_progress,
         jsonb_array_elements(achieved_tiers) AS tier
         WHERE user_address = ${userAddress.toLocaleLowerCase()} 
           AND achieved_tiers IS NOT NULL
       )
-      SELECT badge_id, achievement_date, updated_at
+      SELECT badge_id, completed_at, achieved_tiers, updated_at
       FROM badge_achievements
-      ORDER BY achievement_date DESC
+      ORDER BY completed_at DESC
       LIMIT 5
     `
 
