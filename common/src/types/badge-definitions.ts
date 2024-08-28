@@ -4,7 +4,7 @@ export type UserBadge = {
   progress: any
   achieved_tiers?: { tier_id: string; completed_at: number }[]
   completed_at?: number
-  updated_at: number
+  updated_at?: number
 }
 
 type BadgeAssets = {

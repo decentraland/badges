@@ -1,15 +1,10 @@
 import { HandlerContextWithPath } from '../../types'
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { BadgeId } from '@badges/common'
+import { parseBadgeId } from '../../logic/utils'
+import { NotFoundError } from '@dcl/platform-server-commons'
 
-function parseBadgeId(id: string): BadgeId | undefined {
-  if (Object.values(BadgeId).includes(id as BadgeId)) {
-    return id as BadgeId
-  }
-  return undefined
-}
-
-export async function resetUserProgress(
+export async function resetUserProgressHandler(
   context: Pick<HandlerContextWithPath<'badgeService', '/users/:address/badges/:id'>, 'url' | 'components' | 'params'>
 ): Promise<IHttpServerComponent.IResponse> {
   const { badgeService } = context.components
@@ -19,12 +14,7 @@ export async function resetUserProgress(
   const parsedBadgeId: BadgeId | undefined = parseBadgeId(badgeId)
 
   if (!parsedBadgeId) {
-    return {
-      status: 404,
-      body: {
-        error: 'Badge not found'
-      }
-    }
+    throw new NotFoundError('Badge does not exists')
   }
 
   await badgeService.resetUserProgressFor(parsedBadgeId, userAddress)

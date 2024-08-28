@@ -23,6 +23,10 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     return db.getAllUserProgresses(address)
   }
 
+  async function getUserStateFor(address: EthAddress, badgeId: BadgeId): Promise<UserBadge> {
+    return db.getUserProgressFor(badgeId, address)
+  }
+
   async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]> {
     const userBadges: UserBadge[] = await db.getLatestUserBadges(address)
     const badgeIdsAchievedByUser: BadgeId[] = userBadges.map((badge) => badge.badge_id as BadgeId)
@@ -136,13 +140,34 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     return db.deleteUserProgress(badgeId, address)
   }
 
+  async function saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void> {
+    await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
+  }
+
+  function calculateNewAchievedTiers(badge: Badge, userProgress: UserBadge): BadgeTier[] {
+    const tiers = badge.tiers || []
+
+    const newAchievedBadges = tiers.filter(
+      (tier) =>
+        tier.criteria.steps <= userProgress.progress.steps &&
+        !userProgress.achieved_tiers!.find(
+          (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === tier.tierId
+        )
+    )
+
+    return newAchievedBadges
+  }
+
   return {
     getBadge,
     getBadges,
     getAllBadges,
     getUserStates,
+    getUserStateFor,
     getLatestAchievedBadges,
     calculateUserProgress,
-    resetUserProgressFor
+    resetUserProgressFor,
+    saveOrUpdateUserProgresses,
+    calculateNewAchievedTiers
   }
 }
