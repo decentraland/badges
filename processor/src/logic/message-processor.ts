@@ -49,7 +49,10 @@ export async function createMessageProcessorComponent({
               badgeImageUrl: !!result.badgeGranted.tiers?.length
                 ? result.badgeGranted.tiers.pop()?.image
                 : result.badgeGranted.image,
-              badgeTierName: !!result.badgeGranted.tiers?.length ? result.badgeGranted.tiers.pop()?.tierName : undefined
+              badgeTierName: !!result.badgeGranted.tiers?.length
+                ? result.badgeGranted.tiers.pop()?.tierName
+                : undefined,
+              address: result.userAddress
             }
           }) as BadgeGrantedEvent
       )
