@@ -9,6 +9,7 @@ export function createTravelerObserver({
   memoryStorage
 }: Pick<AppComponents, 'db' | 'badgeContext' | 'logs' | 'memoryStorage'>): IObserver {
   const logger = logs.getLogger('traveler-badge')
+  const EXPLORER_ALPHA_LINKED_ENVIRONMENT = 'https://peer.decentraland.org/content'
 
   const badge: Badge = badges.get(BadgeId.TRAVELER)!
   const tieredBadges = badge.tiers!
@@ -42,7 +43,7 @@ export function createTravelerObserver({
     }
 
     const parsedPointer = event.metadata.parcel.newParcel.replace(/[()\s]/g, '')
-    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer)
+    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer, EXPLORER_ALPHA_LINKED_ENVIRONMENT)
     const sceneTitle: string | undefined = scene?.metadata?.display?.title || undefined
     logger.debug(`Fetched scene for pointer ${parsedPointer}`, { fetchedScene: JSON.stringify(scene) })
 
