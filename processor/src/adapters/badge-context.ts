@@ -36,7 +36,22 @@ export async function createBadgeContext({
     return fetchedEntity
   }
 
-  async function getEntityByPointer(pointer: string): Promise<Entity> {
+  async function getEntityByPointer(
+    pointer: string,
+    overridenContentUrl: string | undefined = undefined
+  ): Promise<Entity> {
+    // TODO: remove after E@ has integrated Zone endpoints
+    if (overridenContentUrl) {
+      const overridenContentClient = createContentClient({
+        fetcher: fetch,
+        url: overridenContentUrl
+      })
+
+      const fetchedEntity: Entity[] = await overridenContentClient.fetchEntitiesByPointers([pointer])
+
+      return fetchedEntity[0]
+    }
+
     const fetchedEntity: Entity[] = await contentClient.fetchEntitiesByPointers([pointer])
 
     return fetchedEntity[0]
