@@ -7,7 +7,7 @@ import type {
   IMetricsComponent
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { Badge, BadgeId, DbComponent, UserBadge } from '@badges/common'
+import { Badge, BadgeId, DbComponent, IBadgeStorage, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { EthAddress } from '@dcl/schemas'
 
@@ -24,6 +24,7 @@ export type BaseComponents = {
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
   db: DbComponent
   badgeService: IBadgeService
+  badgeStorage: IBadgeStorage
 }
 
 // components used in runtime
@@ -49,12 +50,19 @@ export type HandlerContextWithPath<
   Path
 >
 
+export type UserBadgesPreview = {
+  id: string
+  name: string
+  tierName: string | undefined
+  image: string
+}
+
 export type IBadgeService = {
   getBadge(id: BadgeId): Badge
   getBadges(ids: BadgeId[]): Badge[]
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
-  getLatestAchievedBadges(address: EthAddress): Promise<UserBadge[]>
+  getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]>
   calculateUserProgress(
     allBadges: Badge[],
     userProgresses: UserBadge[],

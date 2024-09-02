@@ -1,8 +1,10 @@
 import { EthAddress } from '@dcl/schemas'
-import { AppComponents, IBadgeService } from '../types'
-import { Badge, BadgeId, badges, BadgeTier, UserBadge } from '@badges/common'
+import { AppComponents, IBadgeService, UserBadgesPreview } from '../types'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 
-export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeService {
+export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db' | 'badgeStorage'>): IBadgeService {
+  const badges: Map<BadgeId, Badge> = badgeStorage.getBadges()
+
   function getBadge(id: BadgeId): Badge {
     // we assert the value because if BadgeId exists
     // the badge should be already be added to the badges map
@@ -21,8 +23,24 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
     return db.getAllUserProgresses(address)
   }
 
-  async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadge[]> {
-    return db.getLatestUserBadges(address)
+  async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]> {
+    const userBadges: UserBadge[] = await db.getLatestUserBadges(address)
+    const badgeIdsAchievedByUser: BadgeId[] = userBadges.map((badge) => badge.badge_id as BadgeId)
+    const badgesDefinitions: Badge[] = getBadges(badgeIdsAchievedByUser)
+
+    return userBadges.map((userBadge) => {
+      const relatedBadgeDefinition: Badge = badgesDefinitions.find((badge) => badge.id === userBadge.badge_id)!
+      const achievedTier: BadgeTier | undefined = relatedBadgeDefinition.tiers?.find(
+        (tier) => tier.tierId === userBadge.achieved_tiers?.pop()?.tier_id
+      )
+
+      return {
+        id: relatedBadgeDefinition.id,
+        name: relatedBadgeDefinition.name,
+        tierName: !!achievedTier ? achievedTier.tierName : undefined,
+        image: !!achievedTier ? achievedTier!.assets!['2d'].normal : relatedBadgeDefinition!.assets!['2d'].normal
+      }
+    })
   }
 
   function calculateUserProgress(
@@ -52,6 +70,7 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             category: badge.category,
             isTier: !!isTierBadge,
             completedAt: badgeProgress.completed_at,
+            assets: isTierBadge ? tierProgress?.currentTier?.assets : badge.assets,
             progress: {
               achievedTiers: badgeProgress.achieved_tiers?.map((achievedTier) => ({
                 tierId: achievedTier.tier_id,
@@ -64,7 +83,7 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
                 : badge.criteria.steps,
               lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null,
               lastCompletedTierName: isTierBadge ? tierProgress?.currentTier?.tierName : null,
-              lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.image : null
+              lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.assets?.['2d'].normal : null
             }
           })
         } else if (shouldIncludeNotAchieved) {
@@ -75,6 +94,7 @@ export function createBadgeService({ db }: Pick<AppComponents, 'db'>): IBadgeSer
             category: badge.category,
             isTier: !!isTierBadge,
             completedAt: null,
+            assets: isTierBadge ? badge.tiers![0].assets : badge.assets,
             progress: {
               stepsDone: badgeProgress.progress.steps,
               nextStepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps,

@@ -47,8 +47,8 @@ export async function createMessageProcessorComponent({
               badgeId: result.badgeGranted.id,
               badgeName: result.badgeGranted.name,
               badgeImageUrl: !!result.badgeGranted.tiers?.length
-                ? result.badgeGranted.tiers.pop()?.image
-                : result.badgeGranted.image,
+                ? result.badgeGranted.tiers.pop()?.assets?.['2d'].normal
+                : result.badgeGranted.assets?.['2d'].normal,
               badgeTierName: !!result.badgeGranted.tiers?.length
                 ? result.badgeGranted.tiers.pop()?.tierName
                 : undefined,
