@@ -1,9 +1,8 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 import { AppComponents, IUserProgressValidator } from '../types'
 import { InvalidRequestError } from '@dcl/platform-server-commons'
 
-function validateTravelerProgress(data: { progress: any; completedAt: number }): boolean {
-  if (typeof data.completedAt !== 'number') return false
+function validateTravelerProgress(data: { progress: any }): boolean {
   if (!Array.isArray(data.progress.scenesVisited)) return false
   if (
     !data.progress.scenesVisited.every(
@@ -39,29 +38,19 @@ export function createBackfillMergerComponent({
       achieved_tiers: []
     }
 
-    const visitedScenes = new Set<string>(
+    const visitedScenes = new Set<string>([
       ...userProgress.progress.scenes_titles_visited,
       ...backfillData.progress.scenesVisited.map((sceneVisited: any) => sceneVisited.sceneTitle)
-    )
+    ])
+
     userProgress.progress = {
       ...userProgress.progress,
       scenes_titles_visited: Array.from(visitedScenes),
       steps: visitedScenes.size
     }
 
-    const newAchievedTiers = badgeService
-      .calculateNewAchievedTiers(badge, userProgress)
-      .filter(
-        (tier) =>
-          tier.criteria.steps <= userProgress.progress.steps &&
-          !userProgress.achieved_tiers?.find((achievedTier) => achievedTier.tier_id === tier.tierId)
-      )
-      .map((tier) => ({
-        tier_id: tier.tierId,
-        steps: tier.criteria.steps
-      }))
-
     const newAchievedTiersWithCompletedAt = backfillData.progress.scenesVisited
+      // sort events (asc) by firstVisitAt
       .sort(
         (
           sceneA: { firstVisitAt: number; sceneTitle: string },
@@ -70,29 +59,34 @@ export function createBackfillMergerComponent({
           return sceneA.firstVisitAt - sceneB.firstVisitAt
         }
       )
+      // get new achieved tiers and updated ones
       .reduce(
         (acc: any, scene: { firstVisitAt: number; sceneTitle: string }) => {
           acc.steps = acc.steps + 1
-          const didAchieveTier = newAchievedTiers.find((tier: { tier_id: string; steps: number }) => {
-            return tier.steps === acc.steps
+          const didAchieveTier = badge.tiers!.find((tier: BadgeTier) => {
+            return tier.criteria.steps === acc.steps
           })
 
           const tierAlreadyGranted = userProgress.achieved_tiers?.find(
-            (achievedTier: { tier_id: string; completed_at: number }) =>
-              achievedTier.tier_id === didAchieveTier?.tier_id
+            (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === didAchieveTier?.tierId
           )
 
-          if (didAchieveTier && (!tierAlreadyGranted || tierAlreadyGranted.completed_at > scene.firstVisitAt)) {
+          if (didAchieveTier) {
             acc.achieved_tiers.push({
-              tier_id: didAchieveTier.tier_id,
-              completed_at: scene.firstVisitAt
+              tier_id: didAchieveTier.tierId,
+              completed_at:
+                tierAlreadyGranted && tierAlreadyGranted.completed_at > scene.firstVisitAt
+                  ? scene.firstVisitAt
+                  : tierAlreadyGranted!.completed_at
             })
           }
+
+          return acc
         },
-        { steps: 0 }
+        { steps: 0, achieved_tiers: [] }
       )
 
-    userProgress.achieved_tiers!.push(...newAchievedTiersWithCompletedAt)
+    userProgress.achieved_tiers = newAchievedTiersWithCompletedAt.achieved_tiers.flat()
 
     return userProgress
   }

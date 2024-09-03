@@ -24,7 +24,6 @@ export async function badgesBackfillHandler(
       userAddress: string
       data: {
         progress: any
-        completedAt: number
       }
     }[]
   }>(context.request)
