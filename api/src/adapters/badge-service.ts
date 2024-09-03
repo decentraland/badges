@@ -144,20 +144,6 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
   }
 
-  function calculateNewAchievedTiers(badge: Badge, userProgress: UserBadge): BadgeTier[] {
-    const tiers = badge.tiers || []
-
-    const newAchievedBadges = tiers.filter(
-      (tier) =>
-        tier.criteria.steps <= userProgress.progress.steps &&
-        !userProgress.achieved_tiers!.find(
-          (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === tier.tierId
-        )
-    )
-
-    return newAchievedBadges
-  }
-
   return {
     getBadge,
     getBadges,
@@ -167,7 +153,6 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     getLatestAchievedBadges,
     calculateUserProgress,
     resetUserProgressFor,
-    saveOrUpdateUserProgresses,
-    calculateNewAchievedTiers
+    saveOrUpdateUserProgresses
   }
 }

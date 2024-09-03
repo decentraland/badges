@@ -72,7 +72,6 @@ export type IBadgeService = {
   ): { achieved: any; notAchieved: any }
   resetUserProgressFor(badgeId: BadgeId, address: EthAddress): Promise<void>
   saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void>
-  calculateNewAchievedTiers(badge: Badge, userProgress: UserBadge): BadgeTier[]
 }
 
 export type IUserProgressValidator = {
