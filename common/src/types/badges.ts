@@ -87,6 +87,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.EMOTIONISTA,
+    {
+      id: BadgeId.EMOTIONISTA,
+      name: 'Emotionista',
+      category: BadgeCategory.COLLECTOR,
+      description:
+        'Starter: 1 Emote purchased;Bronze: 10 Emotes purchased;Silver: 25 Emotes purchased;Gold: 50 Emotes purchased;Platinum: 150 Emotes purchased;Diamond: 300  Emotes purchased',
+      tiers: [
+        {
+          tierId: 'emotionista-starter',
+          tierName: 'Starter',
+          description: '1 Emote purchased',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'emotionista-bronze',
+          tierName: 'Bronze',
+          description: 'Bronze: 10 Emotes purchased',
+          criteria: { steps: 10 }
+        },
+        {
+          tierId: 'emotionista-silver',
+          tierName: 'Silver',
+          description: 'Silver: 25 Emotes purchased',
+          criteria: { steps: 25 }
+        },
+        {
+          tierId: 'emotionista-gold',
+          tierName: 'Gold',
+          description: 'Gold: 50 Emotes purchased',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'emotionista-platinum',
+          tierName: 'Platinum',
+          description: 'Platinum: 150 Emotes purchased',
+          criteria: { steps: 150 }
+        },
+        {
+          tierId: 'emotionista-diamond',
+          tierName: 'Diamond',
+          description: 'Diamond: 300  Emotes purchased',
+          criteria: { steps: 300 }
+        }
+      ]
+    }
   ]
 ])
 
