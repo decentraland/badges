@@ -79,9 +79,9 @@ export function createBackfillMergerComponent({
             acc.achieved_tiers.push({
               tier_id: didAchieveTier.tierId,
               completed_at:
-                tierAlreadyGranted && tierAlreadyGranted.completed_at > scene.firstVisitAt
-                  ? scene.firstVisitAt
-                  : tierAlreadyGranted!.completed_at
+                !!tierAlreadyGranted && tierAlreadyGranted?.completed_at < scene.firstVisitAt
+                  ? tierAlreadyGranted!.completed_at
+                  : scene.firstVisitAt
             })
           }
 
