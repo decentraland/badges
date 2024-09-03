@@ -32,7 +32,7 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
     router.delete('/users/:address/badges/:id', resetUserProgressHandler)
   }
 
-  const adminToken = await context.components.config.getString('ADMIN_TOKEN')
+  const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
   if (!!adminToken) {
     router.post('/badges/:id/backfill', badgesBackfillHandler)
   }
