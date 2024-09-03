@@ -13,7 +13,6 @@ export function createRegallyRareObserver({
   const badge: Badge = badges.get(BadgeId.REGALLY_RARE)!
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
-    logger.info('Analyzing criteria')
     let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
 
@@ -37,11 +36,6 @@ export function createRegallyRareObserver({
     if (rareWearablesEquipped.length >= AMOUNT_OF_RARE_WEARABLES_REQUIRED) {
       userProgress.completed_at = Date.now()
       userProgress.progress = { completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
-      logger.info('Granting badge', {
-        userAddress: userAddress!,
-        badgeId: BadgeId.REGALLY_RARE,
-        progress: userProgress.progress
-      })
       await db.saveUserProgress(userProgress)
       result = {
         badgeGranted: badge,

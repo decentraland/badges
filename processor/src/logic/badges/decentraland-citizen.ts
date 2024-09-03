@@ -27,11 +27,6 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
       steps: 1,
       visited: event.metadata.parcel.newParcel
     }
-    logger.info('Granting badge', {
-      userAddress: userAddress,
-      badgeId: BadgeId.DECENTRALAND_CITIZEN,
-      progress: userProgress.progress
-    })
 
     await db.saveUserProgress(userProgress)
     return {

@@ -31,7 +31,6 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
   async function handle(
     event: CatalystDeploymentEvent | CollectionCreatedEvent
   ): Promise<BadgeProcessorResult | undefined> {
-    logger.info('Analyzing criteria')
     let result: BadgeProcessorResult | undefined
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = functions.getUserAddress()
@@ -52,12 +51,6 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
 
     if (updatedUserProgress.progress.store_completed && updatedUserProgress.progress.collection_submitted) {
       updatedUserProgress.completed_at = Date.now()
-      logger.info('Granting badge', {
-        userAddress: userAddress!,
-        badgeId: BadgeId.OPEN_FOR_BUSINESS,
-        progress: updatedUserProgress.progress
-      })
-
       result = {
         badgeGranted: badge,
         userAddress: userAddress!
