@@ -23,6 +23,10 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     return db.getAllUserProgresses(address)
   }
 
+  async function getUserState(address: EthAddress, badgeId: BadgeId): Promise<UserBadge> {
+    return db.getUserProgressFor(badgeId, address)
+  }
+
   async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]> {
     const userBadges: UserBadge[] = await db.getLatestUserBadges(address)
     const badgeIdsAchievedByUser: BadgeId[] = userBadges.map((badge) => badge.badge_id as BadgeId)
@@ -136,13 +140,19 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     return db.deleteUserProgress(badgeId, address)
   }
 
+  async function saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void> {
+    await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
+  }
+
   return {
     getBadge,
     getBadges,
     getAllBadges,
     getUserStates,
+    getUserState,
     getLatestAchievedBadges,
     calculateUserProgress,
-    resetUserProgressFor
+    resetUserProgressFor,
+    saveOrUpdateUserProgresses
   }
 }

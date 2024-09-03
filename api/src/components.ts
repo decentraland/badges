@@ -12,6 +12,7 @@ import { AppComponents, GlobalContext } from './types'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createBadgeStorage, createDbComponent } from '@badges/common'
 import { createBadgeService } from './adapters/badge-service'
+import { createBackfillMergerComponent } from './logic/backfill-merger'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -51,6 +52,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const badgeStorage = await createBadgeStorage({ config })
   const badgeService = createBadgeService({ db, badgeStorage })
+  const backfillMerger = createBackfillMergerComponent({ badgeService })
 
   return {
     config,
@@ -62,6 +64,7 @@ export async function initComponents(): Promise<AppComponents> {
     pg,
     db,
     badgeStorage,
-    badgeService
+    badgeService,
+    backfillMerger
   }
 }
