@@ -42,7 +42,7 @@ export type BadgeTier = {
 }
 
 export enum BadgeId {
-  COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION = 'completed-store-and-submitted-one-collection',
+  OPEN_FOR_BUSINESS = 'open_for_business',
   REGALLY_RARE = 'regally_rare',
   EPIC_ENSEMBLE = 'epic_ensemble',
   LEGENDARY_LOOK = 'legendary_look',
