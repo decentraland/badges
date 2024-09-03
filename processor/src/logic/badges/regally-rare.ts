@@ -1,4 +1,4 @@
-import { CatalystDeploymentEvent, Entity, EthAddress, Rarity } from '@dcl/schemas'
+import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
@@ -12,7 +12,7 @@ export function createRegallyRareObserver({
 
   const badge: Badge = badges.get(BadgeId.REGALLY_RARE)!
 
-  async function check(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
+  async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
     let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
@@ -60,5 +60,14 @@ export function createRegallyRareObserver({
     }
   }
 
-  return { check, badge }
+  return {
+    handle,
+    badge,
+    events: [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.PROFILE
+      }
+    ]
+  }
 }

@@ -45,7 +45,7 @@ describe('Decentraland Citizen badge handler should', () => {
 
         const handler = createDecentralandCitizenObserver({ db, logs })
 
-        const result = await handler.check(event)
+        const result = await handler.handle(event)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.DECENTRALAND_CITIZEN, testAddress)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
@@ -100,7 +100,7 @@ describe('Decentraland Citizen badge handler should', () => {
 
         const handler = createDecentralandCitizenObserver({ db, logs })
 
-        const result = await handler.check(event)
+        const result = await handler.handle(event)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.DECENTRALAND_CITIZEN, testAddress)
         expect(db.saveUserProgress).not.toHaveBeenCalled()

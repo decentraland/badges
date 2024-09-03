@@ -86,59 +86,11 @@ export async function initComponents(): Promise<AppComponents> {
   const badgeContext = await createBadgeContext({ fetch, config })
 
   const eventDispatcher = createEventDispatcher({ logs })
-  eventDispatcher.registerObserver(
-    [
-      {
-        type: Events.Type.CATALYST_DEPLOYMENT,
-        subType: Events.SubType.CatalystDeployment.STORE
-      },
-      {
-        type: Events.Type.BLOCKCHAIN,
-        subType: Events.SubType.Blockchain.COLLECTION_CREATED
-      }
-    ],
-    createOpenForBusinessObserver({ db, logs })
-  )
-
-  eventDispatcher.registerObserver(
-    [
-      {
-        type: Events.Type.CATALYST_DEPLOYMENT,
-        subType: Events.SubType.CatalystDeployment.PROFILE
-      }
-    ],
-    createRegallyRareObserver({ db, logs, badgeContext })
-  )
-
-  eventDispatcher.registerObserver(
-    [
-      {
-        type: Events.Type.CATALYST_DEPLOYMENT,
-        subType: Events.SubType.CatalystDeployment.PROFILE
-      }
-    ],
-    createEpicEnsembleObserver({ db, logs, badgeContext })
-  )
-
-  eventDispatcher.registerObserver(
-    [
-      {
-        type: Events.Type.CLIENT,
-        subType: Events.SubType.Client.MOVE_TO_PARCEL
-      }
-    ],
-    createDecentralandCitizenObserver({ db, logs })
-  )
-
-  eventDispatcher.registerObserver(
-    [
-      {
-        type: Events.Type.CLIENT,
-        subType: Events.SubType.Client.MOVE_TO_PARCEL
-      }
-    ],
-    createTravelerObserver({ db, logs, badgeContext, memoryStorage })
-  )
+  eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs }))
+  eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createDecentralandCitizenObserver({ db, logs }))
+  eventDispatcher.registerObserver(createTravelerObserver({ db, logs, badgeContext, memoryStorage }))
 
   const eventParser = await createEventParser({ config, fetch })
 

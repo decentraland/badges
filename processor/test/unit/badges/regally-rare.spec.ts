@@ -75,7 +75,7 @@ describe('Regally Rare badge handler should', () => {
 
     const handler = createRegallyRareObserver({ db, logs, badgeContext })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
     expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.REGALLY_RARE, testAddress)
@@ -146,7 +146,7 @@ describe('Regally Rare badge handler should', () => {
 
     const handler = createRegallyRareObserver({ db, logs, badgeContext })
 
-    await handler.check(event)
+    await handler.handle(event)
 
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
     expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.REGALLY_RARE, testAddress)
@@ -209,7 +209,7 @@ describe('Regally Rare badge handler should', () => {
 
     const handler = createRegallyRareObserver({ db, logs, badgeContext })
 
-    await handler.check(event)
+    await handler.handle(event)
 
     expect(badgeContext.getWearablesWithRarity).not.toHaveBeenCalled()
     expect(db.saveUserProgress).not.toHaveBeenCalled()

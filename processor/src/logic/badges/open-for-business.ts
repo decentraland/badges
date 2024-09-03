@@ -28,7 +28,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     })
   }
 
-  async function check(
+  async function handle(
     event: CatalystDeploymentEvent | CollectionCreatedEvent
   ): Promise<BadgeProcessorResult | undefined> {
     logger.info('Analyzing criteria')
@@ -78,7 +78,17 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
   }
 
   return {
-    check,
-    badge
+    handle,
+    badge,
+    events: [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.STORE
+      },
+      {
+        type: Events.Type.BLOCKCHAIN,
+        subType: Events.SubType.Blockchain.COLLECTION_CREATED
+      }
+    ]
   }
 }

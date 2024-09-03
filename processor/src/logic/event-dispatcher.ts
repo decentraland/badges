@@ -5,8 +5,8 @@ export function createEventDispatcher({ logs }: Pick<AppComponents, 'logs'>): IE
   const logger = logs.getLogger('event-dispatcher')
   const observers: Map<string, IObserver[]> = new Map()
 
-  function registerObserver(eventsData: { type: string; subType: string }[], observer: IObserver): void {
-    for (const eventData of eventsData) {
+  function registerObserver(observer: IObserver): void {
+    for (const eventData of observer.events) {
       const key = `${eventData.type}-${eventData.subType}`
       const list = observers.get(key) || []
       list.push(observer)
@@ -20,7 +20,7 @@ export function createEventDispatcher({ logs }: Pick<AppComponents, 'logs'>): IE
     logger.debug(`Dispatching event ${key}`, { event: JSON.stringify(event) })
     if (list) {
       const checkings = list.map((observer) =>
-        observer.check(event).catch((error) => {
+        observer.handle(event).catch((error) => {
           logger.error(`Failed while executing handler for badge ${observer.badge.name} for ${key}`, {
             error: error.message
           })

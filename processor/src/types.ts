@@ -80,13 +80,19 @@ export type MessageProcessorComponent = {
 }
 
 export type IEventDispatcher = {
-  registerObserver(eventData: { type: string; subType: string }[], observer: IObserver): void
+  registerObserver(observer: IObserver): void
   dispatch(event: Event): Promise<any>
 }
 
+type EventId = {
+  type: string
+  subType: string
+}
+
 export type IObserver = {
-  check(event: Event): Promise<any>
+  handle(event: Event): Promise<any>
   badge: Badge
+  events: EventId[]
 }
 
 export type IEventParser = {

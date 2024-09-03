@@ -1,13 +1,13 @@
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { EthAddress, MoveToParcelEvent } from '@dcl/schemas'
+import { EthAddress, Events, MoveToParcelEvent } from '@dcl/schemas'
 
 export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
   const logger = logs.getLogger('decentraland-citizen-badge')
 
   const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
 
-  async function check(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
+  async function handle(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
 
     const userProgress: UserBadge =
@@ -51,7 +51,13 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
   }
 
   return {
-    check,
-    badge
+    handle,
+    badge,
+    events: [
+      {
+        type: Events.Type.CLIENT,
+        subType: Events.SubType.Client.MOVE_TO_PARCEL
+      }
+    ]
   }
 }
