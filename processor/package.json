@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-sns": "^3.600.0",
     "@aws-sdk/client-sqs": "^3.600.0",
-    "@dcl/schemas": "^13.8.5",
+    "@dcl/schemas": "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/buyer-on-itemsoldevent/dcl-schemas-13.8.6-10691854072.commit-686bdfd.tgz",
     "@dcl/urn-resolver": "^3.5.0",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^2.0.2",
