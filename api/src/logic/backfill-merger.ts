@@ -16,8 +16,11 @@ function validateTravelerProgress(data: { progress: any }): boolean {
 }
 
 export function createBackfillMergerComponent({
+  logs,
   badgeService
-}: Pick<AppComponents, 'badgeService'>): IUserProgressValidator {
+}: Pick<AppComponents, 'logs' | 'badgeService'>): IUserProgressValidator {
+  const logger = logs.getLogger('backfill-merger')
+
   function mergeTravelerProgress(
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
@@ -98,11 +101,16 @@ export function createBackfillMergerComponent({
     currentUserProgress: UserBadge | undefined,
     backfillData: any
   ): UserBadge {
-    switch (badgeId) {
-      case BadgeId.TRAVELER:
-        return mergeTravelerProgress(userAddress, currentUserProgress, backfillData)
-      default:
-        throw new InvalidRequestError('Invalid Badge ID')
+    try {
+      switch (badgeId) {
+        case BadgeId.TRAVELER:
+          return mergeTravelerProgress(userAddress, currentUserProgress, backfillData)
+        default:
+          throw new InvalidRequestError('Invalid Badge ID')
+      }
+    } catch (error: any) {
+      logger.error('Failure while backfilling badge', { error: error.message, stack: JSON.stringify(error.stack) })
+      throw new InvalidRequestError('Could not backfill this badge')
     }
   }
 
