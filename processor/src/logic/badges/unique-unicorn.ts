@@ -2,14 +2,14 @@ import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dc
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 
-const AMOUNT_OF_EPIC_WEARABLES_REQUIRED = 3
-export function createEpicEnsembleObserver({
+const AMOUNT_OF_UNIQUE_WEARABLES_REQUIRED = 3
+export function createUniqueUnicornObserver({
   db,
   logs,
   badgeContext
 }: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
-  const logger = logs.getLogger('epic-ensemble-badge')
-  const badgeId: BadgeId = BadgeId.EPIC_ENSEMBLE
+  const logger = logs.getLogger('unique-unicorn-badge')
+  const badgeId: BadgeId = BadgeId.MYTHIC_MODEL
   const badge: Badge = badges.get(badgeId)!
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
@@ -30,9 +30,9 @@ export function createEpicEnsembleObserver({
     const wearablesWithRarity: Entity[] = await badgeContext.getWearablesWithRarity(
       event.entity.metadata.avatars[0].avatar.wearables
     )
-    const rareWearablesEquipped = wearablesWithRarity.filter((wearable) => wearable.metadata?.rarity === Rarity.EPIC)
+    const rareWearablesEquipped = wearablesWithRarity.filter((wearable) => wearable.metadata?.rarity === Rarity.UNIQUE)
 
-    if (rareWearablesEquipped.length >= AMOUNT_OF_EPIC_WEARABLES_REQUIRED) {
+    if (rareWearablesEquipped.length >= AMOUNT_OF_UNIQUE_WEARABLES_REQUIRED) {
       userProgress.completed_at = Date.now()
       userProgress.progress = { completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
       await db.saveUserProgress(userProgress)

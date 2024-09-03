@@ -26,6 +26,10 @@ import {
 import { createDecentralandCitizenObserver } from './logic/badges/decentraland-citizen'
 import { createEventMemoryStorage } from './adapters/memory-cache'
 import { createTravelerObserver } from './logic/badges/traveler'
+import { createLegendaryLookObserver } from './logic/badges/legendary-look'
+import { createExoticEleganceObserver } from './logic/badges/exotic-elegance'
+import { createMythicModelObserver } from './logic/badges/mythic-model'
+import { createUniqueUnicornObserver } from './logic/badges/unique-unicorn'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -88,6 +92,10 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs }))
   eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext }))
   eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createLegendaryLookObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createExoticEleganceObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createMythicModelObserver({ db, logs, badgeContext }))
+  eventDispatcher.registerObserver(createUniqueUnicornObserver({ db, logs, badgeContext }))
   eventDispatcher.registerObserver(createDecentralandCitizenObserver({ db, logs }))
   eventDispatcher.registerObserver(createTravelerObserver({ db, logs, badgeContext, memoryStorage }))
 
