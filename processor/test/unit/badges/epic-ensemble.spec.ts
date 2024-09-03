@@ -75,7 +75,7 @@ describe('Epic Ensemble badge handler should', () => {
 
     const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
     expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.EPIC_ENSEMBLE, testAddress)
@@ -145,7 +145,7 @@ describe('Epic Ensemble badge handler should', () => {
 
     const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(result).toBe(undefined)
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
@@ -209,7 +209,7 @@ describe('Epic Ensemble badge handler should', () => {
 
     const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(result).toBe(undefined)
     expect(badgeContext.getWearablesWithRarity).not.toHaveBeenCalled()

@@ -52,7 +52,7 @@ describe('Open for Business badge handler should', () => {
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
-        const result = await handler.check(event)
+        const result = await handler.handle(event)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
@@ -92,7 +92,7 @@ describe('Open for Business badge handler should', () => {
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
-        const result = await handler.check(event)
+        const result = await handler.handle(event)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
@@ -155,7 +155,7 @@ describe('Open for Business badge handler should', () => {
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
-        let result = await handler.check(storeDeploymentEvent)
+        let result = await handler.handle(storeDeploymentEvent)
 
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
@@ -168,7 +168,7 @@ describe('Open for Business badge handler should', () => {
         })
         expect(result).toBeUndefined()
 
-        result = await handler.check(collectionCreatedEvent)
+        result = await handler.handle(collectionCreatedEvent)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.getUserProgressFor).toHaveBeenCalledTimes(2)
@@ -238,7 +238,7 @@ describe('Open for Business badge handler should', () => {
 
         const handler = createOpenForBusinessObserver({ db, logs })
 
-        let result = await handler.check(storeDeploymentEvent)
+        let result = await handler.handle(storeDeploymentEvent)
 
         expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).not.toHaveBeenCalled()
