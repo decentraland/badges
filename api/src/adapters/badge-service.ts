@@ -23,7 +23,7 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     return db.getAllUserProgresses(address)
   }
 
-  async function getUserStateFor(address: EthAddress, badgeId: BadgeId): Promise<UserBadge> {
+  async function getUserState(address: EthAddress, badgeId: BadgeId): Promise<UserBadge> {
     return db.getUserProgressFor(badgeId, address)
   }
 
@@ -163,7 +163,7 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     getBadges,
     getAllBadges,
     getUserStates,
-    getUserStateFor,
+    getUserState,
     getLatestAchievedBadges,
     calculateUserProgress,
     resetUserProgressFor,

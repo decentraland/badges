@@ -63,7 +63,7 @@ export type IBadgeService = {
   getBadges(ids: BadgeId[]): Badge[]
   getAllBadges(): Badge[]
   getUserStates(address: string): Promise<UserBadge[]>
-  getUserStateFor(address: EthAddress, badgeId: BadgeId): Promise<UserBadge>
+  getUserState(address: EthAddress, badgeId: BadgeId): Promise<UserBadge>
   getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]>
   calculateUserProgress(
     allBadges: Badge[],

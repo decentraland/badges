@@ -8,8 +8,9 @@ function validateTravelerProgress(data: { progress: any }): boolean {
     !data.progress.scenesVisited.every(
       (sceneVisited: any) => typeof sceneVisited.sceneTitle === 'string' && Number.isInteger(sceneVisited.firstVisitAt)
     )
-  )
+  ) {
     return false
+  }
 
   return true
 }

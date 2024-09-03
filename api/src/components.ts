@@ -12,7 +12,7 @@ import { AppComponents, GlobalContext } from './types'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createBadgeStorage, createDbComponent } from '@badges/common'
 import { createBadgeService } from './adapters/badge-service'
-import { createBackfillMergerComponent } from './logic/user-progress-validator'
+import { createBackfillMergerComponent } from './logic/backfill-merger'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
