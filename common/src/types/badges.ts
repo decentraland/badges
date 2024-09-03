@@ -32,9 +32,9 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     }
   ],
   [
-    BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+    BadgeId.OPEN_FOR_BUSINESS,
     {
-      id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+      id: BadgeId.OPEN_FOR_BUSINESS,
       name: 'Open for Business',
       category: BadgeCategory.EXPLORER,
       description: 'Complete Store Information and submit at least 1 collection',

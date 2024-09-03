@@ -5,7 +5,7 @@ import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
 export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
   const logger = logs.getLogger('open-for-business-badge')
 
-  const badge: Badge = badges.get(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION)!
+  const badge: Badge = badges.get(BadgeId.OPEN_FOR_BUSINESS)!
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
@@ -37,13 +37,12 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     const userAddress: EthAddress = functions.getUserAddress()
 
     const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, userAddress!)) ||
-      initProgressFor(userAddress)
+      (await db.getUserProgressFor(BadgeId.OPEN_FOR_BUSINESS, userAddress!)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
-        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
+        badgeId: BadgeId.OPEN_FOR_BUSINESS
       })
 
       return undefined
@@ -55,7 +54,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
       updatedUserProgress.completed_at = Date.now()
       logger.info('Granting badge', {
         userAddress: userAddress!,
-        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+        badgeId: BadgeId.OPEN_FOR_BUSINESS,
         progress: updatedUserProgress.progress
       })
 
@@ -73,7 +72,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+      badge_id: BadgeId.OPEN_FOR_BUSINESS,
       progress: {}
     }
   }

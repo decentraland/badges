@@ -25,7 +25,7 @@ describe('Open for Business badge handler should', () => {
         
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {},
             updated_at: 1708380838534
         }
@@ -54,10 +54,10 @@ describe('Open for Business badge handler should', () => {
 
         const result = await handler.check(event)
 
-        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, testAddress)
+        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {
                 steps: 1,
                 store_completed: true
@@ -72,7 +72,7 @@ describe('Open for Business badge handler should', () => {
         
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {},
             updated_at: 1708380838534
         }
@@ -94,10 +94,10 @@ describe('Open for Business badge handler should', () => {
 
         const result = await handler.check(event)
 
-        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, testAddress)
+        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {
                 steps: 1,
                 collection_submitted: true
@@ -112,7 +112,7 @@ describe('Open for Business badge handler should', () => {
 
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {},
             updated_at: 1708380838534
         }
@@ -159,7 +159,7 @@ describe('Open for Business badge handler should', () => {
 
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             progress: {
                 steps: 1,
                 store_completed: true
@@ -170,11 +170,11 @@ describe('Open for Business badge handler should', () => {
 
         result = await handler.check(collectionCreatedEvent)
 
-        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, testAddress)
+        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.getUserProgressFor).toHaveBeenCalledTimes(2)
         expect(db.saveUserProgress).toHaveBeenCalledWith({
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             completed_at: expect.any(Number),
             progress: {
                 steps: 2,
@@ -194,7 +194,7 @@ describe('Open for Business badge handler should', () => {
 
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
-            badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+            badge_id: BadgeId.OPEN_FOR_BUSINESS,
             completed_at: 1708380838534,
             progress: {
                 steps: 2,
@@ -240,7 +240,7 @@ describe('Open for Business badge handler should', () => {
 
         let result = await handler.check(storeDeploymentEvent)
 
-        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, testAddress)
+        expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.OPEN_FOR_BUSINESS, testAddress)
         expect(db.saveUserProgress).not.toHaveBeenCalled()
         expect(result).toBeUndefined()
     })
