@@ -51,7 +51,8 @@ export enum BadgeId {
   UNIQUE_UNICORN = 'unique_unicorn',
   DECENTRALAND_CITIZEN = 'dclcitizen',
   TRAVELER = 'traveler',
-  EMOTIONISTA = 'emotionista'
+  EMOTIONISTA = 'emotionista',
+  FASHIONISTA = 'fasionista'
 }
 
 export enum BadgeCategory {

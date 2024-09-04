@@ -135,6 +135,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.FASHIONISTA,
+    {
+      id: BadgeId.FASHIONISTA,
+      name: 'Fashionista',
+      category: BadgeCategory.COLLECTOR,
+      description:
+        'Starter: 1 Wearable purchased;Bronze: 25 Wearables purchased;Silver: 75 Wearables purchased;Gold: 250 Wearables purchased;Platinum: 500 Wearables purchased;Diamond: 1,500 Wearables purchased',
+      tiers: [
+        {
+          tierId: 'fashionista-starter',
+          tierName: 'Starter',
+          description: '1 Wearable purchased',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'fashionista-bronze',
+          tierName: 'Bronze',
+          description: 'Bronze: 25 Wearables purchased',
+          criteria: { steps: 25 }
+        },
+        {
+          tierId: 'fashionista-silver',
+          tierName: 'Silver',
+          description: 'Silver: 75 Wearables purchased',
+          criteria: { steps: 75 }
+        },
+        {
+          tierId: 'fashionista-gold',
+          tierName: 'Gold',
+          description: 'Gold: 250 Wearables purchased',
+          criteria: { steps: 250 }
+        },
+        {
+          tierId: 'fashionista-platinum',
+          tierName: 'Platinum',
+          description: 'Platinum: 500 Wearables purchased',
+          criteria: { steps: 500 }
+        },
+        {
+          tierId: 'fashionista-diamond',
+          tierName: 'Diamond',
+          description: 'Diamond: 1,500 Wearables purchased',
+          criteria: { steps: 1500 }
+        }
+      ]
+    }
   ]
 ])
 
