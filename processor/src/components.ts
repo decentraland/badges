@@ -30,6 +30,7 @@ import { createLegendaryLookObserver } from './logic/badges/legendary-look'
 import { createExoticEleganceObserver } from './logic/badges/exotic-elegance'
 import { createMythicModelObserver } from './logic/badges/mythic-model'
 import { createUniqueUnicornObserver } from './logic/badges/unique-unicorn'
+import { createProfileProObserver } from './logic/badges/profile-pro'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -98,6 +99,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createUniqueUnicornObserver({ db, logs, badgeContext }))
   eventDispatcher.registerObserver(createDecentralandCitizenObserver({ db, logs }))
   eventDispatcher.registerObserver(createTravelerObserver({ db, logs, badgeContext, memoryStorage }))
+  eventDispatcher.registerObserver(createProfileProObserver({ db, logs }))
 
   const eventParser = await createEventParser({ config, fetch })
 
