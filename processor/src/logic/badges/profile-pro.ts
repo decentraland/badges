@@ -22,9 +22,7 @@ export function createProfileProObserver({ db, logs }: Pick<AppComponents, 'db' 
       return undefined
     }
 
-    const hasCompletedProfileDescription =
-      !!event.entity.metadata.avatars[0].avatar.description &&
-      event.entity.metadata.avatars[0].avatar.description !== ''
+    const hasCompletedProfileDescription = !!event.entity.metadata.avatars[0].avatar.description
 
     if (hasCompletedProfileDescription) {
       userProgress.completed_at = Date.now()
