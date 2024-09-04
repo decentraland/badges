@@ -866,10 +866,10 @@
     ajv-keywords "^5.1.0"
     mitt "^3.0.1"
 
-"@dcl/schemas@^13.8.5":
-  version "13.8.5"
-  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-13.8.5.tgz#0224c91cb78dacce372c65234390fe00b5f04c34"
-  integrity sha512-SO0pHJi3xfjwMMbVVLsXm/qrt1L7VCO09MA+eefsGPmfbboiUIBM2mxJFBMxrCn/F/+SSxI3uLHo8xytCjFdkg==
+"@dcl/schemas@^13.8.6":
+  version "13.8.6"
+  resolved "https://registry.yarnpkg.com/@dcl/schemas/-/schemas-13.8.6.tgz#ada9cf0c55544a622d2a2f0f76d206fceeaa5a43"
+  integrity sha512-n79qq6vT+95CY+o3wDroQ97q2vFuIRDKPcJI9S+RVOg9PyVYs8Z4bsHp6kqP2FhhscNLc85xEnIdD2/3SIh56A==
   dependencies:
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
@@ -884,15 +884,6 @@
     ajv "^8.11.0"
     ajv-errors "^3.0.0"
     ajv-keywords "^5.1.0"
-
-"@dcl/schemas@https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/buyer-on-itemsoldevent/dcl-schemas-13.8.6-10691854072.commit-686bdfd.tgz":
-  version "13.8.6-10691854072.commit-686bdfd"
-  resolved "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/buyer-on-itemsoldevent/dcl-schemas-13.8.6-10691854072.commit-686bdfd.tgz#85df8e1b45f16aa0e31101e69a45b8a4f188c8cc"
-  dependencies:
-    ajv "^8.11.0"
-    ajv-errors "^3.0.0"
-    ajv-keywords "^5.1.0"
-    mitt "^3.0.1"
 
 "@dcl/urn-resolver@^3.5.0":
   version "3.5.0"
