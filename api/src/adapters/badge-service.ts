@@ -29,14 +29,19 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
 
   async function getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]> {
     const userBadges: UserBadge[] = await db.getLatestUserBadges(address)
-    const badgeIdsAchievedByUser: BadgeId[] = userBadges.map((badge) => badge.badge_id as BadgeId)
+    const badgeIdsAchievedByUser: BadgeId[] = Array.from(new Set(userBadges.map((badge) => badge.badge_id as BadgeId)))
     const badgesDefinitions: Badge[] = getBadges(badgeIdsAchievedByUser)
 
     return userBadges.map((userBadge) => {
       const relatedBadgeDefinition: Badge = badgesDefinitions.find((badge) => badge.id === userBadge.badge_id)!
-      const achievedTier: BadgeTier | undefined = relatedBadgeDefinition.tiers?.find(
-        (tier) => tier.tierId === userBadge.achieved_tiers?.pop()?.tier_id
-      )
+      const achievedTier: BadgeTier | undefined = relatedBadgeDefinition.tiers?.find((tier) => {
+        const achievedTierId =
+          userBadge.achieved_tiers && userBadge?.achieved_tiers.length
+            ? userBadge?.achieved_tiers[0]?.tier_id
+            : undefined
+
+        return achievedTierId ? tier.tierId === achievedTierId : false
+      })
 
       return {
         id: relatedBadgeDefinition.id,
