@@ -72,12 +72,8 @@ export function createEmotionistaObserver({ db, logs }: Pick<AppComponents, 'db'
     badge,
     events: [
       {
-        type: Events.Type.CATALYST_DEPLOYMENT,
-        subType: Events.SubType.CatalystDeployment.STORE
-      },
-      {
         type: Events.Type.BLOCKCHAIN,
-        subType: Events.SubType.Blockchain.COLLECTION_CREATED
+        subType: Events.SubType.Blockchain.ITEM_SOLD
       }
     ]
   }
