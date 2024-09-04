@@ -1,4 +1,12 @@
-import { CatalystDeploymentEvent, CollectionCreatedEvent, Entity, Event, Events, MoveToParcelEvent } from '@dcl/schemas'
+import {
+  CatalystDeploymentEvent,
+  CollectionCreatedEvent,
+  Entity,
+  Event,
+  Events,
+  ItemSoldEvent,
+  MoveToParcelEvent
+} from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
 
@@ -39,6 +47,10 @@ export async function createEventParser({
 
       if (event.type === Events.Type.CLIENT && event.subType === Events.SubType.Client.MOVE_TO_PARCEL) {
         return event as MoveToParcelEvent
+      }
+
+      if (event.type === Events.Type.BLOCKCHAIN && event.subType === Events.SubType.Blockchain.ITEM_SOLD) {
+        return event as ItemSoldEvent
       }
 
       return undefined
