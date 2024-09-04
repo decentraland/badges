@@ -15,11 +15,11 @@ export function createFashionistaObserver({ db, logs }: Pick<AppComponents, 'db'
 
     const userAddress: EthAddress = event.metadata.buyer
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
-        userAddress: userAddress!,
+        userAddress: userAddress,
         badgeId: badgeId
       })
 
@@ -72,12 +72,8 @@ export function createFashionistaObserver({ db, logs }: Pick<AppComponents, 'db'
     badge,
     events: [
       {
-        type: Events.Type.CATALYST_DEPLOYMENT,
-        subType: Events.SubType.CatalystDeployment.STORE
-      },
-      {
         type: Events.Type.BLOCKCHAIN,
-        subType: Events.SubType.Blockchain.COLLECTION_CREATED
+        subType: Events.SubType.Blockchain.ITEM_SOLD
       }
     ]
   }
