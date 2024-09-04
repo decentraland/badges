@@ -15,11 +15,11 @@ export function createEmotionistaObserver({ db, logs }: Pick<AppComponents, 'db'
 
     const userAddress: EthAddress = event.metadata.buyer
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
-        userAddress: userAddress!,
+        userAddress: userAddress,
         badgeId: badgeId
       })
 
