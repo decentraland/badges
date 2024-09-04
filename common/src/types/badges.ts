@@ -110,7 +110,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         {
           tierId: 'emotionista-starter',
           tierName: 'Starter',
-          description: '1 Emote purchased',
+          description: 'Starter: 1 Emote purchased',
           criteria: { steps: 1 }
         },
         {
