@@ -50,7 +50,8 @@ export enum BadgeId {
   MYTHIC_MODEL = 'mythic_model',
   UNIQUE_UNICORN = 'unique_unicorn',
   DECENTRALAND_CITIZEN = 'dclcitizen',
-  TRAVELER = 'traveler'
+  TRAVELER = 'traveler',
+  PROFILE_PRO = 'profile_pro'
 }
 
 export enum BadgeCategory {

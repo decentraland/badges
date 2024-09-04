@@ -87,6 +87,16 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.PROFILE_PRO,
+    {
+      id: BadgeId.PROFILE_PRO,
+      name: 'Profile Pro',
+      category: BadgeCategory.SOCIALIZER,
+      description: 'Added information to Profile',
+      criteria: { steps: 1 }
+    }
   ]
 ])
 
