@@ -27,10 +27,10 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
   router.get('/status', getStatusHandler)
 
   // manage workflow
-  const shouldExposeEndpointsToManageWorkflows = (await context.components.config.getString('ENV')) === 'dev'
-  if (shouldExposeEndpointsToManageWorkflows) {
-    router.delete('/users/:address/badges/:id', resetUserProgressHandler)
-  }
+  // const shouldExposeEndpointsToManageWorkflows = (await context.components.config.getString('ENV')) === 'dev'
+  // if (shouldExposeEndpointsToManageWorkflows) {
+  router.delete('/users/:address/badges/:id', resetUserProgressHandler)
+  // }
 
   const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
   if (!!adminToken) {
