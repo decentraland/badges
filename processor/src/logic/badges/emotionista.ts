@@ -1,12 +1,15 @@
 import { EthAddress, Events, ItemSoldEvent } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, BadgeTier, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 
-export function createEmotionistaObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createEmotionistaObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('emotionista-badge')
-
-  const badge: Badge = badges.get(BadgeId.EMOTIONISTA)!
   const badgeId: BadgeId = BadgeId.EMOTIONISTA
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: ItemSoldEvent): Promise<BadgeProcessorResult | undefined> {
     if (event.metadata.category !== 'emote') {

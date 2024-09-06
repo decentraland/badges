@@ -8,6 +8,7 @@ export type BadgeStorageComponents = {
 
 export type IBadgeStorage = {
   getBadges(): Map<BadgeId, Badge>
+  getBadge(id: BadgeId): Badge
 }
 
 export async function createBadgeStorage({ config }: BadgeStorageComponents): Promise<IBadgeStorage> {
@@ -19,5 +20,13 @@ export async function createBadgeStorage({ config }: BadgeStorageComponents): Pr
     return aggregatedBadges
   }
 
-  return { getBadges }
+  function getBadge(id: BadgeId): Badge {
+    const badge = aggregatedBadges.get(id)
+    if (!badge) {
+      throw new Error(`Badge with id ${id} not found`)
+    }
+    return badge
+  }
+
+  return { getBadges, getBadge }
 }

@@ -1,17 +1,17 @@
-import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Entity, EthAddress, Events, MoveToParcelEvent } from '@dcl/schemas'
 
 export function createTravelerObserver({
   db,
-  badgeContext,
   logs,
+  badgeContext,
+  badgeStorage,
   memoryStorage
-}: Pick<AppComponents, 'db' | 'badgeContext' | 'logs' | 'memoryStorage'>): IObserver {
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage' | 'memoryStorage'>): IObserver {
   const logger = logs.getLogger('traveler-badge')
-  const EXPLORER_ALPHA_LINKED_ENVIRONMENT = 'https://peer.decentraland.org/content'
-
-  const badge: Badge = badges.get(BadgeId.TRAVELER)!
+  const badgeId: BadgeId = BadgeId.TRAVELER
+  const badge: Badge = badgeStorage.getBadge(badgeId)
   const tieredBadges = badge.tiers!
 
   function isFirstMovement(movementEvents: any[]): boolean {
@@ -30,20 +30,19 @@ export function createTravelerObserver({
 
     const userAddress = event.metadata.userAddress
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.TRAVELER, userAddress)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress,
-        badgeId: BadgeId.TRAVELER
+        badgeId: badgeId
       })
 
       return undefined
     }
 
     const parsedPointer = event.metadata.parcel.newParcel.replace(/[()\s]/g, '')
-    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer, EXPLORER_ALPHA_LINKED_ENVIRONMENT)
+    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer)
     const sceneTitle: string | undefined = scene?.metadata?.display?.title || undefined
     logger.debug(`Fetched scene for pointer ${parsedPointer}`, { fetchedScene: JSON.stringify(scene) })
 
@@ -143,7 +142,7 @@ export function createTravelerObserver({
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.TRAVELER,
+      badge_id: badgeId,
       progress: {
         steps: 0,
         scenes_titles_visited: []

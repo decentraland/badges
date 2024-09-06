@@ -60,6 +60,9 @@ export function createMessagesConsumerComponent({
             entityId: parsedMessage?.key || 'unknown',
             error: error?.message || 'Unexpected failure'
           })
+          logger.debug('Failed while processing message from queue', {
+            stack: JSON.stringify(error?.stack)
+          })
           // TODO: Add a retry mechanism OR DLQ
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         }

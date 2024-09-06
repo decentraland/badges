@@ -1,16 +1,17 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
 const AMOUNT_OF_EPIC_WEARABLES_REQUIRED = 3
 export function createEpicEnsembleObserver({
   db,
   logs,
-  badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
+  badgeContext,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('epic-ensemble-badge')
   const badgeId: BadgeId = BadgeId.EPIC_ENSEMBLE
-  const badge: Badge = badges.get(badgeId)!
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined

@@ -32,6 +32,36 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     }
   ],
   [
+    BadgeId.LEGENDARY_LOOK,
+    {
+      id: BadgeId.LEGENDARY_LOOK,
+      name: 'Legendary Look',
+      category: BadgeCategory.COLLECTOR,
+      description: 'Equiped outfit with at least 3 Legendary Wearables',
+      criteria: { steps: 1 }
+    }
+  ],
+  [
+    BadgeId.MYTHIC_MODEL,
+    {
+      id: BadgeId.MYTHIC_MODEL,
+      name: 'Mythic Model',
+      category: BadgeCategory.COLLECTOR,
+      description: 'Equiped outfit with at least 3 Mythic Wearables',
+      criteria: { steps: 1 }
+    }
+  ],
+  [
+    BadgeId.UNIQUE_UNICORN,
+    {
+      id: BadgeId.UNIQUE_UNICORN,
+      name: 'Unique Unicorn',
+      category: BadgeCategory.COLLECTOR,
+      description: 'Equiped outfit with at least 3 Unique Wearables',
+      criteria: { steps: 1 }
+    }
+  ],
+  [
     BadgeId.OPEN_FOR_BUSINESS,
     {
       id: BadgeId.OPEN_FOR_BUSINESS,
@@ -39,6 +69,16 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.EXPLORER,
       description: 'Complete Store Information and submit at least 1 collection',
       criteria: { steps: 2 }
+    }
+  ],
+  [
+    BadgeId.EXOTIC_ELEGANCE,
+    {
+      id: BadgeId.EXOTIC_ELEGANCE,
+      name: 'Exotic Elegance',
+      category: BadgeCategory.COLLECTOR,
+      description: 'Equiped outfit with at least 3 Exotic Wearables',
+      criteria: { steps: 1 }
     }
   ],
   [
