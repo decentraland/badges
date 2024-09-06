@@ -1,6 +1,8 @@
 import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 import { AppComponents, IUserProgressValidator } from '../types'
 import { InvalidRequestError } from '@dcl/platform-server-commons'
+import { EthAddress } from '@dcl/schemas'
+import { parseUrn } from '@dcl/urn-resolver'
 
 function validateTravelerProgress(data: { progress: any }): boolean {
   if (!Array.isArray(data.progress.scenesVisited)) return false
@@ -15,17 +17,30 @@ function validateTravelerProgress(data: { progress: any }): boolean {
   return true
 }
 
+async function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any }): Promise<boolean> {
+  if (!Array.isArray(data.progress.completedWith)) return false
+  if (!data.progress.completedAt || !Number.isInteger(data.progress.completedAt)) return false
+  if (!data.progress.completedWith.every((wearableUrn: any) => typeof wearableUrn === 'string')) return false
+
+  const allUrnsValidations = await Promise.all(
+    data.progress.completedWith.map((wearableUrn: any) => parseUrn(wearableUrn))
+  )
+  if (allUrnsValidations.includes(null)) return false
+
+  return true
+}
+
 export function createBackfillMergerComponent({
   logs,
   badgeService
 }: Pick<AppComponents, 'logs' | 'badgeService'>): IUserProgressValidator {
   const logger = logs.getLogger('backfill-merger')
 
-  function mergeTravelerProgress(
+  async function mergeTravelerProgress(
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): UserBadge {
+  ): Promise<UserBadge> {
     if (!validateTravelerProgress(backfillData)) {
       throw new InvalidRequestError('Invalid back-fill data')
     }
@@ -95,16 +110,52 @@ export function createBackfillMergerComponent({
     return userProgress
   }
 
+  async function mergeWearablesEquipementRelatedBadgesProgress(
+    userAddress: EthAddress,
+    currentUserProgress: UserBadge | undefined,
+    backfillData: any
+  ): Promise<UserBadge> {
+    const badge: Badge = badgeService.getBadge(backfillData.badgeId)!
+    if (!badge || !validateWearablesEquipementRelatedBadgesProgress(backfillData)) {
+      throw new InvalidRequestError('Invalid back-fill data')
+    }
+
+    const userProgress = currentUserProgress || {
+      user_address: userAddress,
+      badge_id: backfillData.badgeId,
+      completed_at: 0,
+      progress: {
+        steps: 1,
+        completed_with: []
+      }
+    }
+
+    if (backfillData.progress.completedAt < userProgress.progress.completedAt) {
+      userProgress.completed_at = backfillData.progress.completedAt
+      userProgress.progress.completed_with = backfillData.progress.completedWith
+    }
+
+    return userProgress
+  }
+
   function mergeUserProgress(
     badgeId: BadgeId,
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): UserBadge {
+  ): Promise<UserBadge> {
     try {
       switch (badgeId) {
         case BadgeId.TRAVELER:
           return mergeTravelerProgress(userAddress, currentUserProgress, backfillData)
+        case BadgeId.REGALLY_RARE:
+        case BadgeId.EXOTIC_ELEGANCE:
+        case BadgeId.EPIC_ENSEMBLE:
+        case BadgeId.UNIQUE_UNICORN:
+        case BadgeId.LEGENDARY_LOOK:
+        case BadgeId.MYTHIC_MODEL:
+          return mergeWearablesEquipementRelatedBadgesProgress(userAddress, currentUserProgress, backfillData)
+
         default:
           throw new InvalidRequestError('Invalid Badge ID')
       }

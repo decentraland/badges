@@ -31,7 +31,12 @@ export async function badgesBackfillHandler(
   const promises = registries.map(async (registry) => {
     const { userAddress, data } = registry
     const currentUserProgress = await badgeService.getUserState(userAddress, parsedBadgeId)
-    const mergedUserProgress = backfillMerger.mergeUserProgress(parsedBadgeId, userAddress, currentUserProgress, data)
+    const mergedUserProgress = await backfillMerger.mergeUserProgress(
+      parsedBadgeId,
+      userAddress,
+      currentUserProgress,
+      data
+    )
 
     await badgeService.saveOrUpdateUserProgresses([mergedUserProgress])
   })

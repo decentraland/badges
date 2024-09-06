@@ -80,5 +80,5 @@ export type IUserProgressValidator = {
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): UserBadge
+  ): Promise<UserBadge>
 }
