@@ -17,30 +17,25 @@ function validateTravelerProgress(data: { progress: any }): boolean {
   return true
 }
 
-async function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any }): Promise<boolean> {
-  if (!Array.isArray(data.progress.completedWith)) return false
-  if (!data.progress.completedAt || !Number.isInteger(data.progress.completedAt)) return false
-  if (!data.progress.completedWith.every((wearableUrn: any) => typeof wearableUrn === 'string')) return false
-
-  const allUrnsValidations = await Promise.all(
-    data.progress.completedWith.map((wearableUrn: any) => parseUrn(wearableUrn))
-  )
-  if (allUrnsValidations.includes(null)) return false
-
-  return true
-}
-
 export function createBackfillMergerComponent({
   logs,
   badgeService
 }: Pick<AppComponents, 'logs' | 'badgeService'>): IUserProgressValidator {
   const logger = logs.getLogger('backfill-merger')
 
-  async function mergeTravelerProgress(
+  function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any }): boolean {
+    if (!Array.isArray(data.progress.completedWith)) return false
+    if (!data.progress.completedAt || !Number.isInteger(data.progress.completedAt)) return false
+    if (!data.progress.completedWith.every((wearableUrn: any) => typeof wearableUrn === 'string')) return false
+
+    return true
+  }
+
+  function mergeTravelerProgress(
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): Promise<UserBadge> {
+  ): UserBadge {
     if (!validateTravelerProgress(backfillData)) {
       throw new InvalidRequestError('Invalid back-fill data')
     }
@@ -110,14 +105,15 @@ export function createBackfillMergerComponent({
     return userProgress
   }
 
-  async function mergeWearablesEquipementRelatedBadgesProgress(
+  function mergeWearablesEquipementRelatedBadgesProgress(
     userAddress: EthAddress,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): Promise<UserBadge> {
+  ): UserBadge {
     const badge: Badge = badgeService.getBadge(backfillData.badgeId)!
-    if (!badge || !validateWearablesEquipementRelatedBadgesProgress(backfillData)) {
-      throw new InvalidRequestError('Invalid back-fill data')
+    const isValid = validateWearablesEquipementRelatedBadgesProgress(backfillData)
+    if (!badge || !isValid) {
+      throw new InvalidRequestError(`Faile while processing ${userAddress}`)
     }
 
     const userProgress = currentUserProgress || {
@@ -143,7 +139,7 @@ export function createBackfillMergerComponent({
     userAddress: string,
     currentUserProgress: UserBadge | undefined,
     backfillData: any
-  ): Promise<UserBadge> {
+  ): UserBadge {
     try {
       switch (badgeId) {
         case BadgeId.TRAVELER:

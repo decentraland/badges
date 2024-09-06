@@ -6,12 +6,13 @@ import { parseBadgeId } from '../../logic/utils'
 
 export async function badgesBackfillHandler(
   context: Pick<
-    HandlerContextWithPath<'badgeService' | 'backfillMerger', '/badges/:id/backfill'>,
+    HandlerContextWithPath<'badgeService' | 'backfillMerger' | 'logs', '/badges/:id/backfill'>,
     'url' | 'request' | 'components' | 'params'
   >
 ): Promise<IHttpServerComponent.IResponse> {
+  const { badgeService, backfillMerger, logs } = context.components
+  const logger = logs.getLogger('badges-backfiller-handler')
   try {
-    const { badgeService, backfillMerger } = context.components
     const badgeId = context.params.id
 
     const parsedBadgeId: BadgeId | undefined = parseBadgeId(badgeId)
@@ -31,17 +32,16 @@ export async function badgesBackfillHandler(
 
     const promises = registries.map(async (registry) => {
       const { userAddress, data } = registry
+      logger.info('Processing backfill for user', {
+        userAddress,
+        badgeId: parsedBadgeId
+      })
       const currentUserProgress = await badgeService.getUserState(userAddress, parsedBadgeId)
 
-      const mergedUserProgress = await backfillMerger.mergeUserProgress(
-        parsedBadgeId,
-        userAddress,
-        currentUserProgress,
-        {
-          ...data,
-          badgeId: parsedBadgeId
-        }
-      )
+      const mergedUserProgress = backfillMerger.mergeUserProgress(parsedBadgeId, userAddress, currentUserProgress, {
+        ...data,
+        badgeId: parsedBadgeId
+      })
 
       await badgeService.saveOrUpdateUserProgresses([mergedUserProgress])
     })
@@ -51,6 +51,10 @@ export async function badgesBackfillHandler(
       status: 204
     }
   } catch (error: any) {
+    logger.error('Error processing backfill', {
+      error: error.message,
+      stack: JSON.stringify(error.stack)
+    })
     return {
       status: error.status || 500,
       body: {
