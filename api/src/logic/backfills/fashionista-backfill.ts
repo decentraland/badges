@@ -40,6 +40,12 @@ export function mergeFashionistaProgress(
     achieved_tiers: []
   }
 
+  console.log({
+    userAddress,
+    backfillData: JSON.stringify(backfillData),
+    userProgress: JSON.stringify(userProgress)
+  })
+
   const uniqueTransactions = new Set<string>([
     ...userProgress.progress.transactions_wearables_purchase,
     ...backfillData.progress.wearablesBought.map((wearable: any) => wearable.transactionHash)
