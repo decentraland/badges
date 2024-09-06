@@ -64,7 +64,7 @@ export function createFashionistaObserver({
       badge_id: badgeId,
       progress: {
         steps: 0,
-        transactions_wearable_purchase: []
+        transactions_wearables_purchase: []
       },
       achieved_tiers: []
     }
