@@ -82,7 +82,8 @@ describe('Regally Rare badge handler should', () => {
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       ...currentUserProgress,
       progress: {
-        completed_with: wearablesUrn
+        completed_with: wearablesUrn,
+        steps: 1
       }
     })
 

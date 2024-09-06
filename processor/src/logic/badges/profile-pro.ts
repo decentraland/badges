@@ -26,7 +26,7 @@ export function createProfileProObserver({ db, logs }: Pick<AppComponents, 'db' 
 
     if (hasCompletedProfileDescription) {
       userProgress.completed_at = Date.now()
-      userProgress.progress = { steps: 1, descriptionAdded: event.entity.metadata.avatars[0].avatar.description }
+      userProgress.progress = { steps: 1, description_added: event.entity.metadata.avatars[0].avatar.description }
       await db.saveUserProgress(userProgress)
       result = {
         badgeGranted: badge,
