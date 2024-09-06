@@ -43,7 +43,7 @@ export function createTravelerObserver({
     }
 
     const parsedPointer = event.metadata.parcel.newParcel.replace(/[()\s]/g, '')
-    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer, EXPLORER_ALPHA_LINKED_ENVIRONMENT)
+    const scene: Entity = await badgeContext.getEntityByPointer(parsedPointer)
     const sceneTitle: string | undefined = scene?.metadata?.display?.title || undefined
     logger.debug(`Fetched scene for pointer ${parsedPointer}`, { fetchedScene: JSON.stringify(scene) })
 
