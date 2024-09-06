@@ -8,7 +8,7 @@ import type {
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
-import { Badge, DbComponent } from '@badges/common'
+import { Badge, DbComponent, IBadgeStorage } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
 import { BadgeGrantedEvent } from '@dcl/schemas/dist/platform/events/services'
@@ -39,6 +39,7 @@ export type AppComponents = BaseComponents & {
   eventParser: IEventParser
   badgeContext: IBadgeContext
   memoryStorage: EventMemoryStorage
+  badgeStorage: IBadgeStorage
 }
 
 // components used in tests

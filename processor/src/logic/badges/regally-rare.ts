@@ -1,28 +1,28 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
 const AMOUNT_OF_RARE_WEARABLES_REQUIRED = 3
 export function createRegallyRareObserver({
   db,
   logs,
-  badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
+  badgeContext,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('regally-rare-badge')
-
-  const badge: Badge = badges.get(BadgeId.REGALLY_RARE)!
+  const badgeId: BadgeId = BadgeId.REGALLY_RARE
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined
     const userAddress = event.entity.pointers[0]
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.REGALLY_RARE, userAddress!)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
-        badgeId: BadgeId.REGALLY_RARE
+        badgeId: badgeId
       })
 
       return undefined
@@ -52,7 +52,7 @@ export function createRegallyRareObserver({
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.REGALLY_RARE,
+      badge_id: badgeId,
       progress: {
         steps: 0
       }

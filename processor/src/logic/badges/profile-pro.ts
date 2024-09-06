@@ -1,11 +1,15 @@
 import { CatalystDeploymentEvent, EthAddress, Events } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
-export function createProfileProObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createProfileProObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('profile-pro-badge')
   const badgeId: BadgeId = BadgeId.PROFILE_PRO
-  const badge: Badge = badges.get(badgeId)!
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined

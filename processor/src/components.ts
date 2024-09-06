@@ -4,7 +4,7 @@ import { createLogComponent } from '@well-known-components/logger'
 import { createFetchComponent } from '@well-known-components/fetch-component'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createMetricsComponent } from '@well-known-components/metrics'
-import { createDbComponent } from '@badges/common'
+import { createBadgeStorage, createDbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
 import { createSqsAdapter } from './adapters/sqs'
@@ -90,20 +90,21 @@ export async function initComponents(): Promise<AppComponents> {
 
   const memoryStorage = createEventMemoryStorage()
   const badgeContext = await createBadgeContext({ fetch, config })
+  const badgeStorage = await createBadgeStorage({ config })
 
   const eventDispatcher = createEventDispatcher({ logs })
-  eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs }))
-  eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createLegendaryLookObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createExoticEleganceObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createMythicModelObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createUniqueUnicornObserver({ db, logs, badgeContext }))
-  eventDispatcher.registerObserver(createDecentralandCitizenObserver({ db, logs }))
-  eventDispatcher.registerObserver(createTravelerObserver({ db, logs, badgeContext, memoryStorage }))
-  eventDispatcher.registerObserver(createProfileProObserver({ db, logs }))
-  eventDispatcher.registerObserver(createEmotionistaObserver({ db, logs }))
-  eventDispatcher.registerObserver(createFashionistaObserver({ db, logs }))
+  eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createMythicModelObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createUniqueUnicornObserver({ db, logs, badgeContext, badgeStorage }))
+  eventDispatcher.registerObserver(createDecentralandCitizenObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createTravelerObserver({ db, logs, badgeContext, badgeStorage, memoryStorage }))
+  eventDispatcher.registerObserver(createProfileProObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createEmotionistaObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createFashionistaObserver({ db, logs, badgeStorage }))
 
   const eventParser = await createEventParser({ config, fetch })
 
@@ -132,6 +133,7 @@ export async function initComponents(): Promise<AppComponents> {
     eventDispatcher,
     eventParser,
     badgeContext,
+    badgeStorage,
     memoryStorage
   }
 }

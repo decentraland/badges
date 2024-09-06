@@ -1,16 +1,17 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
 const AMOUNT_OF_MYTHIC_WEARABLES_REQUIRED = 3
 export function createMythicModelObserver({
   db,
   logs,
-  badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
+  badgeContext,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('mythic-model-badge')
   const badgeId: BadgeId = BadgeId.MYTHIC_MODEL
-  const badge: Badge = badges.get(badgeId)!
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined

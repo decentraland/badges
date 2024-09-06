@@ -6,11 +6,12 @@ const AMOUNT_OF_UNIQUE_WEARABLES_REQUIRED = 3
 export function createUniqueUnicornObserver({
   db,
   logs,
-  badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
+  badgeContext,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('unique-unicorn-badge')
   const badgeId: BadgeId = BadgeId.MYTHIC_MODEL
-  const badge: Badge = badges.get(badgeId)!
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined

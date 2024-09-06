@@ -1,22 +1,25 @@
-import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { EthAddress, Events, MoveToParcelEvent } from '@dcl/schemas'
 
-export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createDecentralandCitizenObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('decentraland-citizen-badge')
-
-  const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
+  const badgeId: BadgeId = BadgeId.DECENTRALAND_CITIZEN
+  const badge: Badge = badgeStorage.getBadge(badgeId)!
 
   async function handle(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.DECENTRALAND_CITIZEN, userAddress)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress,
-        badgeId: BadgeId.DECENTRALAND_CITIZEN
+        badgeId: badgeId
       })
 
       return undefined
@@ -38,7 +41,7 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.DECENTRALAND_CITIZEN,
+      badge_id: badgeId,
       progress: {
         steps: 0
       }

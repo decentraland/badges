@@ -1,11 +1,15 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
-export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createOpenForBusinessObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('open-for-business-badge')
-
-  const badge: Badge = badges.get(BadgeId.OPEN_FOR_BUSINESS)!
+  const badgeId: BadgeId = BadgeId.OPEN_FOR_BUSINESS
+  const badge: Badge = badgeStorage.getBadge(badgeId)!
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
@@ -35,13 +39,12 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = functions.getUserAddress()
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.OPEN_FOR_BUSINESS, userAddress!)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
-        badgeId: BadgeId.OPEN_FOR_BUSINESS
+        badgeId: badgeId
       })
 
       return undefined
@@ -65,7 +68,7 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
   function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.OPEN_FOR_BUSINESS,
+      badge_id: badgeId,
       progress: {}
     }
   }

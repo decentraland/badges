@@ -1,12 +1,15 @@
 import { EthAddress, Events, ItemSoldEvent } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
-import { Badge, BadgeId, BadgeTier, UserBadge, badges } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 
-export function createFashionistaObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createFashionistaObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('fashionista-badge')
-
-  const badge: Badge = badges.get(BadgeId.FASHIONISTA)!
   const badgeId: BadgeId = BadgeId.FASHIONISTA
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: ItemSoldEvent): Promise<BadgeProcessorResult | undefined> {
     if (event.metadata.category !== 'wearable') {

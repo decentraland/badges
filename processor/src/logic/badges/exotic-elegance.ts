@@ -6,11 +6,12 @@ const AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED = 3
 export function createExoticEleganceObserver({
   db,
   logs,
-  badgeContext
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>): IObserver {
+  badgeContext,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('exotic-elegance-badge')
   const badgeId: BadgeId = BadgeId.EXOTIC_ELEGANCE
-  const badge: Badge = badges.get(badgeId)!
+  const badge: Badge = badgeStorage.getBadge(badgeId)
 
   async function handle(event: CatalystDeploymentEvent): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined
