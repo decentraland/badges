@@ -1,6 +1,6 @@
 import { Router } from '@well-known-components/http-server'
 import { GlobalContext } from '../types'
-import { errorHandler } from '@dcl/platform-server-commons'
+import { bearerTokenMiddleware, errorHandler } from '@dcl/platform-server-commons'
 import { getUserBadgesHandler } from './handlers/get-user-badges'
 import { getStatusHandler } from './handlers/get-service-status'
 import { getBadgesHandler } from './handlers/get-badges'
@@ -34,7 +34,7 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
 
   const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
   if (!!adminToken) {
-    router.post('/badges/:id/backfill', badgesBackfillHandler)
+    router.post('/badges/:id/backfill', bearerTokenMiddleware(adminToken), badgesBackfillHandler)
   }
 
   return router
