@@ -233,6 +233,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.EVENT_ENTHUSIAST,
+    {
+      id: BadgeId.EVENT_ENTHUSIAST,
+      name: 'Event Enthusiast',
+      category: BadgeCategory.EXPLORER,
+      description:
+        'Starter: 1 Events attended (for at least 5 min);Bronze: 50 Events attended (for at least 5 min);Silver: 100 Events attended (for at least 5 min);Gold: 500 Events attended (for at least 5 min);Platinum: 1000 Events attended (for at least 5 min);Diamond: 2000 Events attended (for at least 5 min)',
+      tiers: [
+        {
+          tierId: 'event-enthusiast-starter',
+          tierName: 'Starter',
+          description: 'Starter: 1 Events attended (for at least 5 min)',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'event-enthusiast-bronze',
+          tierName: 'Bronze',
+          description: 'Bronze: 50 Events attended (for at least 5 min)',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'event-enthusiast-silver',
+          tierName: 'Silver',
+          description: 'Silver: 100 Events attended (for at least 5 min)',
+          criteria: { steps: 100 }
+        },
+        {
+          tierId: 'event-enthusiast-gold',
+          tierName: 'Gold',
+          description: 'Gold: 500 Events attended (for at least 5 min)',
+          criteria: { steps: 500 }
+        },
+        {
+          tierId: 'event-enthusiast-platinum',
+          tierName: 'Platinum',
+          description: 'Platinum: 1000 Events attended (for at least 5 min)',
+          criteria: { steps: 1000 }
+        },
+        {
+          tierId: 'event-enthusiast-diamond',
+          tierName: 'Diamond',
+          description: 'Diamond: 2000 Events attended (for at least 5 min)',
+          criteria: { steps: 2000 }
+        }
+      ]
+    }
   ]
 ])
 

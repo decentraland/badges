@@ -4,6 +4,7 @@ import { InvalidRequestError } from '@dcl/platform-server-commons'
 import { mergeWearablesEquipementProgress } from './backfills/wearables-equipement-backfill'
 import { mergeEmotionistaProgress } from './backfills/emotionista-backfill'
 import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
+import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -43,6 +44,13 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.FASHIONISTA),
+            backfillData
+          )
+        case BadgeId.EVENT_ENTHUSIAST:
+          return mergeEventEnthusiastProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.EVENT_ENTHUSIAST),
             backfillData
           )
 

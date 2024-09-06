@@ -53,7 +53,8 @@ export enum BadgeId {
   TRAVELER = 'traveler',
   PROFILE_PRO = 'profile_pro',
   EMOTIONISTA = 'emotionista',
-  FASHIONISTA = 'fashionista'
+  FASHIONISTA = 'fashionista',
+  EVENT_ENTHUSIAST = 'event_enthusiast'
 }
 
 export enum BadgeCategory {

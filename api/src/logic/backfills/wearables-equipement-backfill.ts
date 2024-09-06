@@ -1,5 +1,4 @@
 import { Badge, UserBadge } from '@badges/common'
-import { InvalidRequestError } from '@dcl/platform-server-commons'
 import { EthAddress } from '@dcl/schemas'
 
 function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any }): boolean {
