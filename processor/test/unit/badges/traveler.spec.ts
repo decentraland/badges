@@ -3,7 +3,7 @@ import { createDbMock } from '../../mocks/db-mock'
 import { AppComponents } from '../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../src/logic/badges/traveler'
-import { Badge, BadgeId } from '@badges/common'
+import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -23,7 +23,7 @@ describe('Traveler badge handler should', () => {
   }
 
   it('save arriving event in the cache when it is the first move of the user on this session', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent()
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
@@ -37,7 +37,7 @@ describe('Traveler badge handler should', () => {
       }
     })
 
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
@@ -47,7 +47,7 @@ describe('Traveler badge handler should', () => {
   })
 
   it('save arriving event in the cache when the scenes was already visited by the user in the past', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent()
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
@@ -74,7 +74,7 @@ describe('Traveler badge handler should', () => {
       }
     })
 
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
@@ -84,7 +84,7 @@ describe('Traveler badge handler should', () => {
   })
 
   it('mark scene as visited and grant first tier of badge if the user spent more than a minute on it', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent()
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
@@ -103,7 +103,7 @@ describe('Traveler badge handler should', () => {
       }
     })
 
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
@@ -129,7 +129,7 @@ describe('Traveler badge handler should', () => {
   })
 
   it('mark scene as visited and grant first tier of badge if the user spent more than (or exactly) a minute on it in 2 different visits', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
@@ -155,7 +155,7 @@ describe('Traveler badge handler should', () => {
       }
     })
 
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
@@ -181,7 +181,7 @@ describe('Traveler badge handler should', () => {
   })
 
   it('mark scene as visited and grant second tier of badge if the user spent more than (or exactly) a minute on a scene for the 50th time', async () => {
-    const { db, logs, badgeContext, memoryStorage } = await getMockedComponents()
+    const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
@@ -221,7 +221,7 @@ describe('Traveler badge handler should', () => {
       }
     })
 
-    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage })
+    const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
@@ -251,7 +251,7 @@ describe('Traveler badge handler should', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'memoryStorage'>> {
+  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'memoryStorage' | 'badgeStorage'>> {
     return {
       db: createDbMock(),
       badgeContext: {
@@ -263,7 +263,8 @@ describe('Traveler badge handler should', () => {
         get: jest.fn(),
         set: jest.fn()
       },
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any })
+      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
+      badgeStorage: await createBadgeStorage({ config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any })
     }
   }
 

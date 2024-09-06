@@ -1,4 +1,4 @@
-import { Badge, BadgeId, UserBadge } from "@badges/common"
+import { Badge, BadgeId, createBadgeStorage, UserBadge } from "@badges/common"
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EntityType, Events } from "@dcl/schemas"
 import { createDbMock } from "../../mocks/db-mock"
 import { createOpenForBusinessObserver } from "../../../src/logic/badges/open-for-business"
@@ -6,7 +6,8 @@ import { AppComponents } from "../../../src/types"
 
 describe('Open for Business badge handler should', () => {
     const testAddress = '0xTest'
-    function getMockedComponents(): Pick<AppComponents, 'db' | 'logs'> {
+    
+    async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
         return {
             db: createDbMock(),
             logs: {
@@ -16,12 +17,13 @@ describe('Open for Business badge handler should', () => {
                     error: jest.fn(),
                     warn: jest.fn()
                 })
-            }
+            },
+            badgeStorage: await createBadgeStorage({ config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any })
         }
     }
 
     it('update userProgress correctly when a CatalystDeploymentEvent is received', async () => {
-        const { db, logs } = getMockedComponents()
+        const { db, logs, badgeStorage } = await getMockedComponents()
         
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
@@ -50,7 +52,7 @@ describe('Open for Business badge handler should', () => {
 
         db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
 
-        const handler = createOpenForBusinessObserver({ db, logs })
+        const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
 
         const result = await handler.handle(event)
 
@@ -68,7 +70,7 @@ describe('Open for Business badge handler should', () => {
     })
 
     it('update userProgress correctly when a CollectionCreatedEvent is received', async () => {
-        const { db, logs } = getMockedComponents()
+        const { db, logs, badgeStorage } = await getMockedComponents()
         
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
@@ -90,7 +92,7 @@ describe('Open for Business badge handler should', () => {
 
         db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
 
-        const handler = createOpenForBusinessObserver({ db, logs })
+        const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
 
         const result = await handler.handle(event)
 
@@ -108,7 +110,7 @@ describe('Open for Business badge handler should', () => {
     })
 
     it('update userProgress correctly and grant badge when both events are received', async () => {
-        const { db, logs } = getMockedComponents()
+        const { db, logs, badgeStorage } = await getMockedComponents()
 
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
@@ -153,7 +155,7 @@ describe('Open for Business badge handler should', () => {
                 store_completed: true
             }})
 
-        const handler = createOpenForBusinessObserver({ db, logs })
+        const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
 
         let result = await handler.handle(storeDeploymentEvent)
 
@@ -190,7 +192,7 @@ describe('Open for Business badge handler should', () => {
     })
 
     it('do not grant badge when the user already has the badge granted', async () => { 
-        const { db, logs } = getMockedComponents()
+        const { db, logs, badgeStorage } = await getMockedComponents()
 
         const currentUserProgress: UserBadge = {
             user_address: testAddress,
@@ -236,7 +238,7 @@ describe('Open for Business badge handler should', () => {
         db.getUserProgressFor = jest.fn()
             .mockResolvedValueOnce(currentUserProgress)
 
-        const handler = createOpenForBusinessObserver({ db, logs })
+        const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
 
         let result = await handler.handle(storeDeploymentEvent)
 
