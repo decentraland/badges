@@ -130,7 +130,7 @@ export function createBackfillMergerComponent({
       }
     }
 
-    if (backfillData.progress.completedAt < userProgress.progress.completedAt) {
+    if (!userProgress.progress.completedAt || backfillData.progress.completedAt < userProgress.progress.completedAt) {
       userProgress.completed_at = backfillData.progress.completedAt
       userProgress.progress.completed_with = backfillData.progress.completedWith
     }
