@@ -13,7 +13,6 @@ export function createTravelerObserver({
   const badgeId: BadgeId = BadgeId.TRAVELER
   const badge: Badge = badgeStorage.getBadge(badgeId)
   const tieredBadges = badge.tiers!
-  const EXPLORER_ALPHA_LINKED_ENVIRONMENT = 'https://peer.decentraland.org/content'
 
   function isFirstMovement(movementEvents: any[]): boolean {
     return movementEvents.length === 1
