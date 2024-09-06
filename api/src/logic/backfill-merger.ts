@@ -45,7 +45,7 @@ export function createBackfillMergerComponent({
       throw new InvalidRequestError('Invalid back-fill data')
     }
 
-    const badge: Badge = badgeService.getBadge(BadgeId.TRAVELER)!
+    const badge: Badge = badgeService.getBadge(BadgeId.TRAVELER)
 
     const userProgress = currentUserProgress || {
       user_address: userAddress,
