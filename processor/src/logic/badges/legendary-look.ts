@@ -36,7 +36,10 @@ export function createLegendaryLookObserver({
 
     if (rareWearablesEquipped.length >= AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED) {
       userProgress.completed_at = Date.now()
-      userProgress.progress = { completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id) }
+      userProgress.progress = {
+        completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id),
+        steps: 1
+      }
       await db.saveUserProgress(userProgress)
       result = {
         badgeGranted: badge,
@@ -51,7 +54,9 @@ export function createLegendaryLookObserver({
     return {
       user_address: userAddress,
       badge_id: badgeId,
-      progress: {}
+      progress: {
+        steps: 0
+      }
     }
   }
 
