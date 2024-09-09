@@ -98,6 +98,7 @@ export function mergeFashionistaProgress(
 
     return userProgress
   } catch (error: any) {
+    // TODO: should we remove this console.log?
     console.log({
       userAddress,
       backfillData: JSON.stringify(backfillData),
