@@ -281,6 +281,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.MOVES_MASTER,
+    {
+      id: BadgeId.MOVES_MASTER,
+      name: 'Moves Master',
+      category: BadgeCategory.EXPLORER,
+      description:
+        'Starter: Emoted 100 times (max 1/min);Bronze: Emoted 1,000 times (max 1/min);Silver: Emoted 5,000 times (max 1/min);Gold: Emoted 10,000 times (max 1/min);Platinum: Emoted 100,000 times (max 1/min);Diamond: Emoted 500,000 times (max 1/min)',
+      tiers: [
+        {
+          tierId: 'moves-master-starter',
+          tierName: 'Starter',
+          description: 'Starter: Emoted 100 times (max 1/min)',
+          criteria: { steps: 100 }
+        },
+        {
+          tierId: 'moves-master-bronze',
+          tierName: 'Bronze',
+          description: 'Bronze: Emoted 1,000 times (max 1/min)',
+          criteria: { steps: 1000 }
+        },
+        {
+          tierId: 'moves-master-silver',
+          tierName: 'Silver',
+          description: 'Silver: Emoted 5,000 times (max 1/min)',
+          criteria: { steps: 5000 }
+        },
+        {
+          tierId: 'moves-master-gold',
+          tierName: 'Gold',
+          description: 'Gold: Emoted 10,000 times (max 1/min)',
+          criteria: { steps: 10000 }
+        },
+        {
+          tierId: 'moves-master-platinum',
+          tierName: 'Platinum',
+          description: 'Platinum: Emoted 100,000 times (max 1/min)',
+          criteria: { steps: 100000 }
+        },
+        {
+          tierId: 'moves-master-diamond',
+          tierName: 'Diamond',
+          description: 'Diamond: Emoted 500,000 times (max 1/min)',
+          criteria: { steps: 500000 }
+        }
+      ]
+    }
   ]
 ])
 
