@@ -36,5 +36,11 @@ export async function createBadgeContext({
     return fetchedEntity
   }
 
-  return { getWearablesWithRarity, getEntityById }
+  async function getEntityByPointer(pointer: string): Promise<Entity> {
+    const fetchedEntity: Entity[] = await contentClient.fetchEntitiesByPointers([pointer])
+
+    return fetchedEntity[0]
+  }
+
+  return { getWearablesWithRarity, getEntityById, getEntityByPointer }
 }

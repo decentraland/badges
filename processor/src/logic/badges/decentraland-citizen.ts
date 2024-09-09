@@ -1,22 +1,25 @@
-import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
-import { AppComponents, IObserver } from '../../types'
-import { EthAddress, MoveToParcelEvent } from '@dcl/schemas'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
+import { EthAddress, Events, MoveToParcelEvent } from '@dcl/schemas'
 
-export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createDecentralandCitizenObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('decentraland-citizen-badge')
+  const badgeId: BadgeId = BadgeId.DECENTRALAND_CITIZEN
+  const badge: Badge = badgeStorage.getBadge(badgeId)!
 
-  const badge: Badge = badges.get(BadgeId.DECENTRALAND_CITIZEN)!
-
-  async function check(event: MoveToParcelEvent): Promise<Badge[] | undefined> {
+  async function handle(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.DECENTRALAND_CITIZEN, userAddress)) || initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress,
-        badgeId: BadgeId.DECENTRALAND_CITIZEN
+        badgeId: badgeId
       })
 
       return undefined
@@ -24,28 +27,35 @@ export function createDecentralandCitizenObserver({ db, logs }: Pick<AppComponen
 
     userProgress.completed_at = Date.now()
     userProgress.progress = {
+      steps: 1,
       visited: event.metadata.parcel.newParcel
     }
-    logger.info('Granting badge', {
-      userAddress: userAddress,
-      badgeId: BadgeId.DECENTRALAND_CITIZEN,
-      progress: userProgress.progress
-    })
 
     await db.saveUserProgress(userProgress)
-    return [badge]
+    return {
+      badgeGranted: badge,
+      userAddress: userAddress
+    }
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.DECENTRALAND_CITIZEN,
-      progress: {}
+      badge_id: badgeId,
+      progress: {
+        steps: 0
+      }
     }
   }
 
   return {
-    check,
-    badge
+    handle,
+    badge,
+    events: [
+      {
+        type: Events.Type.CLIENT,
+        subType: Events.SubType.Client.MOVE_TO_PARCEL
+      }
+    ]
   }
 }

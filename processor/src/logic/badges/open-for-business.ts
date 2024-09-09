@@ -1,18 +1,22 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
-import { AppComponents, IObserver } from '../../types'
-import { Badge, BadgeId, UserBadge, badges } from '@badges/common'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 
-export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IObserver {
+export function createOpenForBusinessObserver({
+  db,
+  logs,
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('open-for-business-badge')
-
-  const badge: Badge = badges.get(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION)!
+  const badgeId: BadgeId = BadgeId.OPEN_FOR_BUSINESS
+  const badge: Badge = badgeStorage.getBadge(badgeId)!
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
       getUserAddress: () => event.entity.metadata.owner,
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
-        progress: { ...userProgress.progress, storeCompleted: true }
+        progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, store_completed: true }
       })
     }),
     [Events.Type.BLOCKCHAIN]: (event: any) => ({
@@ -21,26 +25,26 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
         ...userProgress,
         progress: {
           ...userProgress.progress,
-          collectionSubmitted: true
+          steps: (userProgress.progress.steps || 0) + 1,
+          collection_submitted: true
         }
       })
     })
   }
 
-  async function check(event: CatalystDeploymentEvent | CollectionCreatedEvent): Promise<Badge[] | undefined> {
-    logger.info('Analyzing criteria')
-    let result: Badge[] | undefined
+  async function handle(
+    event: CatalystDeploymentEvent | CollectionCreatedEvent
+  ): Promise<BadgeProcessorResult | undefined> {
+    let result: BadgeProcessorResult | undefined
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = functions.getUserAddress()
 
-    const userProgress: UserBadge =
-      (await db.getUserProgressFor(BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION, userAddress!)) ||
-      initProgressFor(userAddress)
+    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
-        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION
+        badgeId: badgeId
       })
 
       return undefined
@@ -48,14 +52,12 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
 
     const updatedUserProgress = functions.updateUserProgress(userProgress)
 
-    if (updatedUserProgress.progress.storeCompleted && updatedUserProgress.progress.collectionSubmitted) {
+    if (updatedUserProgress.progress.store_completed && updatedUserProgress.progress.collection_submitted) {
       updatedUserProgress.completed_at = Date.now()
-      logger.info('Granting badge', {
-        userAddress: userAddress!,
-        badgeId: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
-        progress: updatedUserProgress.progress
-      })
-      result = [badge]
+      result = {
+        badgeGranted: badge,
+        userAddress: userAddress!
+      }
     }
 
     await db.saveUserProgress(updatedUserProgress)
@@ -63,16 +65,26 @@ export function createOpenForBusinessObserver({ db, logs }: Pick<AppComponents, 
     return result
   }
 
-  function initProgressFor(userAddress: EthAddress): UserBadge {
+  function initProgressFor(userAddress: EthAddress): Omit<UserBadge, 'updated_at'> {
     return {
       user_address: userAddress,
-      badge_id: BadgeId.COMPLETED_STORE_AND_SUBMITTED_ONE_COLLECTION,
+      badge_id: badgeId,
       progress: {}
     }
   }
 
   return {
-    check,
-    badge
+    handle,
+    badge,
+    events: [
+      {
+        type: Events.Type.CATALYST_DEPLOYMENT,
+        subType: Events.SubType.CatalystDeployment.STORE
+      },
+      {
+        type: Events.Type.BLOCKCHAIN,
+        subType: Events.SubType.Blockchain.COLLECTION_CREATED
+      }
+    ]
   }
 }

@@ -1,5 +1,13 @@
 import { HandlerContextWithPath } from '../../types'
 
+type Response = {
+  data: {
+    version: string
+    currentTime: number
+    commitHash: string
+  }
+}
+
 export async function getStatusHandler(context: Pick<HandlerContextWithPath<'config', '/status'>, 'components'>) {
   const {
     components: { config }
@@ -12,9 +20,11 @@ export async function getStatusHandler(context: Pick<HandlerContextWithPath<'con
 
   return {
     body: {
-      version: version ?? '',
-      currentTime: Date.now(),
-      commitHash: commitHash ?? ''
-    }
+      data: {
+        version: version ?? '',
+        currentTime: Date.now(),
+        commitHash: commitHash ?? ''
+      }
+    } as Response
   }
 }

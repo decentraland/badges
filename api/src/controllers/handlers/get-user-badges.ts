@@ -1,25 +1,51 @@
-import { HandlerContextWithPath } from '../../types'
 import { IHttpServerComponent } from '@well-known-components/interfaces'
-import { UserBadge } from '@badges/common'
+import { Badge, UserBadge } from '@badges/common'
+import { HandlerContextWithPath } from '../../types'
 
-type UserBadgeWithoutProgress = Omit<UserBadge, 'progress'>
+type BadgeProgress = {
+  id: number
+  name: string
+  description: string
+  category: string
+  isTier: boolean
+  completedAt: Date | null
+  progress: {
+    stepsDone: number
+    nextStepsTarget: number | null
+    totalStepsTarget: number
+    lastCompletedTierAt: Date | null
+    lastCompletedTierName: string | null
+    lastCompletedTierImage: string | null
+  }
+}
 
-type UserBadgesResponse = {
-  data: UserBadgeWithoutProgress[]
+export type BadgesProgresses = {
+  achieved: BadgeProgress[]
+  notAchieved: BadgeProgress[]
+}
+
+type UserBadgesProgress = {
+  data: BadgesProgresses
 }
 
 export async function getUserBadgesHandler(
-  context: Pick<HandlerContextWithPath<'db' | 'logs', '/badges/:address'>, 'url' | 'components' | 'params'>
+  context: Pick<HandlerContextWithPath<'badgeService', '/users/:address/badges'>, 'url' | 'components' | 'params'>
 ): Promise<IHttpServerComponent.IResponse> {
-  const { db } = context.components
-
+  const { badgeService } = context.components
   const address = context.params.address
+  const shouldIncludeNotAchieved = context.url.searchParams.get('includeNotAchieved') === 'true'
 
-  const result = await db.getUserBadges(address)
+  const allBadges: Badge[] = badgeService.getAllBadges()
+  const achievedBadges: UserBadge[] = await badgeService.getUserStates(address)
+  const badgesProgresses: BadgesProgresses = badgeService.calculateUserProgress(
+    allBadges,
+    achievedBadges,
+    shouldIncludeNotAchieved
+  )
 
   return {
     body: {
-      data: result
-    } as UserBadgesResponse
+      data: badgesProgresses
+    } as UserBadgesProgress
   }
 }

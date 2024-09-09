@@ -1,4 +1,4 @@
-import { BadgeId, UserBadge } from '@badges/common'
+import { BadgeId, createBadgeStorage, UserBadge } from '@badges/common'
 import { AppComponents } from '../../../src/types'
 import { createDbMock } from '../../mocks/db-mock'
 import { CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
@@ -9,19 +9,21 @@ describe('Epic Ensemble badge handler should', () => {
   const testAddress = '0xTest'
   const wearableBaseUrn = 'urn:decentraland:mumbai:collections-v2:0xaa40af0b4a18e0555ff3c87beab1d5b591947abe:'
 
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext'>> {
+  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>> {
     return {
       db: createDbMock(),
       badgeContext: {
         getWearablesWithRarity: jest.fn(),
-        getEntityById: jest.fn()
+        getEntityById: jest.fn(),
+        getEntityByPointer: jest.fn()
       },
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any })
+      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
+      badgeStorage: await createBadgeStorage({ config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any })
     }
   }
 
   it('grant badge when a Profile deployment contains at least three epic wearables', async () => {
-    const { db, logs, badgeContext } = await getMockedComponents()
+    const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrn = [
         wearableBaseUrn + '1:1',
@@ -32,7 +34,8 @@ describe('Epic Ensemble badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.EPIC_ENSEMBLE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -71,23 +74,27 @@ describe('Epic Ensemble badge handler should', () => {
     db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
     badgeContext.getWearablesWithRarity = jest.fn().mockResolvedValue([getWearableWithRarity(wearablesUrn[0], 'epic'), getWearableWithRarity(wearablesUrn[1], 'epic'), getWearableWithRarity(wearablesUrn[2], 'epic')])
 
-    const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
+    const handler = createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
     expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.EPIC_ENSEMBLE, testAddress)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       ...currentUserProgress,
       progress: {
-        completedWith: wearablesUrn
+        completed_with: wearablesUrn,
+        steps: 1
       }
     })
-    expect(result).toContain(handler.badge)
+    expect(result).toMatchObject({
+      badgeGranted: handler.badge,
+      userAddress: testAddress
+    })
   })
 
   it('do not grant badge when a Profile deployment contains less than three epic wearables', async () => {
-    const { db, logs, badgeContext } = await getMockedComponents()
+    const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrn = [
         wearableBaseUrn + '1:1',
@@ -98,7 +105,8 @@ describe('Epic Ensemble badge handler should', () => {
     const currentUserProgress: UserBadge = {
       user_address: testAddress,
       badge_id: BadgeId.EPIC_ENSEMBLE,
-      progress: {}
+      progress: {},
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -137,9 +145,9 @@ describe('Epic Ensemble badge handler should', () => {
     db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
     badgeContext.getWearablesWithRarity = jest.fn().mockResolvedValue([getWearableWithRarity(wearablesUrn[0], 'epic'), getWearableWithRarity(wearablesUrn[1], 'epic'), getWearableWithRarity(wearablesUrn[2], 'common')])
 
-    const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
+    const handler = createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(result).toBe(undefined)
     expect(badgeContext.getWearablesWithRarity).toHaveBeenCalledWith(wearablesUrn)
@@ -148,7 +156,7 @@ describe('Epic Ensemble badge handler should', () => {
   })
 
   it('do not grant badge when the user already has the badge granted ', async () => {
-    const { db, logs, badgeContext } = await getMockedComponents()
+    const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrn = [
         wearableBaseUrn + '1:1',
@@ -161,8 +169,9 @@ describe('Epic Ensemble badge handler should', () => {
       badge_id: BadgeId.EPIC_ENSEMBLE,
       completed_at: 1708380838534,
       progress: {
-        completedWith: wearablesUrn
-      }
+        completed_with: wearablesUrn
+      },
+      updated_at: 1708380838534
     }
 
     const event: CatalystDeploymentEvent = {
@@ -200,9 +209,9 @@ describe('Epic Ensemble badge handler should', () => {
 
     db.getUserProgressFor = jest.fn().mockResolvedValue(currentUserProgress)
 
-    const handler = createEpicEnsembleObserver({ db, logs, badgeContext })
+    const handler = createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage })
 
-    const result = await handler.check(event)
+    const result = await handler.handle(event)
 
     expect(result).toBe(undefined)
     expect(badgeContext.getWearablesWithRarity).not.toHaveBeenCalled()

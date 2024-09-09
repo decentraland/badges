@@ -7,8 +7,9 @@ import type {
   IMetricsComponent
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { DbComponent } from '@badges/common'
+import { Badge, BadgeId, DbComponent, IBadgeStorage, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
+import { EthAddress } from '@dcl/schemas'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -22,6 +23,9 @@ export type BaseComponents = {
   server: IHttpServerComponent<GlobalContext>
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
   db: DbComponent
+  badgeService: IBadgeService
+  badgeStorage: IBadgeStorage
+  backfillMerger: IUserProgressValidator
 }
 
 // components used in runtime
@@ -46,3 +50,35 @@ export type HandlerContextWithPath<
   }>,
   Path
 >
+
+export type UserBadgesPreview = {
+  id: string
+  name: string
+  tierName: string | undefined
+  image: string
+}
+
+export type IBadgeService = {
+  getBadge(id: BadgeId): Badge
+  getBadges(ids: BadgeId[]): Badge[]
+  getAllBadges(): Badge[]
+  getUserStates(address: string): Promise<UserBadge[]>
+  getUserState(address: EthAddress, badgeId: BadgeId): Promise<UserBadge>
+  getLatestAchievedBadges(address: EthAddress): Promise<UserBadgesPreview[]>
+  calculateUserProgress(
+    allBadges: Badge[],
+    userProgresses: UserBadge[],
+    shouldIncludeNotAchieved: boolean
+  ): { achieved: any; notAchieved: any }
+  resetUserProgressFor(badgeId: BadgeId, address: EthAddress): Promise<void>
+  saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void>
+}
+
+export type IUserProgressValidator = {
+  mergeUserProgress(
+    badgeId: BadgeId,
+    userAddress: string,
+    currentUserProgress: UserBadge | undefined,
+    backfillData: any
+  ): UserBadge
+}

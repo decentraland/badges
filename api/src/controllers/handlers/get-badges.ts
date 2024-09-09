@@ -1,17 +1,19 @@
 import { HandlerContextWithPath } from '../../types'
 import { IHttpServerComponent } from '@well-known-components/interfaces'
-import { Badge, badges } from '@badges/common'
+import { Badge } from '@badges/common'
 
-type UserBadgesResponse = {
+type Response = {
   data: Badge[]
 }
 
 export async function getBadgesHandler(
-  _: Pick<HandlerContextWithPath<'logs', '/badges'>, 'url' | 'components' | 'params'>
+  context: Pick<HandlerContextWithPath<'logs' | 'badgeService', '/badges'>, 'url' | 'components' | 'params'>
 ): Promise<IHttpServerComponent.IResponse> {
+  const badges = context.components.badgeService.getAllBadges()
+
   return {
     body: {
-      data: Array.from(badges.values())
-    } as UserBadgesResponse
+      data: badges
+    } as Response
   }
 }
