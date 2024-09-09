@@ -71,9 +71,10 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
           tier AS achieved_tiers,
           updated_at
         FROM user_progress,
-        jsonb_array_elements(achieved_tiers) AS tier
+        LATERAL jsonb_array_elements(achieved_tiers) AS tier
         WHERE user_address = ${userAddress.toLocaleLowerCase()} 
           AND achieved_tiers IS NOT NULL
+          AND jsonb_typeof(achieved_tiers) = 'array'
       )
       SELECT 
         badge_id, 
