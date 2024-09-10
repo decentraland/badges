@@ -13,8 +13,8 @@
   "dependencies": {
     "@aws-sdk/client-sns": "^3.600.0",
     "@aws-sdk/client-sqs": "^3.600.0",
-    "@dcl/schemas": "^13.2.2",
-    "@dcl/urn-resolver": "^3.5.0",
+    "@dcl/schemas": "^13.9.0",
+    "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^3.0.0",
     "@well-known-components/http-server": "^2.1.0",
@@ -23,6 +23,7 @@
     "@well-known-components/metrics": "^2.1.0",
     "@well-known-components/pg-component": "^0.2.3",
     "dcl-catalyst-client": "^21.7.0",
+    "lru-cache": "^9.1.2",
     "sql-template-strings": "^2.2.2",
     "upgrade": "^1.1.0"
   },

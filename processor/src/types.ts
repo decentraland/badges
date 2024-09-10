@@ -8,9 +8,10 @@ import type {
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
-import { Badge, DbComponent } from '@badges/common'
+import { Badge, DbComponent, IBadgeStorage } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
+import { BadgeGrantedEvent } from '@dcl/schemas/dist/platform/events/services'
 
 export type GlobalContext = {
   components: BaseComponents
@@ -22,6 +23,8 @@ export type BaseComponents = {
   fetch: IFetchComponent
   logs: ILoggerComponent
   metrics: IMetricsComponent<keyof typeof metricDeclarations>
+  server: IHttpServerComponent<GlobalContext>
+  statusChecks: IBaseComponent
 }
 
 // components used in runtime
@@ -35,6 +38,8 @@ export type AppComponents = BaseComponents & {
   eventDispatcher: IEventDispatcher
   eventParser: IEventParser
   badgeContext: IBadgeContext
+  memoryStorage: EventMemoryStorage
+  badgeStorage: IBadgeStorage
 }
 
 // components used in tests
@@ -54,13 +59,6 @@ export type HandlerContextWithPath<
   Path
 >
 
-export type BadgeGrantedEvent = {
-  type: 'badge-granted'
-  data: {
-    badge: Badge
-  }
-}
-
 export type QueueMessage = any
 
 export type QueueComponent = {
@@ -70,7 +68,10 @@ export type QueueComponent = {
 }
 
 export type PublisherComponent = {
-  publishMessage(event: BadgeGrantedEvent): Promise<string | undefined>
+  publishMessages(events: BadgeGrantedEvent[]): Promise<{
+    successfulMessageIds: string[]
+    failedEvents: BadgeGrantedEvent[]
+  }>
 }
 
 export type MessageConsumerComponent = IBaseComponent
@@ -80,21 +81,34 @@ export type MessageProcessorComponent = {
 }
 
 export type IEventDispatcher = {
-  registerObserver(eventData: { type: string; subType: string }[], observer: IObserver): void
+  registerObserver(observer: IObserver): void
   dispatch(event: Event): Promise<any>
 }
 
+type EventId = {
+  type: string
+  subType: string
+}
+
 export type IObserver = {
-  check(event: Event): Promise<any>
+  handle(event: Event): Promise<any>
   badge: Badge
+  events: EventId[]
 }
 
 export type IEventParser = {
   parse(event: any): Promise<Event | undefined>
 }
 
+export type EventMemoryStorage = {
+  set(key: string, value: any): void
+  get(key: string): any
+}
+
 export type IBadgeContext = {
   getWearablesWithRarity(wearables: string[]): Promise<Entity[]>
+  getEntityById(id: string): Promise<Entity>
+  getEntityByPointer(pointer: string): Promise<Entity>
 }
 
 export class ParsingEventError extends Error {
@@ -102,4 +116,9 @@ export class ParsingEventError extends Error {
     super(message)
     Error.captureStackTrace(this, this.constructor)
   }
+}
+
+export type BadgeProcessorResult = {
+  badgeGranted: Badge
+  userAddress: string
 }

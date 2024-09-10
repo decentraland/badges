@@ -13,7 +13,7 @@
     "data": [
         {
             "badge_id": "completed-store-and-submitted-one-collection",
-            "awarded_at": "1721679557350"
+            "completed_at": "1721679557350"
         }
     ]
 }
