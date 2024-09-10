@@ -87,42 +87,42 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.TRAVELER,
       name: 'Traveler',
       category: BadgeCategory.EXPLORER,
-      description: `Starter: 1 Genesis City scene explored;Bronze: 50 Genesis City scenes explored;Silver: 250 Genesis City scenes explored;Gold: 1,000 Genesis City scenes explored;Platinum: 2,500 Genesis City scenes explored;Diamond: 10,000 Genesis City scenes explored`,
+      description: `Starter: 1 Genesis City scene explored (for at least 1 min);Bronze: 50 Genesis City scenes explored (for at least 1 min);Silver: 250 Genesis City scenes explored (for at least 1 min);Gold: 1,000 Genesis City scenes explored (for at least 1 min);Platinum: 2,500 Genesis City scenes explored (for at least 1 min);Diamond: 10,000 Genesis City scenes explored (for at least 1 min)`,
       tiers: [
         {
           tierId: 'traveler-starter',
           tierName: 'Starter',
-          description: '1 Genesis City scene explored',
+          description: '1 Genesis City scene explored (for at least 1 min)',
           criteria: { steps: 1 }
         },
         {
           tierId: 'traveler-bronze',
           tierName: 'Bronze',
-          description: '50 Genesis City scenes explored',
+          description: '50 Genesis City scenes explored (for at least 1 min)',
           criteria: { steps: 50 }
         },
         {
           tierId: 'traveler-silver',
           tierName: 'Silver',
-          description: '250 Genesis City scenes explored',
+          description: '250 Genesis City scenes explored (for at least 1 min)',
           criteria: { steps: 250 }
         },
         {
           tierId: 'traveler-gold',
           tierName: 'Gold',
-          description: '1,000 Genesis City scenes explored',
+          description: '1,000 Genesis City scenes explored (for at least 1 min)',
           criteria: { steps: 1000 }
         },
         {
           tierId: 'traveler-platinum',
           tierName: 'Platinum',
-          description: '2,500 Genesis City scenes explored',
+          description: '2,500 Genesis City scenes explored (for at least 1 min)',
           criteria: { steps: 2500 }
         },
         {
           tierId: 'traveler-diamond',
           tierName: 'Diamond',
-          description: '10,000 Genesis City scenes explored',
+          description: '10,000 Genesis City scenes explored (for at least 1 min)',
           criteria: { steps: 10000 }
         }
       ]
