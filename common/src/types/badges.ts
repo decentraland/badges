@@ -37,7 +37,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.LEGENDARY_LOOK,
       name: 'Legendary Look',
       category: BadgeCategory.COLLECTOR,
-      description: 'Equiped outfit with at least 3 Legendary Wearables',
+      description: 'Equipped outfit with at least 3 Legendary Wearables',
       criteria: { steps: 1 }
     }
   ],
@@ -47,7 +47,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.MYTHIC_MODEL,
       name: 'Mythic Model',
       category: BadgeCategory.COLLECTOR,
-      description: 'Equiped outfit with at least 3 Mythic Wearables',
+      description: 'Equipped outfit with at least 3 Mythic Wearables',
       criteria: { steps: 1 }
     }
   ],
@@ -57,7 +57,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.UNIQUE_UNICORN,
       name: 'Unique Unicorn',
       category: BadgeCategory.COLLECTOR,
-      description: 'Equiped outfit with at least 3 Unique Wearables',
+      description: 'Equipped outfit with at least 3 Unique Wearables',
       criteria: { steps: 1 }
     }
   ],
@@ -77,7 +77,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.EXOTIC_ELEGANCE,
       name: 'Exotic Elegance',
       category: BadgeCategory.COLLECTOR,
-      description: 'Equiped outfit with at least 3 Exotic Wearables',
+      description: 'Equipped outfit with at least 3 Exotic Wearables',
       criteria: { steps: 1 }
     }
   ],
@@ -98,31 +98,31 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         {
           tierId: 'traveler-bronze',
           tierName: 'Bronze',
-          description: 'Bronze: 50 Genesis City scenes explored',
+          description: '50 Genesis City scenes explored',
           criteria: { steps: 50 }
         },
         {
           tierId: 'traveler-silver',
           tierName: 'Silver',
-          description: 'Silver: 250 Genesis City scenes explored',
+          description: '250 Genesis City scenes explored',
           criteria: { steps: 250 }
         },
         {
           tierId: 'traveler-gold',
           tierName: 'Gold',
-          description: 'Gold: 1,000 Genesis City scenes explored',
+          description: '1,000 Genesis City scenes explored',
           criteria: { steps: 1000 }
         },
         {
           tierId: 'traveler-platinum',
           tierName: 'Platinum',
-          description: 'Platinum: 2,500 Genesis City scenes explored',
+          description: '2,500 Genesis City scenes explored',
           criteria: { steps: 2500 }
         },
         {
           tierId: 'traveler-diamond',
           tierName: 'Diamond',
-          description: 'Diamond: 10,000 Genesis City scenes explored',
+          description: '10,000 Genesis City scenes explored',
           criteria: { steps: 10000 }
         }
       ]
@@ -150,37 +150,37 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         {
           tierId: 'emotionista-starter',
           tierName: 'Starter',
-          description: 'Starter: 1 Emote purchased',
+          description: '1 Emote purchased',
           criteria: { steps: 1 }
         },
         {
           tierId: 'emotionista-bronze',
           tierName: 'Bronze',
-          description: 'Bronze: 10 Emotes purchased',
+          description: '10 Emotes purchased',
           criteria: { steps: 10 }
         },
         {
           tierId: 'emotionista-silver',
           tierName: 'Silver',
-          description: 'Silver: 25 Emotes purchased',
+          description: '25 Emotes purchased',
           criteria: { steps: 25 }
         },
         {
           tierId: 'emotionista-gold',
           tierName: 'Gold',
-          description: 'Gold: 50 Emotes purchased',
+          description: '50 Emotes purchased',
           criteria: { steps: 50 }
         },
         {
           tierId: 'emotionista-platinum',
           tierName: 'Platinum',
-          description: 'Platinum: 150 Emotes purchased',
+          description: '150 Emotes purchased',
           criteria: { steps: 150 }
         },
         {
           tierId: 'emotionista-diamond',
           tierName: 'Diamond',
-          description: 'Diamond: 300  Emotes purchased',
+          description: '300  Emotes purchased',
           criteria: { steps: 300 }
         }
       ]
@@ -198,37 +198,37 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         {
           tierId: 'fashionista-starter',
           tierName: 'Starter',
-          description: 'Starter: 1 Wearable purchased',
+          description: '1 Wearable purchased',
           criteria: { steps: 1 }
         },
         {
           tierId: 'fashionista-bronze',
           tierName: 'Bronze',
-          description: 'Bronze: 25 Wearables purchased',
+          description: '25 Wearables purchased',
           criteria: { steps: 25 }
         },
         {
           tierId: 'fashionista-silver',
           tierName: 'Silver',
-          description: 'Silver: 75 Wearables purchased',
+          description: '75 Wearables purchased',
           criteria: { steps: 75 }
         },
         {
           tierId: 'fashionista-gold',
           tierName: 'Gold',
-          description: 'Gold: 250 Wearables purchased',
+          description: '250 Wearables purchased',
           criteria: { steps: 250 }
         },
         {
           tierId: 'fashionista-platinum',
           tierName: 'Platinum',
-          description: 'Platinum: 500 Wearables purchased',
+          description: '500 Wearables purchased',
           criteria: { steps: 500 }
         },
         {
           tierId: 'fashionista-diamond',
           tierName: 'Diamond',
-          description: 'Diamond: 1,500 Wearables purchased',
+          description: '1,500 Wearables purchased',
           criteria: { steps: 1500 }
         }
       ]
@@ -246,37 +246,37 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         {
           tierId: 'event-enthusiast-starter',
           tierName: 'Starter',
-          description: 'Starter: 1 Events attended (for at least 5 min)',
+          description: '1 Events attended (for at least 5 min)',
           criteria: { steps: 1 }
         },
         {
           tierId: 'event-enthusiast-bronze',
           tierName: 'Bronze',
-          description: 'Bronze: 50 Events attended (for at least 5 min)',
+          description: '50 Events attended (for at least 5 min)',
           criteria: { steps: 50 }
         },
         {
           tierId: 'event-enthusiast-silver',
           tierName: 'Silver',
-          description: 'Silver: 100 Events attended (for at least 5 min)',
+          description: '100 Events attended (for at least 5 min)',
           criteria: { steps: 100 }
         },
         {
           tierId: 'event-enthusiast-gold',
           tierName: 'Gold',
-          description: 'Gold: 500 Events attended (for at least 5 min)',
+          description: '500 Events attended (for at least 5 min)',
           criteria: { steps: 500 }
         },
         {
           tierId: 'event-enthusiast-platinum',
           tierName: 'Platinum',
-          description: 'Platinum: 1000 Events attended (for at least 5 min)',
+          description: '1000 Events attended (for at least 5 min)',
           criteria: { steps: 1000 }
         },
         {
           tierId: 'event-enthusiast-diamond',
           tierName: 'Diamond',
-          description: 'Diamond: 2000 Events attended (for at least 5 min)',
+          description: '2000 Events attended (for at least 5 min)',
           criteria: { steps: 2000 }
         }
       ]
