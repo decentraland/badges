@@ -54,9 +54,10 @@ export function mergeEventEnthusiastProgress(
     ...userProgress.progress.events_ids_visited.map((eventId: string) => eventId),
     ...backfillData.progress.eventsAttended.map((event: any) => event.eventId)
   ])
+
   userProgress.progress = {
     steps: uniqueVisitedEvents.size,
-    events_names_visited: Array.from(uniqueVisitedEvents)
+    events_ids_visited: Array.from(uniqueVisitedEvents)
   }
 
   const sortedVisitedEvents = backfillData.progress.eventsAttended.sort(
