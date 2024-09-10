@@ -18,101 +18,113 @@ describe('Moves Master badge handler should', () => {
   }
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
-      completed_at: timestamps.twoMinutesBefore(timestamps.now())
+      completed_at: timestamps.twoMinutesBefore(timestamps.now()),
+      progress: { steps: 500000, last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()) }
     })
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
-    expect(memoryStorage.get).not.toHaveBeenCalled()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
-  it('save arriving event in the cache when it is not the first usage of the emote in the last minute', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
-    const event: UsedEmoteEvent = createUsedEmoteEvent()
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
+  it('skip increasing the usages of emotes if the event is in the same minute than the last used emote event', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+    const timestamp = timestamps.now()
+    const event: UsedEmoteEvent = createUsedEmoteEvent({
+      sessionId: testSessionId,
+      timestamp: timestamp
+    })
 
-    memoryStorage.get = jest.fn().mockReturnValue([{ on: timestamps.now() }])
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    db.getUserProgressFor = jest.fn().mockResolvedValue({
+      progress: { steps: 5, last_used_emote_timestamp: timestamp },
+      achieved_tiers: []
+    })
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+  })
+
+  it('skip increasing the usages of emotes if the event is older than the last used emote event', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+    const timestamp = timestamps.now()
+
+    const event: UsedEmoteEvent = createUsedEmoteEvent({
+      sessionId: testSessionId,
+      timestamp: timestamps.twoMinutesBefore(timestamp)
+    })
+
+    db.getUserProgressFor = jest.fn().mockResolvedValue({
+      progress: { steps: 5, last_used_emote_timestamp: timestamp },
+      achieved_tiers: []
+    })
+
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
+    const result = await handler.handle(event)
+
+    expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
   it('increase the usages of emotes if the user used one for the first time in the last minute', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
-    memoryStorage.get = jest.fn().mockReturnValue(undefined)
     db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 1
+        steps: 1,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: []
     })
   })
 
   it('increase the usages of emotes and grant the first tier of the badge if the user used emotes for more than (or exactly) 100 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 99
+        steps: 99,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: []
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 100
+        steps: 100,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {
@@ -124,18 +136,18 @@ describe('Moves Master badge handler should', () => {
   })
 
   it('increase the usages of emotes and grant the second tier of the badge if the user used emotes for more than (or exactly) 1000 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 999
+        steps: 999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: [
         {
@@ -144,29 +156,20 @@ describe('Moves Master badge handler should', () => {
         }
       ]
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 1000
+        steps: 1000,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {
@@ -182,18 +185,18 @@ describe('Moves Master badge handler should', () => {
   })
 
   it('increase the usages of emotes and grant the third tier of the badge if the user used emotes for more than (or exactly) 5000 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 4999
+        steps: 4999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: [
         {
@@ -206,29 +209,20 @@ describe('Moves Master badge handler should', () => {
         }
       ]
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 5000
+        steps: 5000,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {
@@ -248,18 +242,18 @@ describe('Moves Master badge handler should', () => {
   })
 
   it('increase the usages of emotes and grant the fourth tier of the badge if the user used emotes for more than (or exactly) 10000 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 9999
+        steps: 9999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: [
         {
@@ -276,29 +270,20 @@ describe('Moves Master badge handler should', () => {
         }
       ]
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 10000
+        steps: 10000,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {
@@ -322,18 +307,18 @@ describe('Moves Master badge handler should', () => {
   })
 
   it('increase the usages of emotes and grant the fifth tier of the badge if the user used emotes for more than (or exactly) 100000 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 99999
+        steps: 99999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: [
         {
@@ -354,29 +339,20 @@ describe('Moves Master badge handler should', () => {
         }
       ]
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 100000
+        steps: 100000,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {
@@ -404,18 +380,18 @@ describe('Moves Master badge handler should', () => {
   })
 
   it('increase the usages of emotes and grant the fifth tier of the badge if the user used emotes for more than (or exactly) 500000 times', async () => {
-    const { db, logs, memoryStorage, badgeStorage } = await getMockedComponents()
+    const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent({
       sessionId: testSessionId,
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
-    const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     db.getUserProgressFor = jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
-        steps: 499999
+        steps: 499999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
       },
       achieved_tiers: [
         {
@@ -440,30 +416,21 @@ describe('Moves Master badge handler should', () => {
         }
       ]
     })
-    memoryStorage.get = jest.fn().mockReturnValue([
-      {
-        on: timestamps.tenSecondsBefore(timestamps.twoMinutesBefore(event.timestamp))
-      },
-      {
-        on: timestamps.twoMinutesBefore(event.timestamp)
-      }
-    ])
 
-    const handler = createMovesMasterObserver({ db, logs, memoryStorage, badgeStorage })
+    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
-    expect(memoryStorage.get).toHaveBeenCalledTimes(1)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       completed_at: expect.any(Number),
       progress: {
-        steps: 500000
+        steps: 500000,
+        last_used_emote_timestamp: expect.any(Number)
       },
       achieved_tiers: [
         {

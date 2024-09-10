@@ -5,47 +5,38 @@ import { EthAddress, Events, UsedEmoteEvent } from '@dcl/schemas'
 export function createMovesMasterObserver({
   db,
   logs,
-  badgeStorage,
-  memoryStorage
-}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage' | 'memoryStorage'>): IObserver {
+  badgeStorage
+}: Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('moves-master-badge')
   const badgeId: BadgeId = BadgeId.MOVES_MASTER
   const badge: Badge = badgeStorage.getBadge(badgeId)
   const tieredBadges = badge.tiers!
 
-  function alreadyUsedEmoteInTheLastMinute(emoteEvents: any[]): boolean {
-    const lastMinute = Date.now() - 60000
-    return emoteEvents.some((event) => event.on >= lastMinute)
+  // Normalize the timestamp to the start of the minute
+  function normalizeToMinuteTimestamp(timestamp: number): number {
+    return Math.floor(timestamp / 60000) * 60000
   }
 
   async function handle(event: UsedEmoteEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
+    const minuteTimestamp = normalizeToMinuteTimestamp(event.metadata.timestamp)
 
     const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
-      logger.info('User already has badge', {
-        userAddress,
-        badgeId: badgeId
-      })
-
+      logger.info('User already has badge', { userAddress, badgeId })
       return undefined
     }
 
-    const cacheKeyRelatedToEvent = `${userAddress}-${event.metadata.sessionId}-${event.subType}`
-    const cachedEmoteEvents = memoryStorage.get(cacheKeyRelatedToEvent) || []
-    const emoteEvents = [...cachedEmoteEvents, { on: new Date(event.timestamp).getTime() }]
-
-    memoryStorage.set(cacheKeyRelatedToEvent, emoteEvents)
-
-    // check if the user has already spammed emotes in the last minute, which, let's be honest, they probably have.
-    if (alreadyUsedEmoteInTheLastMinute(cachedEmoteEvents)) {
+    // If the event is older than the last used minute, ignore it
+    if (minuteTimestamp <= userProgress.progress.last_used_emote_timestamp) {
       return undefined
     }
 
-    userProgress.progress.steps++
+    userProgress.progress.last_used_emote_timestamp = minuteTimestamp
+    userProgress.progress.steps += 1
 
-    // can only achieve 1 tier at a time, by definition we count one emote usage per minute
+    // Determine if a new tier is achieved
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
       (tier) =>
         userProgress.progress.steps >= tier.criteria.steps &&
@@ -54,11 +45,12 @@ export function createMovesMasterObserver({
 
     if (newAchievedTier) {
       userProgress.achieved_tiers?.push({
-        tier_id: newAchievedTier!.tierId,
+        tier_id: newAchievedTier.tierId,
         completed_at: Date.now()
       })
     }
 
+    // If all tiers are achieved, mark progress as completed
     if (userProgress.achieved_tiers!.length === tieredBadges.length) {
       userProgress.completed_at = Date.now()
     }
@@ -73,7 +65,8 @@ export function createMovesMasterObserver({
       user_address: userAddress,
       badge_id: badgeId,
       progress: {
-        steps: 0
+        steps: 0, // Number of unique minutes in which emotes were used
+        last_used_emote_timestamp: 0 // Track the last minute when an emote was used
       },
       achieved_tiers: []
     }

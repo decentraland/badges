@@ -106,7 +106,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createProfileProObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createEmotionistaObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createFashionistaObserver({ db, logs, badgeStorage }))
-  eventDispatcher.registerObserver(createMovesMasterObserver({ db, logs, badgeStorage, memoryStorage }))
+  eventDispatcher.registerObserver(createMovesMasterObserver({ db, logs, badgeStorage }))
 
   const eventParser = await createEventParser({ config, fetch })
 
