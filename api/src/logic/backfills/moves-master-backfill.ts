@@ -58,13 +58,18 @@ export function mergeMovesMasterProgress(
       (timestamp) => !userProgressLastDayUsedEmotesTimestampsSet.has(timestamp)
     )
 
+    const totalEmotesToAdd =
+      backfillData.progress.usedEmotesCount -
+      (userProgress.progress.last_day_used_emotes_timestamps.length - newEmotesUsed.length)
+
+    userProgress.progress.steps += totalEmotesToAdd
+
     const lastDayUsedEmoteTimestamps = Array.from(
       new Set([...userProgress.progress.last_day_used_emotes_timestamps, ...newEmotesUsed])
     )
       .sort((a, b) => a - b)
       .slice(-MINUTES_IN_DAY)
 
-    userProgress.progress.steps += newEmotesUsed.length
     userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
     userProgress.progress.last_day_used_emotes_timestamps = lastDayUsedEmoteTimestamps
 
