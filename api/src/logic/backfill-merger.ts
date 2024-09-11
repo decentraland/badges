@@ -5,6 +5,7 @@ import { mergeWearablesEquipementProgress } from './backfills/wearables-equipeme
 import { mergeEmotionistaProgress } from './backfills/emotionista-backfill'
 import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
 import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
+import { mergeMovesMasterProgress } from './backfills/moves-master-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -51,6 +52,13 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.EVENT_ENTHUSIAST),
+            backfillData
+          )
+        case BadgeId.MOVES_MASTER:
+          return mergeMovesMasterProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.MOVES_MASTER),
             backfillData
           )
 
