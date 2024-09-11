@@ -5,7 +5,8 @@ import {
   Event,
   Events,
   ItemSoldEvent,
-  MoveToParcelEvent
+  MoveToParcelEvent,
+  UsedEmoteEvent
 } from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
@@ -51,6 +52,10 @@ export async function createEventParser({
 
       if (event.type === Events.Type.BLOCKCHAIN && event.subType === Events.SubType.Blockchain.ITEM_SOLD) {
         return event as ItemSoldEvent
+      }
+
+      if (event.type === Events.Type.CLIENT && event.subType === Events.SubType.Client.USED_EMOTE) {
+        return event as UsedEmoteEvent
       }
 
       return undefined
