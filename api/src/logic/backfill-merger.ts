@@ -58,7 +58,7 @@ export function createBackfillMergerComponent({
           return mergeMovesMasterProgress(
             userAddress,
             currentUserProgress,
-            badgeService.getBadge(BadgeId.EVENT_ENTHUSIAST),
+            badgeService.getBadge(BadgeId.MOVES_MASTER),
             backfillData
           )
 
