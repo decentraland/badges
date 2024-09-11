@@ -2,6 +2,8 @@ import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { EthAddress, Events, UsedEmoteEvent } from '@dcl/schemas'
 
+export const MINUTES_IN_DAY = 1440
+
 export function createMovesMasterObserver({
   db,
   logs,
@@ -28,13 +30,17 @@ export function createMovesMasterObserver({
       return undefined
     }
 
-    // If the event is older than the last used minute, ignore it
     if (minuteTimestamp <= userProgress.progress.last_used_emote_timestamp) {
       return undefined
     }
 
     userProgress.progress.last_used_emote_timestamp = minuteTimestamp
     userProgress.progress.steps += 1
+
+    userProgress.progress.last_day_used_emotes_timestamps.push(minuteTimestamp)
+    if (userProgress.progress.last_day_used_emotes_timestamps.length > MINUTES_IN_DAY) {
+      userProgress.progress.last_day_used_emotes_timestamps.shift() // Remove the oldest timestamp
+    }
 
     // Determine if a new tier is achieved
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
@@ -66,7 +72,8 @@ export function createMovesMasterObserver({
       badge_id: badgeId,
       progress: {
         steps: 0, // Number of unique minutes in which emotes were used
-        last_used_emote_timestamp: 0 // Track the last minute when an emote was used
+        last_used_emote_timestamp: 0, // Track the last minute when an emote was used
+        last_day_used_emotes_timestamps: [] // Store the last 1440 (one day) unique minutes
       },
       achieved_tiers: []
     }

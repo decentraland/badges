@@ -1,24 +1,24 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
 
-type UsedEmote = {
-  sentAt: number
-}
-
+// Timestamps already normalized to the start of the minute
 type BackfillData = {
   progress: {
-    emotesUsed: UsedEmote[]
+    lastUsedEmoteTimestamp: number
+    usedEmotesCount: number
+    lastDayUsedEmotesTimestamps: number[]
   }
 }
 
+const MINUTES_IN_DAY = 1440
+
 function validateMovesMasterBackfillData(data: BackfillData): boolean {
   return (
-    Array.isArray(data.progress.emotesUsed) && data.progress.emotesUsed.every((emote) => Number.isInteger(emote.sentAt))
+    Number.isInteger(data.progress.lastUsedEmoteTimestamp) &&
+    Number.isInteger(data.progress.usedEmotesCount) &&
+    Array.isArray(data.progress.lastDayUsedEmotesTimestamps) &&
+    data.progress.lastDayUsedEmotesTimestamps.every((timestamp) => Number.isInteger(timestamp))
   )
-}
-
-function usedInTheLastMinute(emote: UsedEmote, previousEmote: UsedEmote): boolean {
-  return emote.sentAt - previousEmote.sentAt <= 60000
 }
 
 export function mergeMovesMasterProgress(
@@ -31,34 +31,46 @@ export function mergeMovesMasterProgress(
     throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(badge)}. User: ${userAddress}.`)
   }
 
+  // Initialize user progress, merging with backfill data
   const userProgress: UserBadge = currentUserProgress || {
     user_address: userAddress,
     badge_id: badge.id,
     completed_at: undefined,
-    progress: { steps: 0 },
+    progress: {
+      steps: 0,
+      last_used_emote_timestamp: 0,
+      last_day_used_emotes_timestamps: []
+    },
     achieved_tiers: []
   }
 
-  if (backfillData.progress.emotesUsed.length === 0) {
+  if (backfillData.progress.usedEmotesCount === 0) {
+    return userProgress
+  }
+
+  if (backfillData.progress.lastDayUsedEmotesTimestamps.length === 0) {
     return userProgress
   }
 
   try {
-    const sortedUsedEmotes = backfillData.progress.emotesUsed.sort((a, b) => a.sentAt - b.sentAt)
+    const userProgressLastDayUsedEmotesTimestampsSet = new Set(userProgress.progress.last_day_used_emotes_timestamps)
 
-    let numberOfEmotesUsedPerMinute = 0
-    const emoteUsedAt: number[] = []
+    const newEmotesUsed = backfillData.progress.lastDayUsedEmotesTimestamps.filter(
+      (timestamp) => !userProgressLastDayUsedEmotesTimestampsSet.has(timestamp)
+    )
 
-    // Count valid emotes used (1/min) and store the timestamp of the emote used in each minute
-    sortedUsedEmotes.forEach((emote, index) => {
-      if (index === 0 || !usedInTheLastMinute(emote, sortedUsedEmotes[index - 1])) {
-        numberOfEmotesUsedPerMinute++
-        emoteUsedAt.push(emote.sentAt)
-      }
-    })
+    const lastDayUsedEmoteTimestamps = Array.from(
+      new Set([...userProgress.progress.last_day_used_emotes_timestamps, ...newEmotesUsed])
+    )
+      .sort((a, b) => a - b)
+      .slice(-MINUTES_IN_DAY)
 
-    userProgress.progress.steps += numberOfEmotesUsedPerMinute
+    // Update steps and timestamps using backfill data
+    userProgress.progress.steps += newEmotesUsed.length
+    userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
+    userProgress.progress.last_day_used_emotes_timestamps = lastDayUsedEmoteTimestamps
 
+    // Find new tiers based on the current step count
     const newTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
 
     newTiers.forEach((tier) => {
@@ -66,22 +78,20 @@ export function mergeMovesMasterProgress(
         (achievedTier) => achievedTier.tier_id === tier.tierId
       )
 
-      const lastEmoteUsedAt = emoteUsedAt[tier.criteria.steps - 1] || Date.now()
+      const tierAchievedAt = backfillData.progress.lastUsedEmoteTimestamp || Date.now()
 
       const completedAt = userAlreadyHasTier
-        ? Math.min(userAlreadyHasTier.completed_at, lastEmoteUsedAt)
-        : lastEmoteUsedAt
+        ? Math.min(userAlreadyHasTier.completed_at, tierAchievedAt)
+        : tierAchievedAt
 
       if (!userAlreadyHasTier) {
         userProgress.achieved_tiers!.push({ tier_id: tier.tierId, completed_at: completedAt })
       }
     })
 
+    // If all tiers are achieved, set the `completed_at` timestamp
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
-      const userAlreadyCompletedAt = userProgress.completed_at
-      const tierAchievedAt = emoteUsedAt[badge.tiers!.length - 1]
-
-      userProgress.completed_at = Math.min(userAlreadyCompletedAt || Date.now(), tierAchievedAt)
+      userProgress.completed_at = Date.now()
     }
 
     return userProgress
