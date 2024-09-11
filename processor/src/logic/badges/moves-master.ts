@@ -21,7 +21,7 @@ export function createMovesMasterObserver({
 
   async function handle(event: UsedEmoteEvent): Promise<BadgeProcessorResult | undefined> {
     const userAddress = event.metadata.userAddress
-    const minuteTimestamp = normalizeToMinuteTimestamp(event.metadata.timestamp)
+    const minuteTimestamp = normalizeToMinuteTimestamp(event.timestamp)
 
     const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
