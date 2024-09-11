@@ -31,7 +31,6 @@ export function mergeMovesMasterProgress(
     throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(badge)}. User: ${userAddress}.`)
   }
 
-  // Initialize user progress, merging with backfill data
   const userProgress: UserBadge = currentUserProgress || {
     user_address: userAddress,
     badge_id: badge.id,
@@ -65,12 +64,10 @@ export function mergeMovesMasterProgress(
       .sort((a, b) => a - b)
       .slice(-MINUTES_IN_DAY)
 
-    // Update steps and timestamps using backfill data
     userProgress.progress.steps += newEmotesUsed.length
     userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
     userProgress.progress.last_day_used_emotes_timestamps = lastDayUsedEmoteTimestamps
 
-    // Find new tiers based on the current step count
     const newTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
 
     newTiers.forEach((tier) => {
@@ -89,7 +86,6 @@ export function mergeMovesMasterProgress(
       }
     })
 
-    // If all tiers are achieved, set the `completed_at` timestamp
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
       userProgress.completed_at = Date.now()
     }

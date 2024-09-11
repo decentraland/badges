@@ -42,7 +42,6 @@ export function createMovesMasterObserver({
       userProgress.progress.last_day_used_emotes_timestamps.shift() // Remove the oldest timestamp
     }
 
-    // Determine if a new tier is achieved
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
       (tier) =>
         userProgress.progress.steps >= tier.criteria.steps &&
@@ -56,7 +55,6 @@ export function createMovesMasterObserver({
       })
     }
 
-    // If all tiers are achieved, mark progress as completed
     if (userProgress.achieved_tiers!.length === tieredBadges.length) {
       userProgress.completed_at = Date.now()
     }
