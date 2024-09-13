@@ -34,6 +34,7 @@ import { createProfileProObserver } from './logic/badges/profile-pro'
 import { createEmotionistaObserver } from './logic/badges/emotionista'
 import { createFashionistaObserver } from './logic/badges/fashionista'
 import { createMovesMasterObserver } from './logic/badges/moves-master'
+import { createSocialButterflyObserver } from './logic/badges/social-butterfly'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -107,6 +108,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createEmotionistaObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createFashionistaObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createMovesMasterObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createSocialButterflyObserver({ db, logs, badgeStorage }))
 
   const eventParser = await createEventParser({ config, fetch })
 
