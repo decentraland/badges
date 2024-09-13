@@ -3,6 +3,7 @@ import {
   CollectionCreatedEvent,
   Entity,
   Event,
+  BaseEvent,
   Events,
   ItemSoldEvent,
   MoveToParcelEvent,
@@ -11,11 +12,27 @@ import {
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
 
+type SubType = BaseEvent['subType']
+type EventParser = (event: any) => Promise<Event>
+type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, EventParser>>>>
+
 export async function createEventParser({
   config,
   fetch
 }: Pick<AppComponents, 'config' | 'fetch'>): Promise<IEventParser> {
   const loadBalancer = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
+
+  const eventParsers: EventParsersMap = {
+    [Events.Type.BLOCKCHAIN]: {
+      [Events.SubType.Blockchain.COLLECTION_CREATED]: async (event: any) => event as CollectionCreatedEvent,
+      [Events.SubType.Blockchain.ITEM_SOLD]: async (event: any) => event as ItemSoldEvent
+    },
+    [Events.Type.CLIENT]: {
+      [Events.SubType.Client.MOVE_TO_PARCEL]: async (event: any) => event as MoveToParcelEvent,
+      [Events.SubType.Client.USED_EMOTE]: async (event: any) => event as UsedEmoteEvent
+      [Events.SubType.Client.PASSPORT_OPENED]: async (event: any) => event as PassportOpenedEvent
+    }
+  }
 
   async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent> {
     const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
@@ -36,29 +53,29 @@ export async function createEventParser({
     } as CatalystDeploymentEvent
   }
 
+  async function parseEvent(event: any): Promise<Event | undefined> {
+    const {
+      type,
+      subType
+    }: {
+      type: Events.Type
+      subType: SubType
+    } = event
+
+    if (eventParsers[type] && eventParsers[type][subType]) {
+      return eventParsers[type][subType](event)
+    }
+
+    return undefined
+  }
+
   async function parse(event: any): Promise<Event | undefined> {
     try {
       if (event.entity && Object.values(Events.SubType.CatalystDeployment).includes(event.entity.entityType)) {
         return parseCatalystEvent(event)
       }
 
-      if (event.type === Events.Type.BLOCKCHAIN && event.subType === Events.SubType.Blockchain.COLLECTION_CREATED) {
-        return event as CollectionCreatedEvent
-      }
-
-      if (event.type === Events.Type.CLIENT && event.subType === Events.SubType.Client.MOVE_TO_PARCEL) {
-        return event as MoveToParcelEvent
-      }
-
-      if (event.type === Events.Type.BLOCKCHAIN && event.subType === Events.SubType.Blockchain.ITEM_SOLD) {
-        return event as ItemSoldEvent
-      }
-
-      if (event.type === Events.Type.CLIENT && event.subType === Events.SubType.Client.USED_EMOTE) {
-        return event as UsedEmoteEvent
-      }
-
-      return undefined
+      return parseEvent(event)
     } catch (error: any) {
       throw new ParsingEventError(`Error while parsing event ${error?.message}`)
     }
