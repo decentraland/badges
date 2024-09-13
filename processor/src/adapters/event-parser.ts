@@ -7,7 +7,8 @@ import {
   Events,
   ItemSoldEvent,
   MoveToParcelEvent,
-  UsedEmoteEvent
+  UsedEmoteEvent,
+  PassportOpenedEvent
 } from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
@@ -29,7 +30,7 @@ export async function createEventParser({
     },
     [Events.Type.CLIENT]: {
       [Events.SubType.Client.MOVE_TO_PARCEL]: async (event: any) => event as MoveToParcelEvent,
-      [Events.SubType.Client.USED_EMOTE]: async (event: any) => event as UsedEmoteEvent
+      [Events.SubType.Client.USED_EMOTE]: async (event: any) => event as UsedEmoteEvent,
       [Events.SubType.Client.PASSPORT_OPENED]: async (event: any) => event as PassportOpenedEvent
     }
   }

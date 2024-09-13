@@ -332,7 +332,6 @@ describe('Moves Master badge handler should', () => {
     steps: number
     last_used_emote_timestamp: number
     last_day_used_emotes_timestamps?: number[]
-    achieved_tiers?: UserBadge['achieved_tiers']
     completed_at?: number
   }) {
     const { steps, last_used_emote_timestamp, last_day_used_emotes_timestamps = [], completed_at } = progress

@@ -30,7 +30,7 @@ export function createSocialButterflyObserver({
     }
 
     visitedProfiles.add(receiverAddress)
-    userProgress.progress.last_used_emote_timestamp = Array.from(visitedProfiles)
+    userProgress.progress.profiles_visited = Array.from(visitedProfiles)
     userProgress.progress.steps += 1
 
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(

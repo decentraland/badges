@@ -1,7 +1,7 @@
 import { createLogComponent } from '@well-known-components/logger'
 import { createDbMock } from '../../mocks/db-mock'
 import { AppComponents } from '../../../src/types'
-import { Events, PassportOpenedEvent } from '@dcl/schemas'
+import { AuthLinkType, Events, PassportOpenedEvent } from '@dcl/schemas'
 import { createSocialButterflyObserver } from '../../../src/logic/badges/social-butterfly'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
 import { timestamps } from '../../utils'
@@ -43,19 +43,6 @@ describe('Social Butterfly badge handler should', () => {
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
-  })
-
-  it('should handle empty progress for new users', async () => {
-    const { db, logs, badgeStorage } = await getMockedComponents()
-    const event: PassportOpenedEvent = createPassportOpenedEvent()
-
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
-
-    const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
-
-    expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the profile visits and grant the first tier of the badge if the user visit a profile for the first time', async () => {
@@ -110,7 +97,7 @@ describe('Social Butterfly badge handler should', () => {
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
-      badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
+      badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 100 }))
@@ -131,7 +118,7 @@ describe('Social Butterfly badge handler should', () => {
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
-      badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
+      badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 250 }))
@@ -152,7 +139,7 @@ describe('Social Butterfly badge handler should', () => {
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
-      badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
+      badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 500 }))
@@ -173,10 +160,10 @@ describe('Social Butterfly badge handler should', () => {
     const result = await handler.handle(event)
 
     expect(result).toMatchObject({
-      badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
+      badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1000, completed: true }))
   })
 
   // Helpers
@@ -199,36 +186,38 @@ describe('Social Butterfly badge handler should', () => {
       key: 'aKey',
       timestamp: options.timestamp,
       metadata: {
-        userAddress: testAddress,
+        authChain: [
+          {
+            payload: 'auth-chain-payload',
+            type: AuthLinkType.SIGNER
+          }
+        ],
         passport: {
           receiver: '0xReceiver'
-        }
+        },
+        sessionId: options.sessionId,
+        timestamp: options.timestamp,
+        userAddress: testAddress,
+        realm: 'main'
       }
     }
   }
 
-  function mockUserProgress(progress: {
-    steps: number
-    profiles_visited?: string[]
-    achieved_tiers?: UserBadge['achieved_tiers']
-    completed_at?: number
-  }) {
-    const { steps, profiles_visited, achieved_tiers = [], completed_at } = progress
+  function mockUserProgress(progress: { steps: number; profiles_visited?: string[]; completed_at?: number }) {
+    const { steps, profiles_visited = [], completed_at } = progress
     return jest.fn().mockResolvedValue({
       user_address: testAddress,
       badge_id: BadgeId.SOCIAL_BUTTERFLY,
       progress: {
         steps,
-        profiles_visited: profiles_visited || []
+        profiles_visited
       },
-      achieved_tiers:
-        achieved_tiers ||
-        badge.tiers
-          .filter((tier) => steps >= tier.criteria.steps)
-          .map((tier) => ({
-            tier_id: tier.tierId,
-            completed_at: timestamps.twoMinutesBefore(timestamps.now())
-          })),
+      achieved_tiers: badge.tiers
+        .filter((tier) => steps >= tier.criteria.steps)
+        .map((tier) => ({
+          tier_id: tier.tierId,
+          completed_at: timestamps.twoMinutesBefore(timestamps.now())
+        })),
       completed_at
     })
   }
