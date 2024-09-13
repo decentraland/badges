@@ -329,6 +329,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.SOCIAL_BUTTERFLY,
+    {
+      id: BadgeId.SOCIAL_BUTTERFLY,
+      name: 'Social Butterfly',
+      category: BadgeCategory.SOCIALIZER,
+      description:
+        'Starter: 1 Profile viewed;Bronze: 50 Profiles viewed;Silver: 100 Profiles viewed;Gold: 250 Profiles viewed;Platinum: 500 Profiles viewed;Diamond: 1,000 Profiles viewed',
+      tiers: [
+        {
+          tierId: 'social-butterfly-starter',
+          tierName: 'Starter',
+          description: '1 Profile viewed',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'social-butterfly-bronze',
+          tierName: 'Bronze',
+          description: '50 Profiles viewed',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'social-butterfly-silver',
+          tierName: 'Silver',
+          description: '100 Profiles viewed',
+          criteria: { steps: 100 }
+        },
+        {
+          tierId: 'social-butterfly-gold',
+          tierName: 'Gold',
+          description: '250 Profiles viewed',
+          criteria: { steps: 250 }
+        },
+        {
+          tierId: 'social-butterfly-platinum',
+          tierName: 'Platinum',
+          description: '500 Profiles viewed',
+          criteria: { steps: 500 }
+        },
+        {
+          tierId: 'social-butterfly-diamond',
+          tierName: 'Diamond',
+          description: '1,000 Profiles viewed',
+          criteria: { steps: 1000 }
+        }
+      ]
+    }
   ]
 ])
 
