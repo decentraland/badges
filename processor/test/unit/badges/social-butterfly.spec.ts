@@ -29,6 +29,18 @@ describe('Social Butterfly badge handler should', () => {
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
+  it('do nothing if the user opened their passport', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+    const event: PassportOpenedEvent = createPassportOpenedEvent()
+    event.metadata.passport.receiver = testAddress
+
+    const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
+    const result = await handler.handle(event)
+
+    expect(result).toBeUndefined()
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+  })
+
   it('skip increasing progress if the receiver was already visited', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: PassportOpenedEvent = createPassportOpenedEvent()

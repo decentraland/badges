@@ -16,6 +16,11 @@ export function createSocialButterflyObserver({
     const userAddress = event.metadata.userAddress
     const receiverAddress = event.metadata.passport.receiver
 
+    if (userAddress === receiverAddress) {
+      logger.info('User opened their own passport', { userAddress })
+      return undefined
+    }
+
     const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
