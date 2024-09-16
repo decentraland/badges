@@ -60,33 +60,25 @@ export function mergeSocialButterflyProgress(
 
     userProgress.achieved_tiers = badge.tiers!.map((tier) => {
       const visitForTier = sortedVisits[tier.criteria.steps - 1]
-      const alreadyAchieved = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
+      const tierAchievedAt = visitForTier.visited_at || Date.now()
+      const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
 
-      if (visitForTier) {
-        return {
-          tier_id: tier.tierId,
-          completed_at:
-            alreadyAchieved && alreadyAchieved.completed_at < visitForTier.visited_at
-              ? alreadyAchieved.completed_at
-              : visitForTier.visited_at
-        }
-      } else {
-        return {
-          tier_id: tier.tierId,
-          completed_at: alreadyAchieved ? alreadyAchieved.completed_at : Date.now()
-        }
+      const completedAt = userAlreadyHasTier
+        ? Math.min(userAlreadyHasTier.completed_at, visitForTier.visited_at)
+        : tierAchievedAt
+
+      return {
+        tier_id: tier.tierId,
+        completed_at: completedAt
       }
     })
 
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
       const lastTier = badge.tiers![badge.tiers!.length - 1]
       const lastTierVisit = sortedVisits[lastTier.criteria.steps - 1]
+      const lastTierAchievedAt = lastTierVisit.visited_at || Date.now()
 
-      if (lastTierVisit && (!userProgress.completed_at || lastTierVisit.visited_at < userProgress.completed_at)) {
-        userProgress.completed_at = lastTierVisit.visited_at
-      } else if (!userProgress.completed_at) {
-        userProgress.completed_at = Date.now()
-      }
+      userProgress.completed_at = Math.min(userProgress.completed_at ?? Date.now(), lastTierAchievedAt)
     }
 
     return userProgress
