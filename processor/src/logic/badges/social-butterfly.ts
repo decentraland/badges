@@ -78,7 +78,7 @@ export function createSocialButterflyObserver({
     events: [
       {
         type: Events.Type.CLIENT,
-        subType: Events.SubType.Client.USED_EMOTE
+        subType: Events.SubType.Client.PASSPORT_OPENED
       }
     ]
   }
