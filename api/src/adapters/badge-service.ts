@@ -43,11 +43,18 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
         return achievedTierId ? tier.tierId === achievedTierId : false
       })
 
+      const achievedTierImage = !!achievedTier && achievedTier!.assets!['2d'].normal
+
+      const definitionImage =
+        relatedBadgeDefinition.tiers && relatedBadgeDefinition.tiers.length > 0
+          ? relatedBadgeDefinition.tiers[0].assets!['2d'].normal
+          : relatedBadgeDefinition.assets!['2d'].normal
+
       return {
         id: relatedBadgeDefinition.id,
         name: relatedBadgeDefinition.name,
         tierName: !!achievedTier ? achievedTier.tierName : undefined,
-        image: !!achievedTier ? achievedTier!.assets!['2d'].normal : relatedBadgeDefinition!.assets!['2d'].normal
+        image: achievedTierImage || definitionImage
       }
     })
   }

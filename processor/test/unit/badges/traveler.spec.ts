@@ -4,6 +4,7 @@ import { AppComponents } from '../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../src/logic/badges/traveler'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
+import { timestamps } from '../../utils'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -12,14 +13,6 @@ describe('Traveler badge handler should', () => {
     SCENE_TITLE_A: 'scene-title-a',
     SCENE_TITLE_B: 'scene-title-b',
     SCENE_TITLE_C: 'scene-title-c'
-  }
-  const timestamps = {
-    now: () => Date.now(),
-    oneMinuteBefore: (from: number) => from - 60 * 1000,
-    twoMinutesBefore: (from: number) => from - 2 * 60 * 1000,
-    tenSecondsBefore: (from: number) => from - 10 * 1000,
-    thirtySecondsBefore: (from: number) => from - 30 * 1000,
-    thirtySecondsInFuture: (from: number) => from + 30 * 1000
   }
 
   it('save arriving event in the cache when it is the first move of the user on this session', async () => {
@@ -57,7 +50,7 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A]
       },
       achieved_tiers: [
         {
@@ -117,7 +110,7 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A]
       },
       achieved_tiers: [
         {
@@ -169,7 +162,7 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 1,
-        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A],
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A]
       },
       achieved_tiers: [
         {
@@ -194,7 +187,7 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 49,
-        scenes_titles_visited: visitedSceneTitles,
+        scenes_titles_visited: visitedSceneTitles
       },
       achieved_tiers: [
         {
@@ -235,7 +228,7 @@ describe('Traveler badge handler should', () => {
       badge_id: BadgeId.TRAVELER,
       progress: {
         steps: 50,
-        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles],
+        scenes_titles_visited: [testSceneTitles.SCENE_TITLE_A, ...visitedSceneTitles]
       },
       achieved_tiers: [
         {
@@ -251,7 +244,9 @@ describe('Traveler badge handler should', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'memoryStorage' | 'badgeStorage'>> {
+  async function getMockedComponents(): Promise<
+    Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'memoryStorage' | 'badgeStorage'>
+  > {
     return {
       db: createDbMock(),
       badgeContext: {
@@ -264,7 +259,9 @@ describe('Traveler badge handler should', () => {
         set: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({ config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any })
+      badgeStorage: await createBadgeStorage({
+        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
+      })
     }
   }
 
