@@ -46,26 +46,33 @@ export function mergeSocialButterflyProgress(
   const userProgress = currentUserProgress || initUserProgress(userAddress, backfillData.badgeId)
 
   try {
-    const uniqueVisitedProfiles = new Set<string>([
-      ...userProgress.progress.profiles_visited,
-      ...backfillData.progress.profiles_visited.map((visit) => visit.profile_address)
-    ])
+    const allVisits = [...userProgress.progress.profiles_visited, ...backfillData.progress.profiles_visited]
 
-    const sortedVisits = [...backfillData.progress.profiles_visited].sort((a, b) => a.visited_at - b.visited_at)
+    const profileVisitMap = allVisits.reduce((map, visit) => {
+      const currentVisitTime = map.get(visit.profile_address) || Date.now()
+      map.set(visit.profile_address, Math.min(currentVisitTime, visit.visited_at))
+      return map
+    }, new Map<string, number>())
+
+    const mergedVisits = Array.from(profileVisitMap, ([profile_address, visited_at]) => ({
+      profile_address,
+      visited_at
+    }))
+
+    const sortedVisits = mergedVisits.sort((a, b) => a.visited_at - b.visited_at)
 
     userProgress.progress = {
-      steps: uniqueVisitedProfiles.size,
-      profiles_visited: Array.from(uniqueVisitedProfiles)
+      steps: sortedVisits.length,
+      profiles_visited: sortedVisits
     }
 
     userProgress.achieved_tiers = badge.tiers!.map((tier) => {
       const visitForTier = sortedVisits[tier.criteria.steps - 1]
-      const tierAchievedAt = visitForTier.visited_at || Date.now()
       const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
 
       const completedAt = userAlreadyHasTier
-        ? Math.min(userAlreadyHasTier.completed_at, visitForTier.visited_at)
-        : tierAchievedAt
+        ? Math.min(userAlreadyHasTier.completed_at, visitForTier?.visited_at || Date.now())
+        : visitForTier?.visited_at || Date.now()
 
       return {
         tier_id: tier.tierId,
@@ -76,9 +83,10 @@ export function mergeSocialButterflyProgress(
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
       const lastTier = badge.tiers![badge.tiers!.length - 1]
       const lastTierVisit = sortedVisits[lastTier.criteria.steps - 1]
-      const lastTierAchievedAt = lastTierVisit.visited_at || Date.now()
 
-      userProgress.completed_at = Math.min(userProgress.completed_at ?? Date.now(), lastTierAchievedAt)
+      userProgress.completed_at = lastTierVisit
+        ? Math.min(userProgress.completed_at || Infinity, lastTierVisit.visited_at)
+        : Date.now()
     }
 
     return userProgress
