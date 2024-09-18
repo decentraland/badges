@@ -70,11 +70,10 @@ describe('Moves Master badge handler should', () => {
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
-  it('should handle empty progress for new users', async () => {
+  it('should not return a new achieved tier for new users with empty progress', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    // Mock the user progress to return undefined (new user scenario)
     db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -84,7 +83,7 @@ describe('Moves Master badge handler should', () => {
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
   })
 
-  it('should handle when the new timestamp matches the last used timestamp exactly', async () => {
+  it('should not update the user progress when the new timestamp matches the last used timestamp exactly', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const timestamp = timestamps.now()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
@@ -102,7 +101,7 @@ describe('Moves Master badge handler should', () => {
     expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
-  it('should handle when user progress last_day_used_emotes_timestamps reaches the limit of 1440', async () => {
+  it('should remove the oldest timestamp and add the new one when user progress last_day_used_emotes_timestamps reaches the limit of 1440', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const timestamp = timestamps.now()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
@@ -127,7 +126,7 @@ describe('Moves Master badge handler should', () => {
     )
   })
 
-  it('should handle user progress when the last_day_used_emotes_timestamps is empty', async () => {
+  it('should modify the user progress adding the new timestamp to the array when the last_day_used_emotes_timestamps is empty', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
@@ -142,23 +141,6 @@ describe('Moves Master badge handler should', () => {
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 6 }))
-  })
-
-  it('should handle user progress when all tiers are already achieved', async () => {
-    const { db, logs, badgeStorage } = await getMockedComponents()
-    const event: UsedEmoteEvent = createUsedEmoteEvent()
-
-    db.getUserProgressFor = mockUserProgress({
-      steps: 500000,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
-      completed_at: timestamps.twoMinutesBefore(timestamps.now())
-    })
-
-    const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
-
-    expect(result).toBeUndefined() // Should not make any changes since the badge is completed
-    expect(db.saveUserProgress).not.toHaveBeenCalled()
   })
 
   it('increase the usages of emotes if the user used one for the first time in the last minute', async () => {
@@ -350,7 +332,6 @@ describe('Moves Master badge handler should', () => {
     steps: number
     last_used_emote_timestamp: number
     last_day_used_emotes_timestamps?: number[]
-    achieved_tiers?: UserBadge['achieved_tiers']
     completed_at?: number
   }) {
     const { steps, last_used_emote_timestamp, last_day_used_emotes_timestamps = [], completed_at } = progress

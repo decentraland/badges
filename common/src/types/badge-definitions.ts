@@ -55,7 +55,8 @@ export enum BadgeId {
   EMOTIONISTA = 'emotionista',
   FASHIONISTA = 'fashionista',
   EVENT_ENTHUSIAST = 'event_enthusiast',
-  MOVES_MASTER = 'moves_master'
+  MOVES_MASTER = 'moves_master',
+  SOCIAL_BUTTERFLY = 'social_butterfly'
 }
 
 export enum BadgeCategory {
