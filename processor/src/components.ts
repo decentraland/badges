@@ -36,6 +36,7 @@ import { createFashionistaObserver } from './logic/badges/fashionista'
 import { createMovesMasterObserver } from './logic/badges/moves-master'
 import { createSocialButterflyObserver } from './logic/badges/social-butterfly'
 import { createVerticalVoyagerObserver } from './logic/badges/vertical-voyager'
+import { createWalkaboutWandererObserver } from './logic/badges/walkabout-wanderer'
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
@@ -111,6 +112,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createMovesMasterObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createSocialButterflyObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createVerticalVoyagerObserver({ db, logs, badgeStorage }))
+  eventDispatcher.registerObserver(createWalkaboutWandererObserver({ db, logs, badgeStorage }))
 
   const eventParser = await createEventParser({ config, fetch })
 
