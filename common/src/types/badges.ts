@@ -435,6 +435,16 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.LAND_ARCHITECT,
+    {
+      id: BadgeId.LAND_ARCHITECT,
+      name: 'LAND Architect',
+      category: BadgeCategory.BUILDER,
+      description: 'Deployed a scene to Genesis City',
+      criteria: { steps: 1 }
+    }
   ]
 ])
 

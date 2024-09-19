@@ -58,7 +58,8 @@ export enum BadgeId {
   MOVES_MASTER = 'moves_master',
   SOCIAL_BUTTERFLY = 'social_butterfly',
   VERTICAL_VOYAGER = 'vertical_voyager',
-  WALKABOUT_WANDERER = 'walkabout_wanderer'
+  WALKABOUT_WANDERER = 'walkabout_wanderer',
+  LAND_ARCHITECT = 'land_architect'
 }
 
 export enum BadgeCategory {
