@@ -377,6 +377,16 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.VERTICAL_VOYAGER,
+    {
+      id: BadgeId.VERTICAL_VOYAGER,
+      name: 'Vertical Voyager',
+      category: BadgeCategory.EXPLORER,
+      description: 'Achieved a total elevation gain of at least 500m in one session',
+      criteria: { steps: 1 }
+    }
   ]
 ])
 
