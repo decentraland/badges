@@ -1,8 +1,7 @@
 import { createLogComponent } from '@well-known-components/logger'
 import { AppComponents } from '../../../src/types'
 import { createDbMock } from '../../mocks/db-mock'
-import { AuthLinkType, Events, MoveToParcelEvent, VerticalHeightReachedEvent } from '@dcl/schemas'
-import { createDecentralandCitizenObserver } from '../../../src/logic/badges/decentraland-citizen'
+import { AuthLinkType, Events, VerticalHeightReachedEvent } from '@dcl/schemas'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
 import { createVerticalVoyagerObserver } from '../../../src/logic/badges/vertical-voyager'
 
