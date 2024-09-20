@@ -75,10 +75,12 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
         }
 
         const tierProgress = isTierBadge ? getCurrentTierProgress(badge, badgeProgress) : undefined
-        const calculatedNextTarget =
-          !!tierProgress?.nextTier && isTierBadge ? tierProgress.nextTier.criteria.steps : badge.criteria.steps
 
         if (badgeProgress.completed_at || tierProgress?.currentTier) {
+          const calculatedNextTarget = isTierBadge
+            ? tierProgress?.nextTier?.criteria?.steps || badge.tiers![badge.tiers!.length - 1].criteria?.steps
+            : badge.criteria.steps
+
           accumulator.achieved.push({
             id: badge.id,
             name: badge.name,
