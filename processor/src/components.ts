@@ -116,7 +116,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createWalkaboutWandererObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createLandArchitectObserver({ db, logs, badgeStorage }))
 
-  const eventParser = await createEventParser({ config, fetch })
+  const eventParser = await createEventParser({ config, fetch, logs })
 
   const messageProcessor = await createMessageProcessorComponent({ logs, config, eventDispatcher, publisher })
 

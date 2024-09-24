@@ -21,8 +21,10 @@ type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, Event
 
 export async function createEventParser({
   config,
-  fetch
-}: Pick<AppComponents, 'config' | 'fetch'>): Promise<IEventParser> {
+  fetch,
+  logs
+}: Pick<AppComponents, 'config' | 'fetch' | 'logs'>): Promise<IEventParser> {
+  const logger = logs.getLogger('event-parser')
   const loadBalancer = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
 
   const eventParsers: EventParsersMap = {
@@ -82,6 +84,11 @@ export async function createEventParser({
 
       return parseEvent(event)
     } catch (error: any) {
+      logger.debug('Error while parsing event', {
+        error: error.message,
+        stack: error.stack,
+        event: JSON.stringify(event)
+      })
       throw new ParsingEventError(`Error while parsing event ${error?.message}`)
     }
   }
