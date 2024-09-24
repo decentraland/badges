@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-sns": "^3.600.0",
     "@aws-sdk/client-sqs": "^3.600.0",
-    "@dcl/schemas": "https://sdk-team-cdn.decentraland.org/@dcl/schemas/branch/feat/add-events-related-to-badges/dcl-schemas-13.10.1-10939128657.commit-0907a6b.tgz",
+    "@dcl/schemas": "^13.11.0",
     "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^2.0.2",
