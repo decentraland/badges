@@ -51,7 +51,7 @@ export async function initComponents(): Promise<AppComponents> {
   const db = createDbComponent({ pg })
 
   const badgeStorage = await createBadgeStorage({ config })
-  const badgeService = await createBadgeService({ db, badgeStorage, logs, config })
+  const badgeService = await createBadgeService({ db, badgeStorage, logs })
   const backfillMerger = createBackfillMergerComponent({ logs, badgeService })
 
   return {
