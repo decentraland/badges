@@ -15,7 +15,7 @@ import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
 
 type SubType = BaseEvent['subType']
-type EventParser = (event: any) => Promise<Event>
+type EventParser = (event: any) => Event
 type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, EventParser>>>>
 
 export async function createEventParser({
@@ -26,14 +26,14 @@ export async function createEventParser({
 
   const eventParsers: EventParsersMap = {
     [Events.Type.BLOCKCHAIN]: {
-      [Events.SubType.Blockchain.COLLECTION_CREATED]: async (event: any) => event as CollectionCreatedEvent,
-      [Events.SubType.Blockchain.ITEM_SOLD]: async (event: any) => event as ItemSoldEvent
+      [Events.SubType.Blockchain.COLLECTION_CREATED]: (event: any) => event as CollectionCreatedEvent,
+      [Events.SubType.Blockchain.ITEM_SOLD]: (event: any) => event as ItemSoldEvent
     },
     [Events.Type.CLIENT]: {
-      [Events.SubType.Client.MOVE_TO_PARCEL]: async (event: any) => event as MoveToParcelEvent,
-      [Events.SubType.Client.USED_EMOTE]: async (event: any) => event as UsedEmoteEvent,
-      [Events.SubType.Client.PASSPORT_OPENED]: async (event: any) => event as PassportOpenedEvent,
-      [Events.SubType.Client.VERTICAL_HEIGHT_REACHED]: async (event: any) => event as VerticalHeightReachedEvent
+      [Events.SubType.Client.MOVE_TO_PARCEL]: (event: any) => event as MoveToParcelEvent,
+      [Events.SubType.Client.USED_EMOTE]: (event: any) => event as UsedEmoteEvent,
+      [Events.SubType.Client.PASSPORT_OPENED]: (event: any) => event as PassportOpenedEvent,
+      [Events.SubType.Client.VERTICAL_HEIGHT_REACHED]: (event: any) => event as VerticalHeightReachedEvent
     }
   }
 
@@ -56,7 +56,7 @@ export async function createEventParser({
     } as CatalystDeploymentEvent
   }
 
-  async function parseEvent(event: any): Promise<Event | undefined> {
+  function parseEvent(event: any): Event | undefined {
     const {
       type,
       subType
