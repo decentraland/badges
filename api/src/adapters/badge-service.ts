@@ -5,10 +5,8 @@ import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 export async function createBadgeService({
   db,
   badgeStorage,
-  logs,
-  config
-}: Pick<AppComponents, 'db' | 'badgeStorage' | 'logs' | 'config'>): Promise<IBadgeService> {
-  const isDebugMode = (await config.getString('LOG_LEVEL'))?.toLocaleLowerCase() === 'debug'
+  logs
+}: Pick<AppComponents, 'db' | 'badgeStorage' | 'logs'>): Promise<IBadgeService> {
   const logger = logs.getLogger('badge-service')
   const badges: Map<BadgeId, Badge> = badgeStorage.getBadges()
 
@@ -170,22 +168,6 @@ export async function createBadgeService({
   async function saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void> {
     await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
   }
-
-  // // Debug wrapper function
-  // function debugWrapper<T extends (...args: any[]) => any>(fn: T): T {
-  //   return (async (...args: Parameters<T>) => {
-  //     try {
-  //       return await fn(...args)
-  //     } catch (error: any) {
-  //       if (isDebugMode) {
-  //         logger.debug('Error message:', error.message)
-  //         logger.debug('Stack trace:', error.stack)
-  //       }
-
-  //       throw error
-  //     }
-  //   }) as T
-  // }
 
   return {
     getBadge,
