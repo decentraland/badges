@@ -43,12 +43,10 @@ describe('Emote Creator badge handler should', () => {
 
   it('skip increasing the number of emotes published if the emote was already published', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
-    const event: ItemPublishedEvent = createItemPublishedEvent({
-      timestamp: timestamps.now()
-    })
+    const event: ItemPublishedEvent = createItemPublishedEvent()
 
     db.getUserProgressFor = mockUserProgress({
-      steps: 5,
+      steps: 1,
       published_emotes: ['anUrn']
     })
 
