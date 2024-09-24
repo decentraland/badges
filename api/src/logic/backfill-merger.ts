@@ -7,6 +7,7 @@ import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
 import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
 import { mergeMovesMasterProgress } from './backfills/moves-master-backfill'
 import { mergeSocialButterflyProgress } from './backfills/social-butterfly-backfill'
+import { mergeLandArchitectProgress } from './backfills/land-architect-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -67,6 +68,13 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.SOCIAL_BUTTERFLY),
+            backfillData
+          )
+        case BadgeId.LAND_ARCHITECT:
+          return mergeLandArchitectProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.LAND_ARCHITECT),
             backfillData
           )
 
