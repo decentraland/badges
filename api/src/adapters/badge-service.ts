@@ -71,71 +71,77 @@ export async function createBadgeService({
     userProgresses: UserBadge[],
     shouldIncludeNotAchieved: boolean = false
   ): { achieved: any; notAchieved: any } {
-    const badgesProgresses = allBadges.reduce(
-      (accumulator, badge) => {
-        const isTierBadge = badge.tiers && badge.tiers.length > 0
-        const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id) || {
-          badge_id: badge.id,
-          progress: { steps: 0 },
-          achieved_tiers: isTierBadge ? [] : undefined,
-          completed_at: undefined
-        }
+    try {
+      const badgesProgresses = allBadges.reduce(
+        (accumulator, badge) => {
+          const isTierBadge = badge.tiers && badge.tiers.length > 0
+          const badgeProgress = userProgresses.find((userBadge) => userBadge.badge_id === badge.id) || {
+            badge_id: badge.id,
+            progress: { steps: 0 },
+            achieved_tiers: isTierBadge ? [] : undefined,
+            completed_at: undefined
+          }
 
-        const tierProgress = isTierBadge ? getCurrentTierProgress(badge, badgeProgress) : undefined
+          const tierProgress = isTierBadge ? getCurrentTierProgress(badge, badgeProgress) : undefined
 
-        if (badgeProgress.completed_at || tierProgress?.currentTier) {
-          const calculatedNextTarget = isTierBadge
-            ? tierProgress?.nextTier?.criteria.steps || badge.tiers![badge.tiers!.length - 1].criteria.steps
-            : badge.criteria.steps
+          if (badgeProgress.completed_at || tierProgress?.currentTier) {
+            const calculatedNextTarget = isTierBadge
+              ? tierProgress?.nextTier?.criteria.steps || badge.tiers![badge.tiers!.length - 1].criteria.steps
+              : badge.criteria.steps
 
-          accumulator.achieved.push({
-            id: badge.id,
-            name: badge.name,
-            description: badge.description,
-            category: badge.category,
-            isTier: !!isTierBadge,
-            completedAt: badgeProgress.completed_at,
-            assets: isTierBadge ? tierProgress?.currentTier?.assets : badge.assets,
-            progress: {
-              achievedTiers: badgeProgress.achieved_tiers?.map((achievedTier) => ({
-                tierId: achievedTier.tier_id,
-                completedAt: achievedTier.completed_at
-              })),
-              stepsDone: badgeProgress.progress.steps,
-              nextStepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
-              totalStepsTarget: isTierBadge
-                ? badge.tiers![badge.tiers!.length - 1].criteria.steps
-                : badge.criteria.steps,
-              lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null,
-              lastCompletedTierName: isTierBadge ? tierProgress?.currentTier?.tierName : null,
-              lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.assets?.['2d'].normal : null
-            }
-          })
-        } else if (shouldIncludeNotAchieved) {
-          accumulator.notAchieved.push({
-            id: badge.id,
-            name: badge.name,
-            description: badge.description,
-            category: badge.category,
-            isTier: !!isTierBadge,
-            completedAt: null,
-            assets: isTierBadge ? badge.tiers![0].assets : badge.assets,
-            progress: {
-              stepsDone: badgeProgress.progress.steps,
-              nextStepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps,
-              totalStepsTarget: isTierBadge
-                ? badge.tiers![badge.tiers!.length - 1].criteria.steps
-                : badge.criteria.steps
-            }
-          })
-        }
+            accumulator.achieved.push({
+              id: badge.id,
+              name: badge.name,
+              description: badge.description,
+              category: badge.category,
+              isTier: !!isTierBadge,
+              completedAt: badgeProgress.completed_at,
+              assets: isTierBadge ? tierProgress?.currentTier?.assets : badge.assets,
+              progress: {
+                achievedTiers: badgeProgress.achieved_tiers?.map((achievedTier) => ({
+                  tierId: achievedTier.tier_id,
+                  completedAt: achievedTier.completed_at
+                })),
+                stepsDone: badgeProgress.progress.steps,
+                nextStepsTarget: badgeProgress.completed_at ? null : calculatedNextTarget,
+                totalStepsTarget: isTierBadge
+                  ? badge.tiers![badge.tiers!.length - 1].criteria.steps
+                  : badge.criteria.steps,
+                lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null,
+                lastCompletedTierName: isTierBadge ? tierProgress?.currentTier?.tierName : null,
+                lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.assets?.['2d'].normal : null
+              }
+            })
+          } else if (shouldIncludeNotAchieved) {
+            accumulator.notAchieved.push({
+              id: badge.id,
+              name: badge.name,
+              description: badge.description,
+              category: badge.category,
+              isTier: !!isTierBadge,
+              completedAt: null,
+              assets: isTierBadge ? badge.tiers![0].assets : badge.assets,
+              progress: {
+                stepsDone: badgeProgress.progress.steps,
+                nextStepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps,
+                totalStepsTarget: isTierBadge
+                  ? badge.tiers![badge.tiers!.length - 1].criteria.steps
+                  : badge.criteria.steps
+              }
+            })
+          }
 
-        return accumulator
-      },
-      { achieved: [] as any, notAchieved: [] as any }
-    )
+          return accumulator
+        },
+        { achieved: [] as any, notAchieved: [] as any }
+      )
 
-    return badgesProgresses
+      return badgesProgresses
+    } catch (error: any) {
+      logger.error('Error calculating user progress:', error.message)
+      logger.debug('Stack trace:', error.stack)
+      throw error
+    }
   }
 
   function getCurrentTierProgress(
@@ -165,21 +171,21 @@ export async function createBadgeService({
     await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
   }
 
-  // Debug wrapper function
-  function debugWrapper<T extends (...args: any[]) => any>(fn: T): T {
-    return (async (...args: Parameters<T>) => {
-      try {
-        return await fn(...args)
-      } catch (error: any) {
-        if (isDebugMode) {
-          logger.debug('Error message:', error.message)
-          logger.debug('Stack trace:', error.stack)
-        }
+  // // Debug wrapper function
+  // function debugWrapper<T extends (...args: any[]) => any>(fn: T): T {
+  //   return (async (...args: Parameters<T>) => {
+  //     try {
+  //       return await fn(...args)
+  //     } catch (error: any) {
+  //       if (isDebugMode) {
+  //         logger.debug('Error message:', error.message)
+  //         logger.debug('Stack trace:', error.stack)
+  //       }
 
-        throw error
-      }
-    }) as T
-  }
+  //       throw error
+  //     }
+  //   }) as T
+  // }
 
   return {
     getBadge,
@@ -187,8 +193,8 @@ export async function createBadgeService({
     getAllBadges,
     getUserStates,
     getUserState,
-    getLatestAchievedBadges: isDebugMode ? debugWrapper(getLatestAchievedBadges) : getLatestAchievedBadges,
-    calculateUserProgress: isDebugMode ? debugWrapper(calculateUserProgress) : calculateUserProgress,
+    getLatestAchievedBadges,
+    calculateUserProgress,
     resetUserProgressFor,
     saveOrUpdateUserProgresses
   }
