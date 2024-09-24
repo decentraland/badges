@@ -2,7 +2,14 @@ import { EthAddress } from '@dcl/schemas'
 import { AppComponents, IBadgeService, UserBadgesPreview } from '../types'
 import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 
-export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db' | 'badgeStorage'>): IBadgeService {
+export async function createBadgeService({
+  db,
+  badgeStorage,
+  logs,
+  config
+}: Pick<AppComponents, 'db' | 'badgeStorage' | 'logs' | 'config'>): Promise<IBadgeService> {
+  const isDebugMode = (await config.getString('LOG_LEVEL'))?.toLocaleLowerCase() === 'debug'
+  const logger = logs.getLogger('badge-service')
   const badges: Map<BadgeId, Badge> = badgeStorage.getBadges()
 
   function getBadge(id: BadgeId): Badge {
@@ -158,14 +165,30 @@ export function createBadgeService({ db, badgeStorage }: Pick<AppComponents, 'db
     await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
   }
 
+  // Debug wrapper function
+  function debugWrapper<T extends (...args: any[]) => any>(fn: T): T {
+    return (async (...args: Parameters<T>) => {
+      try {
+        return await fn(...args)
+      } catch (error: any) {
+        if (isDebugMode) {
+          logger.debug('Error message:', error.message)
+          logger.debug('Stack trace:', error.stack)
+        }
+
+        throw error
+      }
+    }) as T
+  }
+
   return {
     getBadge,
     getBadges,
     getAllBadges,
     getUserStates,
     getUserState,
-    getLatestAchievedBadges,
-    calculateUserProgress,
+    getLatestAchievedBadges: isDebugMode ? debugWrapper(getLatestAchievedBadges) : getLatestAchievedBadges,
+    calculateUserProgress: isDebugMode ? debugWrapper(calculateUserProgress) : calculateUserProgress,
     resetUserProgressFor,
     saveOrUpdateUserProgresses
   }
