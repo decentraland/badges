@@ -387,6 +387,64 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       description: 'Achieved a total elevation gain of at least 500m in one session',
       criteria: { steps: 1 }
     }
+  ],
+  [
+    BadgeId.WALKABOUT_WANDERER,
+    {
+      id: BadgeId.WALKABOUT_WANDERER,
+      name: 'Walkabout Wanderer',
+      category: BadgeCategory.EXPLORER,
+      description:
+        'Starter: 10k Steps walked in Decentraland;Bronze: 40k Steps walked in Decentraland;Silver: 150k Steps walked in Decentraland;Gold: 600k Steps walked in Decentraland;Platinum: 2.5M Steps walked in Decentraland;Diamond: 10M Steps walked in Decentraland',
+      tiers: [
+        {
+          tierId: 'walkabout-wanderer-starter',
+          tierName: 'Starter',
+          description: '10k Steps walked in Decentraland',
+          criteria: { steps: 10000 }
+        },
+        {
+          tierId: 'walkabout-wanderer-bronze',
+          tierName: 'Bronze',
+          description: '40k Steps walked in Decentraland',
+          criteria: { steps: 40000 }
+        },
+        {
+          tierId: 'walkabout-wanderer-silver',
+          tierName: 'Silver',
+          description: '150k Steps walked in Decentraland',
+          criteria: { steps: 150000 }
+        },
+        {
+          tierId: 'walkabout-wanderer-gold',
+          tierName: 'Gold',
+          description: '600k Steps walked in Decentraland',
+          criteria: { steps: 600000 }
+        },
+        {
+          tierId: 'walkabout-wanderer-platinum',
+          tierName: 'Platinum',
+          description: '2.5M Steps walked in Decentraland',
+          criteria: { steps: 2500000 }
+        },
+        {
+          tierId: 'walkabout-wanderer-diamond',
+          tierName: 'Diamond',
+          description: '10M Steps walked in Decentraland',
+          criteria: { steps: 10000000 }
+        }
+      ]
+    }
+  ],
+  [
+    BadgeId.LAND_ARCHITECT,
+    {
+      id: BadgeId.LAND_ARCHITECT,
+      name: 'LAND Architect',
+      category: BadgeCategory.BUILDER,
+      description: 'Deployed a scene to Genesis City',
+      criteria: { steps: 1 }
+    }
   ]
 ])
 

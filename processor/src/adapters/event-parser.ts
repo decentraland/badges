@@ -9,7 +9,8 @@ import {
   MoveToParcelEvent,
   UsedEmoteEvent,
   PassportOpenedEvent,
-  VerticalHeightReachedEvent
+  VerticalHeightReachedEvent,
+  WalkedDistanceEvent
 } from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
@@ -33,7 +34,8 @@ export async function createEventParser({
       [Events.SubType.Client.MOVE_TO_PARCEL]: (event: any) => event as MoveToParcelEvent,
       [Events.SubType.Client.USED_EMOTE]: (event: any) => event as UsedEmoteEvent,
       [Events.SubType.Client.PASSPORT_OPENED]: (event: any) => event as PassportOpenedEvent,
-      [Events.SubType.Client.VERTICAL_HEIGHT_REACHED]: (event: any) => event as VerticalHeightReachedEvent
+      [Events.SubType.Client.VERTICAL_HEIGHT_REACHED]: (event: any) => event as VerticalHeightReachedEvent,
+      [Events.SubType.Client.WALKED_DISTANCE]: (event: any) => event as WalkedDistanceEvent
     }
   }
 
