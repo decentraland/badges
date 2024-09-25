@@ -30,15 +30,16 @@ export function validateUserProgress(
   }
 
   // validate that achieved tiers were correctly calculated
-  if (!badge?.tiers && userProgress.achieved_tiers && userProgress.achieved_tiers.length > 0) {
+  if (!!badge?.tiers && userProgress.achieved_tiers && userProgress.achieved_tiers.length > 0) {
     userProgress.achieved_tiers?.forEach((achievedTier) => {
-      const tierDefinition = badge!.tiers!.find((tier) => tier.tierId === achievedTier.tier_id)
+      const tierDefinition = badge.tiers!.find((tier) => tier.tierId === achievedTier.tier_id)
 
       if (!tierDefinition) {
         errors.push(`tier achieved ${achievedTier.tier_id} not found in badge tiers`)
+        return
       }
 
-      if (tierDefinition!.criteria.steps < userProgress.progress.steps) {
+      if (tierDefinition.criteria.steps < userProgress.progress.steps) {
         errors.push(`tier achieved ${achievedTier.tier_id} is higher than badge criteria`)
       }
     })
