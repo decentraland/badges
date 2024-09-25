@@ -27,7 +27,7 @@ export async function createMessageProcessorComponent({
   async function process(event: Event): Promise<void> {
     logger.info(`Processing entity`, { eventType: event.type, eventSubType: event.subType, eventKey: event.key })
 
-    const processorsResult: BadgeProcessorResult[] = (await eventDispatcher.dispatch(event)).filter(
+    const processorsResult: BadgeProcessorResult[] = (await eventDispatcher.dispatch(event))?.filter(
       (result: BadgeProcessorResult | undefined) => !!result
     )
 
