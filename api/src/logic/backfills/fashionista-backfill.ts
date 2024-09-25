@@ -35,14 +35,14 @@ export function mergeFashionistaProgress(
     completed_at: undefined,
     progress: {
       steps: 0,
-      transactions_wearables_purchase: []
+      transactions_wearable_purchase: []
     },
     achieved_tiers: []
   }
 
   try {
     const uniqueTransactions = new Set<string>([
-      ...userProgress.progress.transactions_wearables_purchase,
+      ...userProgress.progress.transactions_wearable_purchase,
       ...backfillData.progress.wearablesBought.map((wearable: any) => wearable.transactionHash)
     ])
 
@@ -50,7 +50,7 @@ export function mergeFashionistaProgress(
 
     userProgress.progress = {
       steps: uniqueTransactions.size,
-      transactions_wearables_purchase: Array.from(uniqueTransactions)
+      transactions_wearable_purchase: Array.from(uniqueTransactions)
     }
 
     // this badge has tiers
