@@ -30,6 +30,17 @@ export function createFashionistaObserver({
     }
 
     const txHash = event.key // This is the transaction hash set at events-notifier
+
+    if (userProgress.progress.transactions_wearable_purchase.includes(txHash)) {
+      logger.info('User already has this wearable', {
+        userAddress: userAddress,
+        badgeId: badgeId,
+        txHash
+      })
+
+      return undefined
+    }
+
     userProgress.progress.transactions_wearable_purchase.push(txHash)
     const uniqueWearablesPurchased = new Set<string>(userProgress.progress.transactions_wearable_purchase)
     userProgress.progress.steps = uniqueWearablesPurchased.size
