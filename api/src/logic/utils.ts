@@ -39,7 +39,7 @@ export function validateUserProgress(
         return
       }
 
-      if (tierDefinition.criteria.steps < userProgress.progress.steps) {
+      if (tierDefinition.criteria.steps > userProgress.progress.steps) {
         errors.push(`tier achieved ${achievedTier.tier_id} is higher than badge criteria`)
       }
     })

@@ -117,23 +117,28 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
       const query: SQLStatement = SQL`
         INSERT INTO user_progress (badge_id, user_address, progress, achieved_tiers, updated_at, completed_at) 
-        VALUES
+        VALUES 
       `
 
       chunk.forEach((userBadge, index) => {
         const achievedTiersJson =
           userBadge.achieved_tiers !== undefined ? JSON.stringify(userBadge.achieved_tiers) : null
+
+        if (index > 0) {
+          query.append(SQL`, `)
+        }
+
         query.append(
-          SQL`${index > 0 ? SQL`, ` : SQL``}(${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${achievedTiersJson}::jsonb, ${updatedAt}, ${userBadge.completed_at})`
+          SQL`(${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${achievedTiersJson}::jsonb, ${updatedAt}, ${userBadge.completed_at})`
         )
       })
 
       query.append(SQL`
         ON CONFLICT (badge_id, user_address) DO UPDATE
-         SET progress = EXCLUDED.progress,
-         achieved_tiers = EXCLUDED.achieved_tiers,
-         completed_at = EXCLUDED.completed_at,
-         updated_at = ${updatedAt}
+        SET progress = EXCLUDED.progress,
+            achieved_tiers = EXCLUDED.achieved_tiers,
+            completed_at = EXCLUDED.completed_at,
+            updated_at = ${updatedAt};
       `)
 
       await pg.query<UserBadge>(query)

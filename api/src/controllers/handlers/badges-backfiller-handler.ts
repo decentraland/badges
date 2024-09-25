@@ -65,17 +65,21 @@ export async function badgesBackfillHandler(
       }
     )
 
-    await badgeService.saveOrUpdateUserProgresses(validUserProgresses)
+    if (validUserProgresses.length > 0) {
+      await badgeService.saveOrUpdateUserProgresses(validUserProgresses)
+    }
 
     return {
-      status: 204,
+      status: 200,
       body: {
-        badge,
-        userProgressesMerged: validUserProgresses.length,
-        failures: invalidUserProgresses.map(({ userProgress, errors }) => ({
-          address: userProgress.user_address,
-          errors
-        }))
+        data: {
+          badge,
+          userProgressesMerged: validUserProgresses.length,
+          failures: invalidUserProgresses.map(({ userProgress, errors }) => ({
+            address: userProgress.user_address,
+            errors
+          }))
+        }
       }
     }
   } catch (error: any) {
