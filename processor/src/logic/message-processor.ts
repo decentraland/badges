@@ -36,26 +36,25 @@ export async function createMessageProcessorComponent({
         grantedBadges: processorsResult.map((result: BadgeProcessorResult) => result.badgeGranted.id).join(' - ')
       })
 
-      const eventsToPublish: BadgeGrantedEvent[] = processorsResult.map(
-        (result) =>
-          ({
-            type: Events.Type.BADGE,
-            subType: Events.SubType.Badge.GRANTED,
-            key: generateEventKey(result),
-            timestamp: Date.now(),
-            metadata: {
-              badgeId: result.badgeGranted.id,
-              badgeName: result.badgeGranted.name,
-              badgeImageUrl: !!result.badgeGranted.tiers?.length
-                ? result.badgeGranted.tiers.pop()?.assets?.['2d'].normal
-                : result.badgeGranted.assets?.['2d'].normal,
-              badgeTierName: !!result.badgeGranted.tiers?.length
-                ? result.badgeGranted.tiers.pop()?.tierName
-                : undefined,
-              address: result.userAddress
-            }
-          }) as BadgeGrantedEvent
-      )
+      const eventsToPublish: BadgeGrantedEvent[] = processorsResult.map((result) => {
+        const { badgeGranted, userAddress } = result
+
+        return {
+          type: Events.Type.BADGE,
+          subType: Events.SubType.Badge.GRANTED,
+          key: generateEventKey(result),
+          timestamp: Date.now(),
+          metadata: {
+            badgeId: badgeGranted.id,
+            badgeName: badgeGranted.name,
+            badgeImageUrl: !!badgeGranted.tiers?.length
+              ? badgeGranted.tiers.pop()?.assets?.['2d'].normal
+              : badgeGranted.assets?.['2d'].normal,
+            badgeTierName: !!badgeGranted.tiers?.length ? badgeGranted.tiers.pop()?.tierName : undefined,
+            address: userAddress
+          }
+        } as BadgeGrantedEvent
+      })
 
       const { successfulMessageIds, failedEvents } = await publisher.publishMessages(eventsToPublish)
 

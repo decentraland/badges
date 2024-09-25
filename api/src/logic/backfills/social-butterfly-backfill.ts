@@ -86,8 +86,12 @@ export function mergeSocialButterflyProgress(
       })
     }
 
-    if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
-      const lastTier = badge.tiers?.pop()
+    if (
+      userProgress.achieved_tiers &&
+      userProgress.achieved_tiers.length > 0 &&
+      userProgress.achieved_tiers.length === badge.tiers?.length
+    ) {
+      const [lastTier] = badge.tiers.slice(-1)
       const lastTierVisit = sortedVisits[lastTier?.criteria.steps - 1]
 
       userProgress.completed_at = lastTierVisit

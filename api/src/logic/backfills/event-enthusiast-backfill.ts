@@ -92,8 +92,12 @@ export function mergeEventEnthusiastProgress(
     })
   }
 
-  if (userProgress.achieved_tiers?.length === badge.tiers?.length) {
-    const lastTier = badge.tiers?.pop()
+  if (
+    userProgress.achieved_tiers &&
+    userProgress.achieved_tiers.length > 0 &&
+    userProgress.achieved_tiers.length === badge.tiers?.length
+  ) {
+    const [lastTier] = badge.tiers.slice(-1)
     const alreadyAchievedDate = userProgress.completed_at
     const eventFound = sortedVisitedEvents[lastTier?.criteria.steps - 1]
 
