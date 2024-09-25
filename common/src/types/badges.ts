@@ -493,6 +493,54 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
         }
       ]
     }
+  ],
+  [
+    BadgeId.WEARABLE_DESIGNER,
+    {
+      id: BadgeId.WEARABLE_DESIGNER,
+      name: 'Wearable Designer',
+      category: BadgeCategory.CREATOR,
+      description:
+        'Starter: 1 Wearable published;Bronze: 5 Wearables published;Silver: 25 Wearables published;Gold: 50 Wearables published;Platinum: 175 Wearables published;Diamond: 350 Wearables published',
+      tiers: [
+        {
+          tierId: 'wearable-designer-starter',
+          tierName: 'Starter',
+          description: '1 Wearable published',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'wearable-designer-bronze',
+          tierName: 'Bronze',
+          description: '5 Wearables published',
+          criteria: { steps: 5 }
+        },
+        {
+          tierId: 'wearable-designer-silver',
+          tierName: 'Silver',
+          description: '25 Wearables published',
+          criteria: { steps: 25 }
+        },
+        {
+          tierId: 'wearable-designer-gold',
+          tierName: 'Gold',
+          description: '50 Wearables published',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'wearable-designer-platinum',
+          tierName: 'Platinum',
+          description: '175 Wearables published',
+          criteria: { steps: 175 }
+        },
+        {
+          tierId: 'wearable-designer-diamond',
+          tierName: 'Diamond',
+          description: '350 Wearables published',
+          criteria: { steps: 350 }
+        }
+      ]
+    }
   ]
 ])
 

@@ -60,7 +60,8 @@ export enum BadgeId {
   VERTICAL_VOYAGER = 'vertical_voyager',
   WALKABOUT_WANDERER = 'walkabout_wanderer',
   LAND_ARCHITECT = 'land_architect',
-  EMOTE_CREATOR = 'emote_creator'
+  EMOTE_CREATOR = 'emote_creator',
+  WEARABLE_DESIGNER = 'wearable_designer'
 }
 
 export enum BadgeCategory {
