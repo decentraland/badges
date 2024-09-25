@@ -18,6 +18,7 @@ export type DbComponent = {
   getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
   getLatestUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
+  saveUserProgresses(userBadges: UserBadge[]): Promise<void>
   deleteUserProgress(badgeId: BadgeId, userAddress: EthAddress): Promise<void>
 }
 
@@ -107,6 +108,38 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     await pg.query<UserBadge>(query)
   }
 
+  async function saveUserProgresses(userBadges: UserBadge[]): Promise<void> {
+    const updatedAt = Date.now()
+    const chunkSize = 100
+
+    for (let i = 0; i < userBadges.length; i += chunkSize) {
+      const chunk = userBadges.slice(i, i + chunkSize)
+
+      const query: SQLStatement = SQL`
+        INSERT INTO user_progress (badge_id, user_address, progress, achieved_tiers, updated_at, completed_at) 
+        VALUES
+      `
+
+      chunk.forEach((userBadge, index) => {
+        const achievedTiersJson =
+          userBadge.achieved_tiers !== undefined ? JSON.stringify(userBadge.achieved_tiers) : null
+        query.append(
+          SQL`${index > 0 ? SQL`, ` : SQL``}(${userBadge.badge_id}, ${userBadge.user_address.toLocaleLowerCase()}, ${userBadge.progress}, ${achievedTiersJson}::jsonb, ${updatedAt}, ${userBadge.completed_at})`
+        )
+      })
+
+      query.append(SQL`
+        ON CONFLICT (badge_id, user_address) DO UPDATE
+         SET progress = EXCLUDED.progress,
+         achieved_tiers = EXCLUDED.achieved_tiers,
+         completed_at = EXCLUDED.completed_at,
+         updated_at = ${updatedAt}
+      `)
+
+      await pg.query<UserBadge>(query)
+    }
+  }
+
   async function deleteUserProgress(badgeId: BadgeId, userAddress: EthAddress): Promise<void> {
     const query: SQLStatement = SQL`
       DELETE FROM user_progress
@@ -122,6 +155,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
     getAllUserProgresses,
     getLatestUserBadges,
     saveUserProgress,
+    saveUserProgresses,
     deleteUserProgress
   }
 }

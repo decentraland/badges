@@ -1,7 +1,7 @@
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { HandlerContextWithPath } from '../../types'
 import { parseJson, NotFoundError } from '@dcl/platform-server-commons'
-import { Badge, BadgeId } from '@badges/common'
+import { Badge, BadgeId, UserBadge } from '@badges/common'
 import { parseBadgeId, validateUserProgress } from '../../logic/utils'
 
 export async function badgesBackfillHandler(
@@ -60,16 +60,12 @@ export async function badgesBackfillHandler(
         return acc
       },
       { validUserProgresses: [], invalidUserProgresses: [] } as {
-        validUserProgresses: any[]
-        invalidUserProgresses: any[]
+        validUserProgresses: UserBadge[]
+        invalidUserProgresses: { userProgress: UserBadge; errors: string[] }[]
       }
     )
 
-    const userProgresseSavingsPromises = validUserProgresses.map(async (userProgress) => {
-      await badgeService.saveOrUpdateUserProgresses([userProgress])
-    })
-
-    await Promise.all(userProgresseSavingsPromises)
+    await badgeService.saveOrUpdateUserProgresses(validUserProgresses)
 
     return {
       status: 204,
@@ -77,7 +73,7 @@ export async function badgesBackfillHandler(
         badge,
         userProgressesMerged: validUserProgresses.length,
         failures: invalidUserProgresses.map(({ userProgress, errors }) => ({
-          address: userProgress.userAddress,
+          address: userProgress.user_address,
           errors
         }))
       }
