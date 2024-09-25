@@ -344,7 +344,7 @@ describe('Moves Master badge handler should', () => {
         last_day_used_emotes_timestamps
       },
       achieved_tiers: badge.tiers
-        .filter((tier) => steps > tier.criteria.steps)
+        .filter((tier) => steps >= tier.criteria.steps)
         .map((tier) => ({
           tier_id: tier.tierId,
           completed_at: timestamps.twoMinutesBefore(timestamps.now())
