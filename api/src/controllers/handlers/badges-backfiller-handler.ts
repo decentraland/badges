@@ -1,8 +1,8 @@
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { HandlerContextWithPath } from '../../types'
 import { parseJson, NotFoundError } from '@dcl/platform-server-commons'
-import { BadgeId } from '@badges/common'
-import { parseBadgeId } from '../../logic/utils'
+import { Badge, BadgeId } from '@badges/common'
+import { parseBadgeId, validateUserProgress } from '../../logic/utils'
 
 export async function badgesBackfillHandler(
   context: Pick<
@@ -21,6 +21,8 @@ export async function badgesBackfillHandler(
       throw new NotFoundError('Badge does not exists')
     }
 
+    const badge: Badge = badgeService.getBadge(parsedBadgeId)
+
     const { registries } = await parseJson<{
       registries: {
         userAddress: string
@@ -30,7 +32,7 @@ export async function badgesBackfillHandler(
       }[]
     }>(context.request)
 
-    const promises = registries.map(async (registry) => {
+    const userProgressesPromises = registries.map(async (registry) => {
       const { userAddress, data } = registry
       logger.info('Processing backfill for user', {
         userAddress,
@@ -38,17 +40,47 @@ export async function badgesBackfillHandler(
       })
       const currentUserProgress = await badgeService.getUserState(userAddress, parsedBadgeId)
 
-      const mergedUserProgress = backfillMerger.mergeUserProgress(parsedBadgeId, userAddress, currentUserProgress, {
+      return backfillMerger.mergeUserProgress(parsedBadgeId, userAddress, currentUserProgress, {
         ...data,
         badgeId: parsedBadgeId
       })
-
-      await badgeService.saveOrUpdateUserProgresses([mergedUserProgress])
     })
 
-    await Promise.all(promises)
+    const userProgresses = await Promise.all(userProgressesPromises)
+    const { validUserProgresses, invalidUserProgresses } = userProgresses.reduce(
+      (acc, userProgress) => {
+        const validationResult = validateUserProgress(userProgress, badge)
+
+        if (validationResult.ok) {
+          acc.validUserProgresses.push(userProgress)
+        } else {
+          acc.invalidUserProgresses.push({ userProgress, errors: validationResult.errors })
+        }
+
+        return acc
+      },
+      { validUserProgresses: [], invalidUserProgresses: [] } as {
+        validUserProgresses: any[]
+        invalidUserProgresses: any[]
+      }
+    )
+
+    const userProgresseSavingsPromises = validUserProgresses.map(async (userProgress) => {
+      await badgeService.saveOrUpdateUserProgresses([userProgress])
+    })
+
+    await Promise.all(userProgresseSavingsPromises)
+
     return {
-      status: 204
+      status: 204,
+      body: {
+        badge,
+        userProgressesMerged: validUserProgresses.length,
+        failures: invalidUserProgresses.map(({ userProgress, errors }) => ({
+          address: userProgress.userAddress,
+          errors
+        }))
+      }
     }
   } catch (error: any) {
     logger.error('Error processing backfill', {
