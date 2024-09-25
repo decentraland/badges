@@ -11,14 +11,21 @@ export function createWearableDesignerObserver({
   const badgeId: BadgeId = BadgeId.WEARABLE_DESIGNER
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
-  async function handle(event: ItemPublishedEvent): Promise<BadgeProcessorResult | undefined> {
+  function getUserAddress(event: ItemPublishedEvent): EthAddress {
+    return event.metadata.creator
+  }
+
+  async function handle(
+    event: ItemPublishedEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
     if (event.metadata.category !== 'wearable') {
       return undefined
     }
 
     const userAddress: EthAddress = event.metadata.creator
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -81,7 +88,9 @@ export function createWearableDesignerObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

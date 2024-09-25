@@ -11,14 +11,21 @@ export function createEmotionistaObserver({
   const badgeId: BadgeId = BadgeId.EMOTIONISTA
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
-  async function handle(event: ItemSoldEvent): Promise<BadgeProcessorResult | undefined> {
+  function getUserAddress(event: ItemSoldEvent): EthAddress {
+    return event.metadata.buyer
+  }
+
+  async function handle(
+    event: ItemSoldEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
     if (event.metadata.category !== 'emote') {
       return undefined
     }
 
-    const userAddress: EthAddress = event.metadata.buyer
+    const userAddress: EthAddress = getUserAddress(event)
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -82,7 +89,9 @@ export function createEmotionistaObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

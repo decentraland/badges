@@ -8,7 +8,7 @@ import type {
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
-import { Badge, DbComponent, IBadgeStorage } from '@badges/common'
+import { Badge, BadgeId, DbComponent, IBadgeStorage, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { Entity, Event } from '@dcl/schemas'
 import { BadgeGrantedEvent } from '@dcl/schemas/dist/platform/events/services'
@@ -91,7 +91,9 @@ type EventId = {
 }
 
 export type IObserver = {
-  handle(event: Event): Promise<any>
+  getUserAddress(event: Event): string
+  handle(event: Event, userProgress: UserBadge | undefined): Promise<any>
+  badgeId: BadgeId
   badge: Badge
   events: EventId[]
 }

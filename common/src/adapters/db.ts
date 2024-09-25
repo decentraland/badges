@@ -15,6 +15,7 @@ export type UpsertResult<T> = {
 export type DbComponent = {
   getBadgeDefinitions(): Promise<Badge[]>
   getUserProgressFor(id: BadgeId, userAddress: EthAddress): Promise<UserBadge>
+  getUserProgressesForMultipleBadges(ids: BadgeId[], userAddress: EthAddress[]): Promise<UserBadge[]>
   getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]>
   getLatestUserBadges(userAddress: EthAddress): Promise<UserBadge[]>
   saveUserProgress(userBadge: UserBadge): Promise<void>
@@ -40,6 +41,16 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
 
     const result = await pg.query<UserBadge>(query)
     return result.rows[0]
+  }
+
+  async function getUserProgressesForMultipleBadges(ids: BadgeId[], userAddresses: EthAddress[]): Promise<UserBadge[]> {
+    const query: SQLStatement = SQL`
+      SELECT badge_id, user_address, progress, achieved_tiers, completed_at, updated_at FROM user_progress
+      WHERE badge_id = ANY(${ids}) AND user_address = ANY(${userAddresses.map((userAddress) => userAddress.toLocaleLowerCase())})
+    `
+
+    const result = await pg.query<UserBadge>(query)
+    return result.rows
   }
 
   async function getAllUserProgresses(userAddress: EthAddress): Promise<UserBadge[]> {
@@ -157,6 +168,7 @@ export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent
   return {
     getBadgeDefinitions,
     getUserProgressFor,
+    getUserProgressesForMultipleBadges,
     getAllUserProgresses,
     getLatestUserBadges,
     saveUserProgress,

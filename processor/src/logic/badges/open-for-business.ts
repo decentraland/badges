@@ -32,14 +32,19 @@ export function createOpenForBusinessObserver({
     })
   }
 
+  function getUserAddress(event: CatalystDeploymentEvent | CollectionCreatedEvent): EthAddress {
+    return functionsPerEvent[event.type](event).getUserAddress()!
+  }
+
   async function handle(
-    event: CatalystDeploymentEvent | CollectionCreatedEvent
+    event: CatalystDeploymentEvent | CollectionCreatedEvent,
+    userProgress: UserBadge | undefined
   ): Promise<BadgeProcessorResult | undefined> {
     let result: BadgeProcessorResult | undefined
     const functions = functionsPerEvent[event.type](event)
-    const userAddress: EthAddress = functions.getUserAddress()
+    const userAddress: EthAddress = getUserAddress(event)
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress!)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -74,8 +79,10 @@ export function createOpenForBusinessObserver({
   }
 
   return {
+    getUserAddress,
     handle,
     badge,
+    badgeId,
     events: [
       {
         type: Events.Type.CATALYST_DEPLOYMENT,

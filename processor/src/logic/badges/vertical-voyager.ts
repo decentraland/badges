@@ -13,11 +13,18 @@ export function createVerticalVoyagerObserver({
   const badgeId: BadgeId = BadgeId.VERTICAL_VOYAGER
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
-  async function handle(event: VerticalHeightReachedEvent): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+  function getUserAddress(event: VerticalHeightReachedEvent): EthAddress {
+    return event.metadata.userAddress
+  }
+
+  async function handle(
+    event: VerticalHeightReachedEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
+    const userAddress = getUserAddress(event)
     const heightReached = event.metadata.height
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', { userAddress, badgeId })
@@ -54,7 +61,9 @@ export function createVerticalVoyagerObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

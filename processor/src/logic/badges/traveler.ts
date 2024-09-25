@@ -22,15 +22,22 @@ export function createTravelerObserver({
     return userProgress.progress.scenes_titles_visited.includes(sceneTitle)
   }
 
-  async function handle(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
+  function getUserAddress(event: MoveToParcelEvent): EthAddress {
+    return event.metadata.userAddress
+  }
+
+  async function handle(
+    event: MoveToParcelEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
     // if tile is not a valid scene, return
     if (event.metadata.parcel.isEmptyParcel || !event.metadata.parcel.newParcel) {
       return undefined
     }
 
-    const userAddress = event.metadata.userAddress
+    const userAddress = getUserAddress(event)
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -152,7 +159,9 @@ export function createTravelerObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

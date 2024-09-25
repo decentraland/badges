@@ -12,8 +12,15 @@ export function createSocialButterflyObserver({
   const badge: Badge = badgeStorage.getBadge(badgeId)
   const tieredBadges = badge.tiers!
 
-  async function handle(event: PassportOpenedEvent): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+  function getUserAddress(event: PassportOpenedEvent): EthAddress {
+    return event.metadata.userAddress
+  }
+
+  async function handle(
+    event: PassportOpenedEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
+    const userAddress = getUserAddress(event)
     const receiverAddress = event.metadata.passport.receiver
 
     if (userAddress === receiverAddress) {
@@ -21,7 +28,7 @@ export function createSocialButterflyObserver({
       return undefined
     }
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', { userAddress, badgeId })
@@ -73,7 +80,9 @@ export function createSocialButterflyObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

@@ -19,11 +19,18 @@ export function createMovesMasterObserver({
     return Math.floor(timestamp / 60000) * 60000
   }
 
-  async function handle(event: UsedEmoteEvent): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+  function getUserAddress(event: UsedEmoteEvent): EthAddress {
+    return event.metadata.userAddress
+  }
+
+  async function handle(
+    event: UsedEmoteEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
+    const userAddress = getUserAddress(event)
     const minuteTimestamp = normalizeToMinuteTimestamp(event.timestamp)
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', { userAddress, badgeId })
@@ -78,7 +85,9 @@ export function createMovesMasterObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {
