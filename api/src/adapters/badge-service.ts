@@ -13,7 +13,7 @@ export async function createBadgeService({
   function getBadge(id: BadgeId): Badge {
     // we assert the value because if BadgeId exists
     // the badge should be already be added to the badges map
-    return badges.get(id)!
+    return { ...badges.get(id)! } // to avoid mutation
   }
 
   function getBadges(ids: BadgeId[]): Badge[] {
@@ -105,7 +105,7 @@ export async function createBadgeService({
                 totalStepsTarget: isTierBadge
                   ? badge.tiers![badge.tiers!.length - 1].criteria.steps
                   : badge.criteria.steps,
-                lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.pop()?.completed_at : null,
+                lastCompletedTierAt: isTierBadge ? badgeProgress.achieved_tiers?.slice(-1)[0]?.completed_at : null,
                 lastCompletedTierName: isTierBadge ? tierProgress?.currentTier?.tierName : null,
                 lastCompletedTierImage: isTierBadge ? tierProgress?.currentTier?.assets?.['2d'].normal : null
               }
