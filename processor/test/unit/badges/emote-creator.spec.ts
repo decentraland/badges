@@ -81,6 +81,30 @@ describe('Emote Creator badge handler should', () => {
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
   })
 
+  it('increase the number of emotes published and return undefined if the user does not achieve a new tier', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+
+    const timestamp = timestamps.now()
+    const urn = `urn-${timestamp}`
+
+    const event: ItemPublishedEvent = createItemPublishedEvent({
+      timestamp,
+      urn,
+      category: 'emote'
+    })
+
+    db.getUserProgressFor = mockUserProgress({
+      steps: 1,
+      published_emotes: Array.from({ length: 1 }, (_, i) => `urn-${i}`)
+    })
+
+    const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
+    const result = await handler.handle(event)
+
+    expect(result).toBeUndefined()
+    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+  })
+
   it('increase the number of emotes published and grant the second tier of the badge if the user published 5 emotes', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
@@ -258,7 +282,7 @@ describe('Emote Creator badge handler should', () => {
         published_emotes
       },
       achieved_tiers: badge.tiers
-        .filter((tier) => steps > tier.criteria.steps)
+        .filter((tier) => steps >= tier.criteria.steps)
         .map((tier) => ({
           tier_id: tier.tierId,
           completed_at: timestamps.twoMinutesBefore(timestamps.now())
