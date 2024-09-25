@@ -17,11 +17,15 @@ export function validateUserProgress(
     errors.push('badge not found')
   }
 
-  if (badge?.tiers && userProgress.completed_at && (userProgress.achieved_tiers || []).length !== badge.tiers.length) {
+  if (
+    badge?.tiers &&
+    userProgress.completed_at &&
+    (!userProgress.achieved_tiers || userProgress.achieved_tiers.length !== badge.tiers.length)
+  ) {
     errors.push('missmatch between badge tiers and achieved tiers')
   }
 
-  if (!badge?.tiers && userProgress.progress.steps !== badge!.criteria.steps) {
+  if (!badge?.tiers && userProgress.completed_at && userProgress.progress.steps !== badge!.criteria.steps) {
     errors.push('missmatch between badge criteria and progress steps')
   }
 
