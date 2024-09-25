@@ -8,6 +8,8 @@ import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backf
 import { mergeMovesMasterProgress } from './backfills/moves-master-backfill'
 import { mergeSocialButterflyProgress } from './backfills/social-butterfly-backfill'
 import { mergeLandArchitectProgress } from './backfills/land-architect-backfill'
+import { mergeEmoteCreatorProgress } from './backfills/emote-creator-backfill'
+import { mergeWearableDesignerProgress } from './backfills/wearable-designer-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -42,11 +44,25 @@ export function createBackfillMergerComponent({
             badgeService.getBadge(BadgeId.EMOTIONISTA),
             backfillData
           )
+        case BadgeId.EMOTE_CREATOR:
+          return mergeEmoteCreatorProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.EMOTE_CREATOR),
+            backfillData
+          )
         case BadgeId.FASHIONISTA:
           return mergeFashionistaProgress(
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.FASHIONISTA),
+            backfillData
+          )
+        case BadgeId.WEARABLE_DESIGNER:
+          return mergeWearableDesignerProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.WEARABLE_DESIGNER),
             backfillData
           )
         case BadgeId.EVENT_ENTHUSIAST:

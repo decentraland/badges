@@ -445,6 +445,102 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       description: 'Deployed a scene to Genesis City',
       criteria: { steps: 1 }
     }
+  ],
+  [
+    BadgeId.EMOTE_CREATOR,
+    {
+      id: BadgeId.EMOTE_CREATOR,
+      name: 'Emote Creator',
+      category: BadgeCategory.CREATOR,
+      description:
+        'Starter: 1 Emote published;Bronze: 5 Emotes published;Silver: 10 Emotes published;Gold: 20 Emotes published;Platinum: 50 Emotes published;Diamond: 100 Emotes published',
+      tiers: [
+        {
+          tierId: 'emote-creator-starter',
+          tierName: 'Starter',
+          description: '1 Emote published',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'emote-creator-bronze',
+          tierName: 'Bronze',
+          description: '5 Emotes published',
+          criteria: { steps: 5 }
+        },
+        {
+          tierId: 'emote-creator-silver',
+          tierName: 'Silver',
+          description: '10 Emotes published',
+          criteria: { steps: 10 }
+        },
+        {
+          tierId: 'emote-creator-gold',
+          tierName: 'Gold',
+          description: '20 Emotes published',
+          criteria: { steps: 20 }
+        },
+        {
+          tierId: 'emote-creator-platinum',
+          tierName: 'Platinum',
+          description: '50 Emotes published',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'emote-creator-diamond',
+          tierName: 'Diamond',
+          description: '100 Emotes published',
+          criteria: { steps: 100 }
+        }
+      ]
+    }
+  ],
+  [
+    BadgeId.WEARABLE_DESIGNER,
+    {
+      id: BadgeId.WEARABLE_DESIGNER,
+      name: 'Wearable Designer',
+      category: BadgeCategory.CREATOR,
+      description:
+        'Starter: 1 Wearable published;Bronze: 5 Wearables published;Silver: 25 Wearables published;Gold: 50 Wearables published;Platinum: 175 Wearables published;Diamond: 350 Wearables published',
+      tiers: [
+        {
+          tierId: 'wearable-designer-starter',
+          tierName: 'Starter',
+          description: '1 Wearable published',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: 'wearable-designer-bronze',
+          tierName: 'Bronze',
+          description: '5 Wearables published',
+          criteria: { steps: 5 }
+        },
+        {
+          tierId: 'wearable-designer-silver',
+          tierName: 'Silver',
+          description: '25 Wearables published',
+          criteria: { steps: 25 }
+        },
+        {
+          tierId: 'wearable-designer-gold',
+          tierName: 'Gold',
+          description: '50 Wearables published',
+          criteria: { steps: 50 }
+        },
+        {
+          tierId: 'wearable-designer-platinum',
+          tierName: 'Platinum',
+          description: '175 Wearables published',
+          criteria: { steps: 175 }
+        },
+        {
+          tierId: 'wearable-designer-diamond',
+          tierName: 'Diamond',
+          description: '350 Wearables published',
+          criteria: { steps: 350 }
+        }
+      ]
+    }
   ]
 ])
 
