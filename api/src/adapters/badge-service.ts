@@ -166,7 +166,7 @@ export async function createBadgeService({
   }
 
   async function saveOrUpdateUserProgresses(userBadges: UserBadge[]): Promise<void> {
-    await Promise.all(userBadges.map((userBadge) => db.saveUserProgress(userBadge)))
+    await db.saveUserProgresses(userBadges)
   }
 
   return {
