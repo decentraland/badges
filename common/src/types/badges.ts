@@ -66,7 +66,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     {
       id: BadgeId.OPEN_FOR_BUSINESS,
       name: 'Open for Business',
-      category: BadgeCategory.EXPLORER,
+      category: BadgeCategory.CREATOR,
       description: 'Complete Store Information and submit at least 1 collection',
       criteria: { steps: 2 }
     }
