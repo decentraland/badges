@@ -1,8 +1,8 @@
 import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents } from '../../../src/types'
-import { createDbMock } from '../../mocks/db-mock'
+import { AppComponents } from '../../../../src/types'
+import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
-import { createDecentralandCitizenObserver } from '../../../src/logic/badges/decentraland-citizen'
+import { createDecentralandCitizenObserver } from '../../../../src/logic/badges/decentraland-citizen'
 import { BadgeId, createBadgeStorage } from '@badges/common'
 
 describe('Decentraland Citizen badge handler should', () => {
@@ -46,13 +46,12 @@ describe('Decentraland Citizen badge handler should', () => {
       }
     }
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createDecentralandCitizenObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.DECENTRALAND_CITIZEN, testAddress)
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,
       badge_id: BadgeId.DECENTRALAND_CITIZEN,
@@ -96,20 +95,19 @@ describe('Decentraland Citizen badge handler should', () => {
       }
     }
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
+    const mockUserProgress = {
       user_address: testAddress,
       badge_id: BadgeId.DECENTRALAND_CITIZEN,
       completed_at: 1708380838534,
       progress: {
         visited: '0,1'
       }
-    })
+    }
 
     const handler = createDecentralandCitizenObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.DECENTRALAND_CITIZEN, testAddress)
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
   })

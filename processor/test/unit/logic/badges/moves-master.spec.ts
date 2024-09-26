@@ -1,10 +1,10 @@
 import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../mocks/db-mock'
-import { AppComponents } from '../../../src/types'
+import { createDbMock } from '../../../mocks/db-mock'
+import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, UsedEmoteEvent } from '@dcl/schemas'
-import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../src/logic/badges/moves-master'
+import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../../src/logic/badges/moves-master'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../utils'
+import { timestamps } from '../../../utils'
 
 describe('Moves Master badge handler should', () => {
   const testAddress = '0xTest'
@@ -16,14 +16,14 @@ describe('Moves Master badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
       steps: 500000,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
@@ -37,13 +37,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamp
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 5,
       last_used_emote_timestamp: timestamp
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
@@ -58,13 +58,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.twoMinutesBefore(timestamp)
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 5,
       last_used_emote_timestamp: timestamp
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
@@ -74,10 +74,10 @@ describe('Moves Master badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
@@ -89,13 +89,13 @@ describe('Moves Master badge handler should', () => {
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
     // Mock user progress where the last timestamp equals the event timestamp
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 5,
       last_used_emote_timestamp: timestamp
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
@@ -108,14 +108,14 @@ describe('Moves Master badge handler should', () => {
 
     // Mock user progress with exactly 1440 timestamps (one day of timestamps, one per minute)
     const lastDayTimestamps = Array.from({ length: MINUTES_IN_DAY }, (_, i) => timestamp - i * 60000)
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 1440,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamp),
       last_day_used_emotes_timestamps: lastDayTimestamps
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(
@@ -130,14 +130,14 @@ describe('Moves Master badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 5,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
       last_day_used_emotes_timestamps: []
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 6 }))
@@ -147,10 +147,10 @@ describe('Moves Master badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
@@ -163,13 +163,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 99,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
@@ -185,13 +185,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 999,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
@@ -207,13 +207,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 4999,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
@@ -229,13 +229,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 9999,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
@@ -251,13 +251,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 99999,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
@@ -273,13 +273,13 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 499999,
       last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
@@ -328,14 +328,14 @@ describe('Moves Master badge handler should', () => {
     }
   }
 
-  function mockUserProgress(progress: {
+  function getMockedUserProgress(progress: {
     steps: number
     last_used_emote_timestamp: number
     last_day_used_emotes_timestamps?: number[]
     completed_at?: number
   }) {
     const { steps, last_used_emote_timestamp, last_day_used_emotes_timestamps = [], completed_at } = progress
-    return jest.fn().mockResolvedValue({
+    return {
       user_address: testAddress,
       badge_id: BadgeId.MOVES_MASTER,
       progress: {
@@ -350,7 +350,7 @@ describe('Moves Master badge handler should', () => {
           completed_at: timestamps.twoMinutesBefore(timestamps.now())
         })),
       completed_at
-    })
+    }
   }
 
   function createExpectedUserProgress(progress: {

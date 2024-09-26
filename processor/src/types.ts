@@ -92,7 +92,7 @@ type EventId = {
 
 export type IObserver = {
   getUserAddress(event: Event): string
-  handle(event: Event, userProgress: UserBadge | undefined): Promise<any>
+  handle(event: Event, userProgress?: UserBadge): Promise<any>
   badgeId: BadgeId
   badge: Badge
   events: EventId[]

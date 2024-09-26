@@ -1,9 +1,9 @@
 import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents } from '../../../src/types'
-import { createDbMock } from '../../mocks/db-mock'
+import { AppComponents } from '../../../../src/types'
+import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, VerticalHeightReachedEvent } from '@dcl/schemas'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
-import { createVerticalVoyagerObserver } from '../../../src/logic/badges/vertical-voyager'
+import { createVerticalVoyagerObserver } from '../../../../src/logic/badges/vertical-voyager'
 
 describe('Vertical Voyager badge handler should', () => {
   const testAddress = '0xTest'
@@ -14,16 +14,15 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 500 })
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     const expectedUserProgress = createExpectedUserProgress({ heightReached: 500, completed: true })
     const expectedResult = createExpectedResult(handler.badge)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.VERTICAL_VOYAGER, testAddress)
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
   })
@@ -33,16 +32,15 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 501 })
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     const expectedUserProgress = createExpectedUserProgress({ heightReached: 501, completed: true })
     const expectedResult = createExpectedResult(handler.badge)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.VERTICAL_VOYAGER, testAddress)
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
   })
@@ -52,13 +50,12 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 499 })
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.VERTICAL_VOYAGER, testAddress)
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
   })
@@ -68,7 +65,7 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent()
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
+    const mockUserProgress = {
       user_address: testAddress,
       badge_id: BadgeId.VERTICAL_VOYAGER,
       completed_at: expect.any(Number),
@@ -76,13 +73,12 @@ describe('Vertical Voyager badge handler should', () => {
         steps: 1,
         height_reached: 500
       }
-    })
+    }
 
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
-    expect(db.getUserProgressFor).toHaveBeenCalledWith(BadgeId.VERTICAL_VOYAGER, testAddress)
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
   })

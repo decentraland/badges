@@ -1,10 +1,10 @@
 import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../mocks/db-mock'
-import { AppComponents } from '../../../src/types'
+import { createDbMock } from '../../../mocks/db-mock'
+import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../utils'
-import { createWalkaboutWandererObserver } from '../../../src/logic/badges/walkabout-wanderer'
+import { timestamps } from '../../../utils'
+import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
 
 describe('Walkabout Wanderer badge handler should', () => {
   const testAddress = '0xTest'
@@ -16,13 +16,13 @@ describe('Walkabout Wanderer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent()
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
       steps: 10000000
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).not.toHaveBeenCalled()
@@ -32,10 +32,10 @@ describe('Walkabout Wanderer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent({ stepCount: 10 })
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10 }))
@@ -47,12 +47,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 9500
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
@@ -67,12 +67,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 25000
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 15000
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
@@ -87,12 +87,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 1
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 149999
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
@@ -107,12 +107,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 300000
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 300000
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
@@ -127,12 +127,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500000
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 2000000
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
@@ -147,12 +147,12 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 2500010
     })
 
-    db.getUserProgressFor = mockUserProgress({
+    const mockUserProgress = getMockedUserProgress({
       steps: 7500000
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
@@ -201,9 +201,9 @@ describe('Walkabout Wanderer badge handler should', () => {
     }
   }
 
-  function mockUserProgress(progress: { steps: number; completed_at?: number }) {
+  function getMockedUserProgress(progress: { steps: number; completed_at?: number }) {
     const { steps, completed_at } = progress
-    return jest.fn().mockResolvedValue({
+    return {
       user_address: testAddress,
       badge_id: BadgeId.WALKABOUT_WANDERER,
       progress: {
@@ -216,7 +216,7 @@ describe('Walkabout Wanderer badge handler should', () => {
           completed_at: timestamps.twoMinutesBefore(timestamps.now())
         })),
       completed_at
-    })
+    }
   }
 
   function createExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
