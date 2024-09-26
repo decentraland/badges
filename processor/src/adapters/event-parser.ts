@@ -10,7 +10,8 @@ import {
   UsedEmoteEvent,
   PassportOpenedEvent,
   VerticalHeightReachedEvent,
-  WalkedDistanceEvent
+  WalkedDistanceEvent,
+  ItemPublishedEvent
 } from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
@@ -30,7 +31,8 @@ export async function createEventParser({
   const eventParsers: EventParsersMap = {
     [Events.Type.BLOCKCHAIN]: {
       [Events.SubType.Blockchain.COLLECTION_CREATED]: (event: any) => event as CollectionCreatedEvent,
-      [Events.SubType.Blockchain.ITEM_SOLD]: (event: any) => event as ItemSoldEvent
+      [Events.SubType.Blockchain.ITEM_SOLD]: (event: any) => event as ItemSoldEvent,
+      [Events.SubType.Blockchain.ITEM_PUBLISHED]: (event: any) => event as ItemPublishedEvent
     },
     [Events.Type.CLIENT]: {
       [Events.SubType.Client.MOVE_TO_PARCEL]: (event: any) => event as MoveToParcelEvent,
