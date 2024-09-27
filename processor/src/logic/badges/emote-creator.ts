@@ -11,14 +11,21 @@ export function createEmoteCreatorObserver({
   const badgeId: BadgeId = BadgeId.EMOTE_CREATOR
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
-  async function handle(event: ItemPublishedEvent): Promise<BadgeProcessorResult | undefined> {
+  function getUserAddress(event: ItemPublishedEvent): EthAddress {
+    return event.metadata.creator
+  }
+
+  async function handle(
+    event: ItemPublishedEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
     if (event.metadata.category !== 'emote') {
       return undefined
     }
 
-    const userAddress: EthAddress = event.metadata.creator
+    const userAddress: EthAddress = getUserAddress(event)
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -81,7 +88,9 @@ export function createEmoteCreatorObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

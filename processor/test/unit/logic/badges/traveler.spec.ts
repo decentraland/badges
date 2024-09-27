@@ -1,10 +1,10 @@
 import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../mocks/db-mock'
-import { AppComponents } from '../../../src/types'
+import { createDbMock } from '../../../mocks/db-mock'
+import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
-import { createTravelerObserver } from '../../../src/logic/badges/traveler'
+import { createTravelerObserver } from '../../../../src/logic/badges/traveler'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
-import { timestamps } from '../../utils'
+import { timestamps } from '../../../utils'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -21,7 +21,7 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
     badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
@@ -31,7 +31,7 @@ describe('Traveler badge handler should', () => {
     })
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
@@ -45,7 +45,7 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
+    const mockUserProgress = {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
@@ -58,7 +58,7 @@ describe('Traveler badge handler should', () => {
           tier_id: 'traveler-starter'
         }
       ]
-    })
+    }
     badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
       metadata: {
         display: {
@@ -68,7 +68,7 @@ describe('Traveler badge handler should', () => {
     })
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
@@ -81,7 +81,7 @@ describe('Traveler badge handler should', () => {
     const event: MoveToParcelEvent = createMovementEvent()
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
     memoryStorage.get = jest.fn().mockReturnValue([
       {
         sceneTitle: testSceneTitles.SCENE_TITLE_A,
@@ -97,7 +97,7 @@ describe('Traveler badge handler should', () => {
     })
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
@@ -129,7 +129,7 @@ describe('Traveler badge handler should', () => {
     })
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
-    db.getUserProgressFor = jest.fn().mockResolvedValue(undefined)
+    const mockUserProgress = undefined
     memoryStorage.get = jest.fn().mockReturnValue([
       {
         sceneTitle: testSceneTitles.SCENE_TITLE_A,
@@ -149,7 +149,7 @@ describe('Traveler badge handler should', () => {
     })
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
@@ -182,7 +182,7 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     const visitedSceneTitles = createRandomSceneTitles(49)
-    db.getUserProgressFor = jest.fn().mockResolvedValue({
+    const mockUserProgress = {
       user_address: testAddress,
       badge_id: BadgeId.TRAVELER,
       progress: {
@@ -195,7 +195,7 @@ describe('Traveler badge handler should', () => {
           tier_id: 'traveler-starter'
         }
       ]
-    })
+    }
     memoryStorage.get = jest.fn().mockReturnValue([
       {
         sceneTitle: testSceneTitles.SCENE_TITLE_A,
@@ -215,7 +215,7 @@ describe('Traveler badge handler should', () => {
     })
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event)
+    const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),

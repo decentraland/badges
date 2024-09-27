@@ -16,7 +16,7 @@ import {
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
 import { createContentClient } from 'dcl-catalyst-client'
 
-type SubType = BaseEvent['subType']
+export type SubType = BaseEvent['subType']
 type EventParser = (event: any) => Event
 type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, EventParser>>>>
 
@@ -81,10 +81,17 @@ export async function createEventParser({
   async function parse(event: any): Promise<Event | undefined> {
     try {
       if (event.entity && Object.values(Events.SubType.CatalystDeployment).includes(event.entity.entityType)) {
-        return parseCatalystEvent(event)
+        const parsedCatalystEvent = await parseCatalystEvent(event)
+        return parsedCatalystEvent
       }
 
-      return parseEvent(event)
+      const parsedEvent = parseEvent(event)
+
+      if (!parsedEvent) {
+        logger.debug('Event not parsed', { event: JSON.stringify(event) })
+      }
+
+      return parsedEvent
     } catch (error: any) {
       logger.debug('Error while parsing event', {
         error: error.message,

@@ -8,9 +8,9 @@ import type {
 } from '@well-known-components/interfaces'
 import { IPgComponent } from '@well-known-components/pg-component'
 import { Message } from '@aws-sdk/client-sqs'
-import { Badge, DbComponent, IBadgeStorage } from '@badges/common'
+import { Badge, BadgeId, DbComponent, IBadgeStorage, UserBadge } from '@badges/common'
 import { metricDeclarations } from './metrics'
-import { Entity, Event } from '@dcl/schemas'
+import { Entity, EthAddress, Event } from '@dcl/schemas'
 import { BadgeGrantedEvent } from '@dcl/schemas/dist/platform/events/services'
 
 export type GlobalContext = {
@@ -81,6 +81,7 @@ export type MessageProcessorComponent = {
 }
 
 export type IEventDispatcher = {
+  getObservers(): Map<string, IObserver[]>
   registerObserver(observer: IObserver): void
   dispatch(event: Event): Promise<any>
 }
@@ -91,7 +92,9 @@ type EventId = {
 }
 
 export type IObserver = {
-  handle(event: Event): Promise<any>
+  getUserAddress(event: Event): EthAddress
+  handle(event: Event, userProgress?: UserBadge): Promise<any>
+  badgeId: BadgeId
   badge: Badge
   events: EventId[]
 }

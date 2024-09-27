@@ -99,7 +99,7 @@ export async function initComponents(): Promise<AppComponents> {
   const badgeContext = await createBadgeContext({ fetch, config })
   const badgeStorage = await createBadgeStorage({ config })
 
-  const eventDispatcher = createEventDispatcher({ logs })
+  const eventDispatcher = createEventDispatcher({ db, logs })
   eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext, badgeStorage }))
   eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage }))

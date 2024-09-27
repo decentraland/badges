@@ -11,10 +11,17 @@ export function createDecentralandCitizenObserver({
   const badgeId: BadgeId = BadgeId.DECENTRALAND_CITIZEN
   const badge: Badge = badgeStorage.getBadge(badgeId)!
 
-  async function handle(event: MoveToParcelEvent): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+  function getUserAddress(event: MoveToParcelEvent): EthAddress {
+    return event.metadata.userAddress
+  }
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+  async function handle(
+    event: MoveToParcelEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
+    const userAddress = getUserAddress(event)
+
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
@@ -49,7 +56,9 @@ export function createDecentralandCitizenObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {

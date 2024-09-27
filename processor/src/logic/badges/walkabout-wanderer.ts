@@ -12,10 +12,17 @@ export function createWalkaboutWandererObserver({
   const badge: Badge = badgeStorage.getBadge(badgeId)
   const tieredBadges = badge.tiers!
 
-  async function handle(event: WalkedDistanceEvent): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+  function getUserAddress(event: WalkedDistanceEvent): EthAddress {
+    return event.metadata.userAddress
+  }
 
-    const userProgress: UserBadge = (await db.getUserProgressFor(badgeId, userAddress)) || initProgressFor(userAddress)
+  async function handle(
+    event: WalkedDistanceEvent,
+    userProgress: UserBadge | undefined
+  ): Promise<BadgeProcessorResult | undefined> {
+    const userAddress = getUserAddress(event)
+
+    userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', { userAddress, badgeId })
@@ -58,7 +65,9 @@ export function createWalkaboutWandererObserver({
   }
 
   return {
+    getUserAddress,
     handle,
+    badgeId,
     badge,
     events: [
       {
