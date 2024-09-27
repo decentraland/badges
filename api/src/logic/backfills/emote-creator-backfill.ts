@@ -5,13 +5,13 @@ function validateEmoteCreatorBackfillData(data: {
   progress: {
     emotesPublished: {
       createdAt: number
-      urn: string
+      itemId: string
     }[]
   }
 }): boolean {
   if (!Array.isArray(data.progress.emotesPublished)) return false
   if (!data.progress.emotesPublished.every((emote: any) => Number.isInteger(emote.createdAt))) return false
-  if (!data.progress.emotesPublished.every((emote: any) => typeof emote.urn === 'string')) return false
+  if (!data.progress.emotesPublished.every((emote: any) => typeof emote.itemId === 'string')) return false
 
   return true
 }
@@ -40,7 +40,7 @@ export function mergeEmoteCreatorProgress(
 
   const uniqueEmotes = new Set<string>([
     ...userProgress.progress.published_emotes,
-    ...backfillData.progress.emotesPublished.map((emote: any) => emote.urn)
+    ...backfillData.progress.emotesPublished.map((emote: any) => emote.itemId)
   ])
 
   const sortedPublications = backfillData.progress.emotesPublished.sort((a: any, b: any) => a.createdAt - b.createdAt)
