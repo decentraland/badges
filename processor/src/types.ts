@@ -81,6 +81,7 @@ export type MessageProcessorComponent = {
 }
 
 export type IEventDispatcher = {
+  getObservers(): Map<string, IObserver[]>
   registerObserver(observer: IObserver): void
   dispatch(event: Event): Promise<any>
 }

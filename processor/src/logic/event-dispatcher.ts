@@ -6,6 +6,10 @@ export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | '
   const logger = logs.getLogger('event-dispatcher')
   const observers: Map<string, IObserver[]> = new Map()
 
+  function getObservers(): Map<string, IObserver[]> {
+    return observers
+  }
+
   function registerObserver(observer: IObserver): void {
     for (const eventData of observer.events) {
       const key = `${eventData.type}-${eventData.subType}`
@@ -16,10 +20,10 @@ export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | '
   }
 
   async function handleEvent(observer: IObserver, event: Event, userProgress: UserBadge | undefined): Promise<any> {
-    const key = `${event.type}-${event.subType}
-    `
+    const key = `${event.type}-${event.subType}`
     try {
-      return observer.handle(event, userProgress)
+      const result = await observer.handle(event, userProgress)
+      return result
     } catch (error: any) {
       logger.error(`Failed while executing handler for badge ${observer.badge.name} for ${key}`, {
         error: error.message
@@ -35,7 +39,7 @@ export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | '
       logger.debug(`Dispatching event ${key}`, { event: JSON.stringify(event) })
 
       const list = observers.get(key)
-      if (!list) {
+      if (!list || list.length === 0) {
         logger.debug(`No observers configured for event ${key}`)
         return
       }
@@ -59,12 +63,12 @@ export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | '
         })
 
       const badgesToGrant = await Promise.all(checks)
-      return badgesToGrant.flat()
+      return badgesToGrant.filter(Boolean).flat()
     } catch (error: any) {
       logger.error(`Failed while dispatching event`, { error: error.message })
       logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack) })
     }
   }
 
-  return { registerObserver, dispatch }
+  return { getObservers, registerObserver, dispatch }
 }
