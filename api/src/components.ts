@@ -33,7 +33,7 @@ export async function initComponents(): Promise<AppComponents> {
     }
   )
   const statusChecks = await createStatusCheckComponent({ server, config })
-  const fetch = await createFetchComponent()
+  const fetch = createFetchComponent()
   const metrics = await createMetricsComponent(metricDeclarations, { config })
   await instrumentHttpServerWithPromClientRegistry({ server, metrics, config, registry: metrics.registry! })
 

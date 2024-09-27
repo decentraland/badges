@@ -4,9 +4,13 @@ import { BadgeGrantedEvent, Event, Events } from '@dcl/schemas'
 export async function createMessageProcessorComponent({
   logs,
   config,
+  metrics,
   eventDispatcher,
   publisher
-}: Pick<AppComponents, 'logs' | 'config' | 'eventDispatcher' | 'publisher'>): Promise<MessageProcessorComponent> {
+}: Pick<
+  AppComponents,
+  'logs' | 'config' | 'metrics' | 'eventDispatcher' | 'publisher'
+>): Promise<MessageProcessorComponent> {
   const logger = logs.getLogger('message-processor')
   const isDevEnvironment = (await config.getString('ENV')) === 'dev'
 
@@ -25,11 +29,10 @@ export async function createMessageProcessorComponent({
     : generateIdempotencyKey
 
   async function process(event: Event): Promise<void> {
+    const { end: endMetricTimer } = metrics.startTimer('events_processing_duration_seconds')
     logger.info(`Processing entity`, { eventType: event.type, eventSubType: event.subType, eventKey: event.key })
 
-    const processorsResult: BadgeProcessorResult[] = (await eventDispatcher.dispatch(event))?.filter(
-      (result: BadgeProcessorResult | undefined) => !!result
-    )
+    const processorsResult: BadgeProcessorResult[] = await eventDispatcher.dispatch(event)
 
     if (!!processorsResult.length) {
       logger.info('Granted badges', {
@@ -67,6 +70,8 @@ export async function createMessageProcessorComponent({
         successfulMessageIds: successfulMessageIds.join(' - ')
       })
     }
+
+    endMetricTimer()
   }
 
   return {

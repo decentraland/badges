@@ -2,7 +2,11 @@ import { Event } from '@dcl/schemas'
 import { AppComponents, IEventDispatcher, IObserver } from '../types'
 import { UserBadge } from '@badges/common'
 
-export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | 'logs'>): IEventDispatcher {
+export function createEventDispatcher({
+  logs,
+  metrics,
+  db
+}: Pick<AppComponents, 'logs' | 'metrics' | 'db'>): IEventDispatcher {
   const logger = logs.getLogger('event-dispatcher')
   const observers: Map<string, IObserver[]> = new Map()
 
@@ -16,6 +20,12 @@ export function createEventDispatcher({ db, logs }: Pick<AppComponents, 'db' | '
       const list = observers.get(key) || []
       list.push(observer)
       observers.set(key, list)
+
+      metrics.increment('attached_observers_count', {
+        event_type: eventData.type,
+        event_sub_type: eventData.subType,
+        badge_name: observer.badge.name
+      })
     }
   }
 
