@@ -23,7 +23,7 @@ export function createWearableDesignerObserver({
       return undefined
     }
 
-    const userAddress: EthAddress = event.metadata.creator
+    const userAddress: EthAddress = getUserAddress(event)
 
     userProgress ||= initProgressFor(userAddress)
 
