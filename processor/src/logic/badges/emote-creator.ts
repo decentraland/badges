@@ -36,7 +36,7 @@ export function createEmoteCreatorObserver({
       return undefined
     }
 
-    const itemId = event.metadata.tokenId
+    const { itemId } = event.metadata
 
     if (userProgress.progress.published_emotes.includes(itemId)) {
       logger.info('User already published this emote', {

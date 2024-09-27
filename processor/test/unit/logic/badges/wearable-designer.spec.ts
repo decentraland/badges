@@ -266,8 +266,9 @@ describe('Wearable Designer badge handler should', () => {
       metadata: {
         creator: testAddress,
         category: options.category,
-        tokenId: options.itemId,
-        network: 'aNetwork'
+        itemId: options.itemId,
+        network: 'aNetwork',
+        urn: 'anUrn'
       }
     }
   }

@@ -36,7 +36,7 @@ export function createWearableDesignerObserver({
       return undefined
     }
 
-    const itemId = event.metadata.tokenId
+    const { itemId } = event.metadata
 
     if (userProgress.progress.published_wearables.includes(itemId)) {
       logger.info('User already published this wearable', {
