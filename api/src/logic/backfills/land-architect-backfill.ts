@@ -27,8 +27,7 @@ export function mergeLandArchitectProgress(
     completed_at: undefined,
     progress: {
       steps: 0
-    },
-    achieved_tiers: []
+    }
   }
 
   try {
