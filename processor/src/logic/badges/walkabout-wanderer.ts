@@ -20,7 +20,7 @@ export function createWalkaboutWandererObserver({
     event: WalkedDistanceEvent,
     userProgress: UserBadge | undefined
   ): Promise<BadgeProcessorResult | undefined> {
-    const userAddress = event.metadata.userAddress
+    const userAddress = getUserAddress(event)
 
     userProgress ||= initProgressFor(userAddress)
 
