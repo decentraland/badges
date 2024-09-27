@@ -295,10 +295,9 @@ describe('Wearable Designer badge handler should', () => {
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
-    last_used_wearable_timestamp?: number
     published_wearables?: number[]
   }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, last_used_wearable_timestamp, published_wearables } = progress
+    const { steps, completed, published_wearables } = progress
     return {
       user_address: testAddress,
       badge_id: BadgeId.WEARABLE_DESIGNER,

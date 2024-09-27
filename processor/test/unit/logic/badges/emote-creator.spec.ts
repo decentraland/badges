@@ -295,10 +295,9 @@ describe('Emote Creator badge handler should', () => {
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
-    last_used_emote_timestamp?: number
     published_emotes?: number[]
   }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, last_used_emote_timestamp, published_emotes } = progress
+    const { steps, completed, published_emotes } = progress
     return {
       user_address: testAddress,
       badge_id: BadgeId.EMOTE_CREATOR,
