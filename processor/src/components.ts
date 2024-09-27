@@ -99,7 +99,7 @@ export async function initComponents(): Promise<AppComponents> {
   const badgeContext = await createBadgeContext({ fetch, config })
   const badgeStorage = await createBadgeStorage({ config })
 
-  const eventDispatcher = createEventDispatcher({ db, logs })
+  const eventDispatcher = createEventDispatcher({ logs, metrics, db })
   eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext, badgeStorage }))
   eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage }))
@@ -122,7 +122,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const eventParser = await createEventParser({ config, fetch, logs })
 
-  const messageProcessor = await createMessageProcessorComponent({ logs, config, eventDispatcher, publisher })
+  const messageProcessor = await createMessageProcessorComponent({ logs, config, metrics, eventDispatcher, publisher })
 
   const messageConsumer = createMessagesConsumerComponent({
     logs,

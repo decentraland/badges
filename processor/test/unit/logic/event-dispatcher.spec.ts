@@ -4,6 +4,7 @@ import { AppComponents, IObserver } from '../../../src/types'
 import { createDbMock } from '../../mocks/db-mock'
 import { createEventDispatcher } from '../../../src/logic/event-dispatcher'
 import { Badge, BadgeId, badges, DbComponent, UserBadge } from '@badges/common'
+import { createMetricsMock } from '../../mocks/metrics-mock'
 
 describe('EventDispatcher', () => {
   const testUserAddress = '0xTestUserAddress'
@@ -13,9 +14,9 @@ describe('EventDispatcher', () => {
   let dispatcher: ReturnType<typeof createEventDispatcher>
 
   beforeEach(async () => {
-    const { logs, ...mockedComponents } = await getMockedComponents()
+    const { logs,metrics, ...mockedComponents } = await getMockedComponents()
     db = mockedComponents.db
-    dispatcher = createEventDispatcher({ db, logs })
+    dispatcher = createEventDispatcher({ db, logs, metrics })
   })
 
   it('should register an observer properly', async () => {
@@ -164,10 +165,11 @@ describe('EventDispatcher', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs'>> {
+  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'metrics'>> {
     return {
       db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any })
+      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
+      metrics: createMetricsMock()
     }
   }
 
