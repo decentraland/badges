@@ -1,7 +1,6 @@
 import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dcl/schemas'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
-import { get } from 'http'
 
 const AMOUNT_OF_EPIC_WEARABLES_REQUIRED = 3
 export function createEpicEnsembleObserver({
