@@ -35,6 +35,11 @@ export function createEventDispatcher({
       const result = await observer.handle(event, userProgress)
       return result
     } catch (error: any) {
+      metrics.increment('handler_failures_count', {
+        event_type: event.type,
+        event_sub_type: event.subType,
+        badge_name: observer.badge.name
+      })
       logger.error(`Failed while executing handler for badge ${observer.badge.name} for ${key}`, {
         error: error.message
       })
@@ -72,8 +77,16 @@ export function createEventDispatcher({
           return handleEvent(observer, event, userProgress)
         })
 
-      const badgesToGrant = await Promise.all(checks)
-      return badgesToGrant.filter(Boolean).flat()
+      const badgesToGrant = (await Promise.all(checks)).filter(Boolean).flat()
+
+      metrics.increment('events_correctly_handled_count', {
+        event_type: event.type,
+        event_sub_type: event.subType
+      })
+
+      metrics.increment('badges_granted_count', {}, badgesToGrant.length)
+
+      return badgesToGrant
     } catch (error: any) {
       logger.error(`Failed while dispatching event`, { error: error.message })
       logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack) })

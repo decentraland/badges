@@ -13,15 +13,14 @@ export const metricDeclarations = {
     type: IMetricsComponent.CounterType,
     labelNames: ['event_type', 'event_sub_type']
   },
-  event_handling_failures_count: {
+  handler_failures_count: {
     help: 'Count of event handling failures',
     type: IMetricsComponent.CounterType,
-    labelNames: ['event_type', 'event_sub_type']
+    labelNames: ['event_type', 'event_sub_type', 'badge_name']
   },
   badges_granted_count: {
     help: 'Count of badges granted',
-    type: IMetricsComponent.CounterType,
-    labelNames: ['badge_name']
+    type: IMetricsComponent.CounterType
   },
   events_processing_duration_seconds: {
     help: 'Histogram of events processing duration in seconds',
