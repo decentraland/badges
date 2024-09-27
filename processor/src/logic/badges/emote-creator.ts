@@ -36,18 +36,18 @@ export function createEmoteCreatorObserver({
       return undefined
     }
 
-    const urn = event.key
+    const itemId = event.metadata.tokenId
 
-    if (userProgress.progress.published_emotes.includes(urn)) {
+    if (userProgress.progress.published_emotes.includes(itemId)) {
       logger.info('User already published this emote', {
         userAddress: userAddress,
-        urn: urn
+        itemId
       })
 
       return undefined
     }
 
-    userProgress.progress.published_emotes.push(urn)
+    userProgress.progress.published_emotes.push(itemId)
     const uniqueEmotesPublished = new Set<string>(userProgress.progress.published_emotes)
     userProgress.progress.steps = uniqueEmotesPublished.size
     userProgress.progress.published_emotes = Array.from(uniqueEmotesPublished)

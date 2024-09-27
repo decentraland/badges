@@ -61,11 +61,11 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
@@ -85,17 +85,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      published_emotes: Array.from({ length: 1 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 1 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -109,17 +109,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 4,
-      published_emotes: Array.from({ length: 4 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 4 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -136,17 +136,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 9,
-      published_emotes: Array.from({ length: 9 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 9 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -163,17 +163,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 19,
-      published_emotes: Array.from({ length: 19 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 19 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -190,17 +190,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 49,
-      published_emotes: Array.from({ length: 49 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 49 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -217,17 +217,17 @@ describe('Emote Creator badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const timestamp = timestamps.now()
-    const urn = `urn-${timestamp}`
+    const itemId = `itemId-${timestamp}`
 
     const event: ItemPublishedEvent = createItemPublishedEvent({
       timestamp,
-      urn,
+      itemId,
       category: 'emote'
     })
 
     const mockUserProgress = getMockedUserProgress({
       steps: 99,
-      published_emotes: Array.from({ length: 99 }, (_, i) => `urn-${i}`)
+      published_emotes: Array.from({ length: 99 }, (_, i) => `itemId-${i}`)
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -252,8 +252,8 @@ describe('Emote Creator badge handler should', () => {
   }
 
   function createItemPublishedEvent(
-    options: { urn?: string; category?: string; timestamp: number } = {
-      urn: 'anUrn',
+    options: { itemId?: string; category?: string; timestamp: number } = {
+      itemId: 'anUrn',
       category: 'emote',
       timestamp: Date.now()
     }
@@ -261,12 +261,12 @@ describe('Emote Creator badge handler should', () => {
     return {
       type: Events.Type.BLOCKCHAIN,
       subType: Events.SubType.Blockchain.ITEM_PUBLISHED,
-      key: options.urn,
+      key: 'aKey',
       timestamp: options.timestamp,
       metadata: {
         creator: testAddress,
         category: options.category,
-        tokenId: 'aTokenId',
+        tokenId: options.itemId,
         network: 'aNetwork'
       }
     }

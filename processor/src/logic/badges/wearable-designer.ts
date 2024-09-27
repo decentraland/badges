@@ -36,18 +36,18 @@ export function createWearableDesignerObserver({
       return undefined
     }
 
-    const urn = event.key
+    const itemId = event.metadata.tokenId
 
-    if (userProgress.progress.published_wearables.includes(urn)) {
+    if (userProgress.progress.published_wearables.includes(itemId)) {
       logger.info('User already published this wearable', {
         userAddress: userAddress,
-        urn: urn
+        itemId
       })
 
       return undefined
     }
 
-    userProgress.progress.published_wearables.push(urn)
+    userProgress.progress.published_wearables.push(itemId)
     const uniqueWearablesPublished = new Set<string>(userProgress.progress.published_wearables)
     userProgress.progress.steps = uniqueWearablesPublished.size
     userProgress.progress.published_wearables = Array.from(uniqueWearablesPublished)

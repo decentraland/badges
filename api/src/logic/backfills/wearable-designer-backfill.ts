@@ -5,13 +5,13 @@ function validateWearableDesignerBackfillData(data: {
   progress: {
     wearablesPublished: {
       createdAt: number
-      urn: string
+      itemId: string
     }[]
   }
 }): boolean {
   if (!Array.isArray(data.progress.wearablesPublished)) return false
   if (!data.progress.wearablesPublished.every((wearable: any) => Number.isInteger(wearable.createdAt))) return false
-  if (!data.progress.wearablesPublished.every((wearable: any) => typeof wearable.urn === 'string')) return false
+  if (!data.progress.wearablesPublished.every((wearable: any) => typeof wearable.itemId === 'string')) return false
 
   return true
 }
@@ -40,7 +40,7 @@ export function mergeWearableDesignerProgress(
 
   const uniqueWearables = new Set<string>([
     ...userProgress.progress.published_wearables,
-    ...backfillData.progress.wearablesPublished.map((wearable: any) => wearable.urn)
+    ...backfillData.progress.wearablesPublished.map((wearable: any) => wearable.itemId)
   ])
 
   const sortedPublications = backfillData.progress.wearablesPublished.sort(
