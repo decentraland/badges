@@ -31,6 +31,11 @@ export const metricDeclarations = {
     help: 'Count of attached observers',
     type: IMetricsComponent.GaugeType,
     labelNames: ['event_type', 'event_sub_type', 'badge_name']
+  },
+  available_badges: {
+    help: 'Count of available badges',
+    type: IMetricsComponent.GaugeType,
+    labelNames: ['badge_name', 'badge_category']
   }
 }
 
