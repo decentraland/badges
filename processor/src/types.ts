@@ -110,8 +110,14 @@ export type EventMemoryStorage = {
 
 export type IBadgeContext = {
   getWearablesWithRarity(wearables: string[]): Promise<Entity[]>
-  getEntityById(id: string): Promise<Entity>
-  getEntityByPointer(pointer: string): Promise<Entity>
+  getEntityById(
+    entityId: string,
+    options?: { retries?: number; waitTime?: number; contentServerUrl?: string }
+  ): Promise<Entity>
+  getEntitiesByPointers(
+    pointers: string[],
+    options?: { retries?: number; waitTime?: number; contentServerUrl?: string }
+  ): Promise<Entity[]>
 }
 
 export class ParsingEventError extends Error {

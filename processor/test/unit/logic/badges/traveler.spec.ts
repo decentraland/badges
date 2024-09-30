@@ -22,13 +22,13 @@ describe('Traveler badge handler should', () => {
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
     const mockUserProgress = undefined
-    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
         }
       }
-    })
+    }])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -59,13 +59,13 @@ describe('Traveler badge handler should', () => {
         }
       ]
     }
-    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
         }
       }
-    })
+    }])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -88,13 +88,13 @@ describe('Traveler badge handler should', () => {
         on: timestamps.twoMinutesBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
         }
       }
-    })
+    }])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -140,13 +140,13 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
         }
       }
-    })
+    }])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -206,13 +206,13 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntityByPointer = jest.fn().mockResolvedValue({
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
       metadata: {
         display: {
           title: testSceneTitles.SCENE_TITLE_A
         }
       }
-    })
+    }])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -252,7 +252,7 @@ describe('Traveler badge handler should', () => {
       badgeContext: {
         getWearablesWithRarity: jest.fn(),
         getEntityById: jest.fn(),
-        getEntityByPointer: jest.fn()
+        getEntitiesByPointers: jest.fn()
       },
       memoryStorage: {
         get: jest.fn(),

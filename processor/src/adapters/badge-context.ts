@@ -2,6 +2,7 @@ import { Entity } from '@dcl/schemas'
 import { createContentClient } from 'dcl-catalyst-client'
 import { AppComponents, IBadgeContext } from '../types'
 import { getTokenIdAndAssetUrn, isExtendedUrn, parseUrn } from '@dcl/urn-resolver'
+import { sleep } from '../utils/timer'
 
 export async function createBadgeContext({
   fetch,
@@ -25,22 +26,57 @@ export async function createBadgeContext({
       wearablesUrns.push(isExtendedUrn(identifier) ? getTokenIdAndAssetUrn(wearable).assetUrn : wearable)
     }
 
-    const fetchedWearables: Entity[] = await contentClient.fetchEntitiesByPointers(wearablesUrns)
+    const fetchedWearables: Entity[] = await getEntitiesByPointers(wearablesUrns)
 
     return fetchedWearables
   }
 
-  async function getEntityById(id: string): Promise<Entity> {
-    const fetchedEntity: Entity = await contentClient.fetchEntityById(id)
+  async function getEntityById(
+    entityId: string,
+    options: { retries?: number; waitTime?: number; contentServerUrl?: string } = {}
+  ): Promise<Entity> {
+    const retries = options.retries ?? 3
+    const waitTime = options.waitTime ?? 300
+    const contentClientToUser = options.contentServerUrl
+      ? createContentClient({ fetcher: fetch, url: options.contentServerUrl })
+      : contentClient
 
-    return fetchedEntity
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await contentClientToUser.fetchEntityById(entityId)
+      } catch (error: any) {
+        if (attempt === retries) {
+          throw new Error(`Failed to fetch entity after ${retries} attempts: ${error.message}`)
+        }
+        await sleep(waitTime)
+      }
+    }
+    throw new Error('Unexpected error: retry loop ended without throwing')
   }
 
-  async function getEntityByPointer(pointer: string): Promise<Entity> {
-    const fetchedEntity: Entity[] = await contentClient.fetchEntitiesByPointers([pointer])
+  async function getEntitiesByPointers(
+    pointers: string[],
+    options: { retries?: number; waitTime?: number; contentServerUrl?: string } = {}
+  ): Promise<Entity[]> {
+    const retries = options.retries ?? 3
+    const waitTime = options.waitTime ?? 300
+    const contentClientToUse = options.contentServerUrl
+      ? createContentClient({ fetcher: fetch, url: options.contentServerUrl })
+      : contentClient
 
-    return fetchedEntity[0]
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const fetchedEntities: Entity[] = await contentClientToUse.fetchEntitiesByPointers(pointers)
+        return fetchedEntities
+      } catch (error: any) {
+        if (attempt === retries) {
+          throw new Error(`Failed to fetch entity after ${retries} attempts: ${error.message}`)
+        }
+        await sleep(waitTime)
+      }
+    }
+    throw new Error('Unexpected error: retry loop ended without throwing')
   }
 
-  return { getWearablesWithRarity, getEntityById, getEntityByPointer }
+  return { getWearablesWithRarity, getEntityById, getEntitiesByPointers }
 }

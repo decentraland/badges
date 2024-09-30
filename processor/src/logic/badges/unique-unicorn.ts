@@ -10,7 +10,7 @@ export function createUniqueUnicornObserver({
   badgeStorage
 }: Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>): IObserver {
   const logger = logs.getLogger('unique-unicorn-badge')
-  const badgeId: BadgeId = BadgeId.MYTHIC_MODEL
+  const badgeId: BadgeId = BadgeId.UNIQUE_UNICORN
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
   function getUserAddress(event: CatalystDeploymentEvent): EthAddress {
