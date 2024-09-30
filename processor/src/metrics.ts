@@ -18,6 +18,11 @@ export const metricDeclarations = {
     type: IMetricsComponent.CounterType,
     labelNames: ['event_type', 'event_sub_type', 'badge_name']
   },
+  processing_failures_count: {
+    help: 'Count of processing failures',
+    type: IMetricsComponent.CounterType,
+    labelNames: ['event_type', 'event_sub_type']
+  },
   badges_granted_count: {
     help: 'Count of badges granted',
     type: IMetricsComponent.CounterType

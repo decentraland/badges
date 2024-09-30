@@ -4,10 +4,11 @@ import { sleep } from '../utils/timer'
 
 export function createMessagesConsumerComponent({
   logs,
+  metrics,
   queue,
   messageProcessor,
   eventParser
-}: Pick<AppComponents, 'logs' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
+}: Pick<AppComponents, 'logs' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
   const intervalToWaitInSeconds = 5 // wait time when no messages are found in the queue
   let isRunning = false
@@ -55,6 +56,10 @@ export function createMessagesConsumerComponent({
           await messageProcessor.process(parsedMessage)
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         } catch (error: any) {
+          metrics.increment('processing_failures_count', {
+            event_type: parsedMessage.type,
+            event_sub_type: parsedMessage.subType
+          })
           logger.error('Failed while processing message from queue', {
             messageHandle: ReceiptHandle!,
             entityId: parsedMessage?.key || 'unknown',

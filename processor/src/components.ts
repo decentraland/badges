@@ -136,6 +136,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const messageConsumer = createMessagesConsumerComponent({
     logs,
+    metrics,
     queue,
     messageProcessor,
     eventParser
