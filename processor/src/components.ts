@@ -4,7 +4,7 @@ import { createLogComponent } from '@well-known-components/logger'
 import { createFetchComponent } from '@well-known-components/fetch-component'
 import { createPgComponent } from '@well-known-components/pg-component'
 import { createMetricsComponent } from '@well-known-components/metrics'
-import { createBadgeStorage, createDbComponent } from '@badges/common'
+import { badges, createBadgeStorage, createDbComponent } from '@badges/common'
 import { metricDeclarations } from './metrics'
 import { AppComponents, GlobalContext } from './types'
 import { createSqsAdapter } from './adapters/sqs'
@@ -41,6 +41,15 @@ import { createLandArchitectObserver } from './logic/badges/land-architect'
 import { createEmoteCreatorObserver } from './logic/badges/emote-creator'
 import { createWearableDesignerObserver } from './logic/badges/wearable-designer'
 
+function reportInitialMetrics({ metrics }: Pick<AppComponents, 'metrics'>): void {
+  badges.forEach((badge) => {
+    metrics.increment('available_badges', {
+      badge_name: badge.name,
+      badge_category: badge.category
+    })
+  })
+}
+
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
   const config = await createDotEnvConfigComponent({ path: ['.env.default', '.env.local', '.env'] })
@@ -62,6 +71,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const statusChecks = await createStatusCheckComponent({ server, config })
   const metrics = await createMetricsComponent(metricDeclarations, { config })
+  reportInitialMetrics({ metrics })
   await instrumentHttpServerWithPromClientRegistry({ server, metrics, config, registry: metrics.registry! })
 
   let databaseUrl: string | undefined = await config.getString('PG_COMPONENT_PSQL_CONNECTION_STRING')
