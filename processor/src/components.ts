@@ -101,7 +101,7 @@ export async function initComponents(): Promise<AppComponents> {
 
   const eventDispatcher = createEventDispatcher({ logs, metrics, db })
   eventDispatcher.registerObserver(createOpenForBusinessObserver({ db, logs, badgeStorage }))
-  eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext, badgeStorage }))
+  // eventDispatcher.registerObserver(createRegallyRareObserver({ db, logs, badgeContext, badgeStorage }))
   eventDispatcher.registerObserver(createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage }))
   eventDispatcher.registerObserver(createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage }))
   eventDispatcher.registerObserver(createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage }))
