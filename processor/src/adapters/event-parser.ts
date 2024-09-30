@@ -14,7 +14,6 @@ import {
   ItemPublishedEvent
 } from '@dcl/schemas'
 import { AppComponents, IEventParser, ParsingEventError } from '../types'
-import { createContentClient } from 'dcl-catalyst-client'
 
 export type SubType = BaseEvent['subType']
 type EventParser = (event: any) => Event
@@ -22,9 +21,9 @@ type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, Event
 
 export async function createEventParser({
   config,
-  fetch,
-  logs
-}: Pick<AppComponents, 'config' | 'fetch' | 'logs'>): Promise<IEventParser> {
+  logs,
+  badgeContext
+}: Pick<AppComponents, 'config' | 'logs' | 'badgeContext'>): Promise<IEventParser> {
   const logger = logs.getLogger('event-parser')
   const loadBalancer = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
 
@@ -46,12 +45,9 @@ export async function createEventParser({
   async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent> {
     const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
 
-    const contentClient = createContentClient({
-      fetcher: fetch,
-      url: contentUrl
+    const fetchedEntity: Entity = await badgeContext.getEntityById(event.entity.entityId, {
+      contentServerUrl: contentUrl
     })
-
-    const fetchedEntity: Entity = await contentClient.fetchEntityById(event.entity.entityId)
 
     return {
       type: Events.Type.CATALYST_DEPLOYMENT,

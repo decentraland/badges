@@ -130,7 +130,7 @@ export async function initComponents(): Promise<AppComponents> {
   eventDispatcher.registerObserver(createEmoteCreatorObserver({ db, logs, badgeStorage }))
   eventDispatcher.registerObserver(createWearableDesignerObserver({ db, logs, badgeStorage }))
 
-  const eventParser = await createEventParser({ config, fetch, logs })
+  const eventParser = await createEventParser({ config, logs, badgeContext })
 
   const messageProcessor = await createMessageProcessorComponent({ logs, config, metrics, eventDispatcher, publisher })
 
