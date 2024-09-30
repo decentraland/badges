@@ -23,7 +23,7 @@ export function createMessagesConsumerComponent({
     while (isRunning) {
       const messages = await queue.receiveSingleMessage()
 
-      if (messages.length === 0) {
+      if (!messages || messages.length === 0) {
         logger.info(`No messages found in queue, waiting ${intervalToWaitInSeconds} seconds to check again`)
         await sleep(intervalToWaitInSeconds * 1000)
         continue
