@@ -39,7 +39,7 @@ export function createMessagesConsumerComponent({
           parsedMessage = await eventParser.parse(message)
 
           if (!parsedMessage) {
-            logger.warn('Message is not a valid event', { message })
+            logger.warn('Message is not a valid event or could not be parsed', { message })
             await removeMessageFromQueue(ReceiptHandle!, 'unknown')
             continue
           }

@@ -75,15 +75,15 @@ describe('Event Parser', () => {
       const { config, logs, badgeContext } = await getMockedComponents()
       const parser = await createEventParser({ config, logs, badgeContext })
       const event = {
-        entity: { entityId: 'some-id', entityType: Events.SubType.CatalystDeployment.PROFILE }
+        entity: { entityId: 'some-id', pointers: ['0xTest'], entityType: Events.SubType.CatalystDeployment.PROFILE }
       }
 
-      badgeContext.getEntityById = jest.fn().mockResolvedValue(mockEntity)
+      badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([mockEntity])
 
       const result = await parser.parse(event)
       const loadBalancerUrl = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
 
-      expect(badgeContext.getEntityById).toHaveBeenCalledWith(event.entity.entityId, {
+      expect(badgeContext.getEntitiesByPointers).toHaveBeenCalledWith(event.entity.pointers, {
         contentServerUrl: loadBalancerUrl
       })
 
@@ -106,7 +106,7 @@ describe('Event Parser', () => {
           contentServerUrls: ['http://some-url']
         }
 
-        badgeContext.getEntityById = jest.fn().mockResolvedValue(mockEntity)
+        badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([mockEntity])
 
         const result = await parser.parse(event)
 
@@ -127,7 +127,7 @@ describe('Event Parser', () => {
         contentServerUrls: ['http://some-url']
       }
 
-      badgeContext.getEntityById = jest.fn().mockRejectedValue(new Error('Error fetching entity from content server'))
+      badgeContext.getEntitiesByPointers = jest.fn().mockRejectedValue(new Error('Error fetching entity from content server'))
       const parser = await createEventParser({ config, logs, badgeContext })
 
 

@@ -42,12 +42,16 @@ export async function createEventParser({
     }
   }
 
-  async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent> {
+  async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent | undefined> {
     const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
 
-    const fetchedEntity: Entity = await badgeContext.getEntityById(event.entity.entityId, {
-      contentServerUrl: contentUrl
-    })
+    const fetchedEntity: Entity | undefined = (
+      await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentUrl })
+    ).at(0)
+
+    if (!fetchedEntity) {
+      return undefined
+    }
 
     return {
       type: Events.Type.CATALYST_DEPLOYMENT,
@@ -77,8 +81,7 @@ export async function createEventParser({
   async function parse(event: any): Promise<Event | undefined> {
     try {
       if (event.entity && Object.values(Events.SubType.CatalystDeployment).includes(event.entity.entityType)) {
-        const parsedCatalystEvent = await parseCatalystEvent(event)
-        return parsedCatalystEvent
+        return await parseCatalystEvent(event)
       }
 
       const parsedEvent = parseEvent(event)
@@ -89,13 +92,14 @@ export async function createEventParser({
 
       return parsedEvent
     } catch (error: any) {
+      const message = error?.message || 'No details'
       logger.debug('Error while parsing event', {
-        error: error.message,
-        cause: error.cause,
-        stack: error.stack,
+        error: message,
+        cause: JSON.stringify(error.cause),
+        stack: JSON.stringify(error.stack),
         event: JSON.stringify(event)
       })
-      throw new ParsingEventError(`Error while parsing event: ${error?.message}`, { cause: error })
+      throw new ParsingEventError(`Error while parsing event: ${message}`, { cause: error })
     }
   }
 
