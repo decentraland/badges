@@ -36,7 +36,7 @@ export async function createBadgeContext({
     options: { retries?: number; waitTime?: number; contentServerUrl?: string } = {}
   ): Promise<Entity> {
     const retries = options.retries ?? 3
-    const waitTime = options.waitTime ?? 300
+    const waitTime = options.waitTime ?? 750
     const contentClientToUse = options.contentServerUrl
       ? createContentClient({ fetcher: fetch, url: options.contentServerUrl })
       : contentClient
