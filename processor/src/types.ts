@@ -121,8 +121,8 @@ export type IBadgeContext = {
 }
 
 export class ParsingEventError extends Error {
-  constructor(message: string) {
-    super(message)
+  constructor(message: string, { cause }: { cause: Error }) {
+    super(message, cause)
     Error.captureStackTrace(this, this.constructor)
   }
 }

@@ -91,10 +91,11 @@ export async function createEventParser({
     } catch (error: any) {
       logger.debug('Error while parsing event', {
         error: error.message,
+        cause: error.cause,
         stack: error.stack,
         event: JSON.stringify(event)
       })
-      throw new ParsingEventError(`Error while parsing event ${error?.message}`)
+      throw new ParsingEventError(`Error while parsing event: ${error?.message}`, { cause: error })
     }
   }
 

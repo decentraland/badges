@@ -10,7 +10,7 @@ export default async function retry<T>(
       return await action()
     } catch (error: any) {
       if (attempt === retries) {
-        throw new Error(`Failed after ${retries} attempts: ${error.message}`)
+        throw new Error(`Failed after ${retries} attempts`, { cause: error })
       }
       await sleep(waitTime)
     }
