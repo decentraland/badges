@@ -48,7 +48,7 @@ export default async function createRedisComponent(
       }
       return null
     } catch (err: any) {
-      logger.error(`Error getting key "${key}" from Redis`, err)
+      logger.error(`Error getting key "${key}"`, err)
       throw err
     }
   }
@@ -59,9 +59,9 @@ export default async function createRedisComponent(
       await client.set(key, serializedValue, {
         EX: TWO_HOURS_IN_SECONDS
       })
-      logger.debug(`Successfully set key "${key}" in Redis`)
+      logger.debug(`Successfully set key "${key}"`)
     } catch (err: any) {
-      logger.error(`Error setting key "${key}" in Redis`, err)
+      logger.error(`Error setting key "${key}"`, err)
       throw err
     }
   }
