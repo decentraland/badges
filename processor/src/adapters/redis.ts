@@ -9,9 +9,10 @@ export default async function createRedisComponent(
 ): Promise<ICacheStorage> {
   const { logs } = components
   const logger = logs.getLogger('redis-component')
+  const parsedUrl = `redis://${hostUrl}:6379`
 
   const client = createClient({
-    url: `redis://${hostUrl}:6379`
+    url: parsedUrl
   })
 
   client.on('error', (err) => {
@@ -19,7 +20,7 @@ export default async function createRedisComponent(
   })
 
   async function start() {
-    logger.debug('Connecting to Redis', { hostUrl })
+    logger.debug('Connecting to Redis', { parsedUrl })
     await client.connect()
   }
 
