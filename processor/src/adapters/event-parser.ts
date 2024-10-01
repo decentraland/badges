@@ -42,12 +42,16 @@ export async function createEventParser({
     }
   }
 
-  async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent> {
+  async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent | undefined> {
     const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
 
-    const fetchedEntity: Entity = await badgeContext.getEntityById(event.entity.entityId, {
-      contentServerUrl: contentUrl
-    })
+    const fetchedEntity: Entity | undefined = (
+      await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentUrl })
+    ).at(0)
+
+    if (!fetchedEntity) {
+      return undefined
+    }
 
     return {
       type: Events.Type.CATALYST_DEPLOYMENT,
@@ -77,8 +81,7 @@ export async function createEventParser({
   async function parse(event: any): Promise<Event | undefined> {
     try {
       if (event.entity && Object.values(Events.SubType.CatalystDeployment).includes(event.entity.entityType)) {
-        const parsedCatalystEvent = await parseCatalystEvent(event)
-        return parsedCatalystEvent
+        return await parseCatalystEvent(event)
       }
 
       const parsedEvent = parseEvent(event)
