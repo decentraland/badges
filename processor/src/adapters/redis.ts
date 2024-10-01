@@ -11,7 +11,7 @@ export default async function createRedisComponent(
   const logger = logs.getLogger('redis-component')
 
   const client = createClient({
-    url: hostUrl
+    url: `redis://${hostUrl}:6379`
   })
 
   client.on('error', (err) => {
