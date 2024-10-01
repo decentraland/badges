@@ -19,10 +19,12 @@ export default async function createRedisComponent(
   })
 
   async function start() {
+    logger.debug('Connecting to Redis', { hostUrl })
     await client.connect()
   }
 
   async function stop() {
+    logger.debug('Disconnecting from Redis')
     await client.disconnect()
   }
 
