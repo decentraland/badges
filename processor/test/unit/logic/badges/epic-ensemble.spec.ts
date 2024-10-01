@@ -15,7 +15,7 @@ describe('Epic Ensemble badge handler should', () => {
       badgeContext: {
         getWearablesWithRarity: jest.fn(),
         getEntityById: jest.fn(),
-        getEntityByPointer: jest.fn()
+        getEntitiesByPointers: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
       badgeStorage: await createBadgeStorage({

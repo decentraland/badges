@@ -2,6 +2,7 @@ import { Entity } from '@dcl/schemas'
 import { createContentClient } from 'dcl-catalyst-client'
 import { AppComponents, IBadgeContext } from '../types'
 import { getTokenIdAndAssetUrn, isExtendedUrn, parseUrn } from '@dcl/urn-resolver'
+import retry from '../utils/retryer'
 
 export async function createBadgeContext({
   fetch,
@@ -25,22 +26,36 @@ export async function createBadgeContext({
       wearablesUrns.push(isExtendedUrn(identifier) ? getTokenIdAndAssetUrn(wearable).assetUrn : wearable)
     }
 
-    const fetchedWearables: Entity[] = await contentClient.fetchEntitiesByPointers(wearablesUrns)
+    const fetchedWearables: Entity[] = await getEntitiesByPointers(wearablesUrns)
 
     return fetchedWearables
   }
 
-  async function getEntityById(id: string): Promise<Entity> {
-    const fetchedEntity: Entity = await contentClient.fetchEntityById(id)
+  async function getEntityById(
+    entityId: string,
+    options: { retries?: number; waitTime?: number; contentServerUrl?: string } = {}
+  ): Promise<Entity> {
+    const retries = options.retries ?? 3
+    const waitTime = options.waitTime ?? 750
+    const contentClientToUse = options.contentServerUrl
+      ? createContentClient({ fetcher: fetch, url: options.contentServerUrl })
+      : contentClient
 
-    return fetchedEntity
+    return retry(() => contentClientToUse.fetchEntityById(entityId), retries, waitTime)
   }
 
-  async function getEntityByPointer(pointer: string): Promise<Entity> {
-    const fetchedEntity: Entity[] = await contentClient.fetchEntitiesByPointers([pointer])
+  async function getEntitiesByPointers(
+    pointers: string[],
+    options: { retries?: number; waitTime?: number; contentServerUrl?: string } = {}
+  ): Promise<Entity[]> {
+    const retries = options.retries ?? 3
+    const waitTime = options.waitTime ?? 300
+    const contentClientToUse = options.contentServerUrl
+      ? createContentClient({ fetcher: fetch, url: options.contentServerUrl })
+      : contentClient
 
-    return fetchedEntity[0]
+    return retry(() => contentClientToUse.fetchEntitiesByPointers(pointers), retries, waitTime)
   }
 
-  return { getWearablesWithRarity, getEntityById, getEntityByPointer }
+  return { getWearablesWithRarity, getEntityById, getEntitiesByPointers }
 }

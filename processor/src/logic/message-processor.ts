@@ -34,7 +34,7 @@ export async function createMessageProcessorComponent({
 
     const processorsResult: BadgeProcessorResult[] = await eventDispatcher.dispatch(event)
 
-    if (!!processorsResult.length) {
+    if (processorsResult && !!processorsResult.length) {
       logger.info('Granted badges', {
         grantedBadges: processorsResult.map((result: BadgeProcessorResult) => result.badgeGranted.id).join(' - ')
       })
