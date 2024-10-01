@@ -24,7 +24,7 @@ import {
   instrumentHttpServerWithPromClientRegistry
 } from '@well-known-components/http-server'
 import { createDecentralandCitizenObserver } from './logic/badges/decentraland-citizen'
-import { createEventMemoryStorage } from './adapters/memory-cache'
+import { createInMemoryCacheComponent } from './adapters/memory-cache'
 import { createTravelerObserver } from './logic/badges/traveler'
 import { createLegendaryLookObserver } from './logic/badges/legendary-look'
 import { createExoticEleganceObserver } from './logic/badges/exotic-elegance'
@@ -40,6 +40,7 @@ import { createWalkaboutWandererObserver } from './logic/badges/walkabout-wander
 import { createLandArchitectObserver } from './logic/badges/land-architect'
 import { createEmoteCreatorObserver } from './logic/badges/emote-creator'
 import { createWearableDesignerObserver } from './logic/badges/wearable-designer'
+import createRedisComponent from './adapters/redis'
 
 function reportInitialMetrics({ metrics }: Pick<AppComponents, 'metrics'>): void {
   badges.forEach((badge) => {
@@ -105,7 +106,11 @@ export async function initComponents(): Promise<AppComponents> {
   const sqsEndpoint = await config.getString('AWS_SQS_ENDPOINT')
   const queue = sqsEndpoint ? await createSqsAdapter(sqsEndpoint) : createMemoryQueueAdapter()
 
-  const memoryStorage = createEventMemoryStorage()
+  const redisHostUrl = await config.getString('REDIS_HOST')
+  const memoryStorage = redisHostUrl
+    ? await createRedisComponent(redisHostUrl, { logs })
+    : createInMemoryCacheComponent()
+
   const badgeContext = await createBadgeContext({ fetch, config })
   const badgeStorage = await createBadgeStorage({ config })
 

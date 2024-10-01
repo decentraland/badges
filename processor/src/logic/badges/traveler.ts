@@ -60,14 +60,14 @@ export function createTravelerObserver({
 
     const cacheKeyRelatedToEvent = `${userAddress}-${event.metadata.sessionId}-${event.subType}`
     const movementEvents: { sceneTitle: string; on: number }[] = [
-      ...(memoryStorage.get(cacheKeyRelatedToEvent) || []),
+      ...((await memoryStorage.get(cacheKeyRelatedToEvent)) || []),
       {
         sceneTitle,
         on: new Date(event.timestamp).getTime()
       }
     ]
 
-    memoryStorage.set(cacheKeyRelatedToEvent, movementEvents)
+    await memoryStorage.set(cacheKeyRelatedToEvent, movementEvents)
     if (isFirstMovement(movementEvents) || userAlreadyVisitedScene(sceneTitle, userProgress)) {
       return undefined
     }
