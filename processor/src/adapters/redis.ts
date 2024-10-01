@@ -20,28 +20,50 @@ export default async function createRedisComponent(
   })
 
   async function start() {
-    logger.debug('Connecting to Redis', { parsedUrl })
-    await client.connect()
+    try {
+      logger.debug('Connecting to Redis', { parsedUrl })
+      await client.connect()
+      logger.debug('Successfully connected to Redis')
+    } catch (err: any) {
+      logger.error('Error connecting to Redis', err)
+      throw err
+    }
   }
 
   async function stop() {
-    logger.debug('Disconnecting from Redis')
-    await client.disconnect()
-  }
-
-  async function get(key: string): Promise<any | null> {
-    const serializedValue = await client.get(key)
-    if (serializedValue) {
-      return JSON.parse(serializedValue)
+    try {
+      logger.debug('Disconnecting from Redis')
+      await client.disconnect()
+      logger.debug('Successfully disconnected from Redis')
+    } catch (err: any) {
+      logger.error('Error disconnecting from Redis', err)
     }
-    return null
   }
 
-  async function set(key: string, value: any): Promise<void> {
-    const serializedValue = JSON.stringify(value)
-    await client.set(key, serializedValue, {
-      EX: TWO_HOURS_IN_SECONDS
-    })
+  async function get<T>(key: string): Promise<T | null> {
+    try {
+      const serializedValue = await client.get(key)
+      if (serializedValue) {
+        return JSON.parse(serializedValue) as T
+      }
+      return null
+    } catch (err: any) {
+      logger.error(`Error getting key "${key}" from Redis`, err)
+      throw err
+    }
+  }
+
+  async function set<T>(key: string, value: T): Promise<void> {
+    try {
+      const serializedValue = JSON.stringify(value)
+      await client.set(key, serializedValue, {
+        EX: TWO_HOURS_IN_SECONDS
+      })
+      logger.debug(`Successfully set key "${key}" in Redis`)
+    } catch (err: any) {
+      logger.error(`Error setting key "${key}" in Redis`, err)
+      throw err
+    }
   }
 
   return {
