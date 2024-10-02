@@ -64,20 +64,18 @@ export function mergeMovesMasterProgress(
 
     userProgress.progress.steps += totalEmotesToAdd
 
-    const lastDayUsedEmoteTimestamps = Array.from(
+    const sortedUsages = Array.from(
       new Set([...userProgress.progress.last_day_used_emotes_timestamps, ...newEmotesUsed])
-    )
-      .sort((a, b) => a - b)
-      .slice(-MINUTES_IN_DAY)
+    ).sort((a, b) => a - b)
 
     userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
-    userProgress.progress.last_day_used_emotes_timestamps = lastDayUsedEmoteTimestamps
+    userProgress.progress.last_day_used_emotes_timestamps = sortedUsages.slice(-MINUTES_IN_DAY)
 
     const achievedTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
 
     if (achievedTiers.length > 0) {
       userProgress.achieved_tiers = achievedTiers.map((tier) => {
-        const usageForTier = lastDayUsedEmoteTimestamps[tier.criteria.steps - 1]
+        const usageForTier = sortedUsages[tier.criteria.steps - 1]
         const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
 
         const tierAchievedAt = usageForTier || Date.now()
