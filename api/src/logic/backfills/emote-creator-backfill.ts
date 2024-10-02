@@ -38,12 +38,15 @@ export function mergeEmoteCreatorProgress(
     achieved_tiers: []
   }
 
-  const uniqueEmotes = new Set<string>([
+  const uniqueEmotes = new Set<{ itemId: string; publishedAt: number }>([
     ...userProgress.progress.published_emotes,
-    ...backfillData.progress.emotesPublished.map((emote: any) => emote.itemId)
+    ...backfillData.progress.emotesPublished.map((emote: any) => ({
+      itemId: emote.itemId,
+      publishedAt: emote.createdAt
+    }))
   ])
 
-  const sortedPublications = backfillData.progress.emotesPublished.sort((a: any, b: any) => a.createdAt - b.createdAt)
+  const sortedPublications = Array.from(uniqueEmotes).sort((a, b) => a.publishedAt - b.publishedAt)
 
   userProgress.progress = {
     steps: uniqueEmotes.size,
@@ -62,13 +65,14 @@ export function mergeEmoteCreatorProgress(
         (achievedTier) => achievedTier.tier_id === tier.tierId
       )
 
+      // should always be found, because we are using all registries from backfill and database
       if (publicationFound) {
         return {
           tier_id: tier.tierId,
           completed_at:
-            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < publicationFound.createdAt
+            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < publicationFound.publishedAt
               ? userAlreadyHadThisTier.completed_at
-              : publicationFound.createdAt
+              : publicationFound.publishedAt
         }
       } else {
         return {
@@ -88,8 +92,8 @@ export function mergeEmoteCreatorProgress(
     const alreadyAchievedDate = userProgress.completed_at
     const foundRelatedSortedBuy = sortedPublications[lastTier?.criteria.steps - 1]
 
-    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.createdAt < alreadyAchievedDate)) {
-      userProgress.completed_at = foundRelatedSortedBuy.createdAt
+    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.publishedAt < alreadyAchievedDate)) {
+      userProgress.completed_at = foundRelatedSortedBuy.publishedAt
     }
 
     if (!foundRelatedSortedBuy && !alreadyAchievedDate) {
