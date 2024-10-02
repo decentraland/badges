@@ -37,8 +37,11 @@ export function createEmoteCreatorObserver({
     }
 
     const { itemId } = event.metadata
+    const emoteWasAlreadyPublished = userProgress.progress.published_emotes.find(
+      (publishedEmote: any) => publishedEmote.itemId === itemId
+    )
 
-    if (userProgress.progress.published_emotes.includes(itemId)) {
+    if (emoteWasAlreadyPublished) {
       logger.info('User already published this emote', {
         userAddress: userAddress,
         itemId
@@ -47,8 +50,10 @@ export function createEmoteCreatorObserver({
       return undefined
     }
 
-    userProgress.progress.published_emotes.push(itemId)
-    const uniqueEmotesPublished = new Set<string>(userProgress.progress.published_emotes)
+    userProgress.progress.published_emotes.push({ itemId, publishedAt: event.timestamp })
+    const uniqueEmotesPublished = new Set<{ itemId: string; publishedAt: number }>(
+      userProgress.progress.published_emotes
+    )
     userProgress.progress.steps = uniqueEmotesPublished.size
     userProgress.progress.published_emotes = Array.from(uniqueEmotesPublished)
 
@@ -81,7 +86,7 @@ export function createEmoteCreatorObserver({
       badge_id: badgeId,
       progress: {
         steps: 0,
-        published_emotes: []
+        published_emotes: [] as { itemId: string; publishedAt: number }[]
       },
       achieved_tiers: []
     }
