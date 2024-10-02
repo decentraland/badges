@@ -46,9 +46,7 @@ export function mergeSocialButterflyProgress(
   const userProgress = currentUserProgress || initUserProgress(userAddress, backfillData.badgeId)
 
   try {
-    const allVisits = [...userProgress.progress.profiles_visited, ...backfillData.progress.profiles_visited]
-
-    const profileVisitMap = allVisits.reduce((map, visit) => {
+    const profileVisitMap = backfillData.progress.profiles_visited.reduce((map, visit) => {
       const currentVisitTime = map.get(visit.profile_address) || Date.now()
       map.set(visit.profile_address, Math.min(currentVisitTime, visit.visited_at))
       return map
@@ -75,9 +73,11 @@ export function mergeSocialButterflyProgress(
         const visitForTier = sortedVisits[tier.criteria.steps - 1]
         const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
 
+        const tierAchievedAt = visitForTier?.visited_at || Date.now()
+
         const completedAt = userAlreadyHasTier
-          ? Math.min(userAlreadyHasTier.completed_at, visitForTier?.visited_at || Date.now())
-          : visitForTier?.visited_at || Date.now()
+          ? Math.min(userAlreadyHasTier.completed_at, tierAchievedAt)
+          : tierAchievedAt
 
         return {
           tier_id: tier.tierId,

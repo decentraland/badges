@@ -73,23 +73,25 @@ export function mergeMovesMasterProgress(
     userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
     userProgress.progress.last_day_used_emotes_timestamps = lastDayUsedEmoteTimestamps
 
-    const newTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
+    const achievedTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
 
-    newTiers.forEach((tier) => {
-      const userAlreadyHasTier = userProgress.achieved_tiers!.find(
-        (achievedTier) => achievedTier.tier_id === tier.tierId
-      )
+    if (achievedTiers.length > 0) {
+      userProgress.achieved_tiers = achievedTiers.map((tier) => {
+        const usageForTier = lastDayUsedEmoteTimestamps[tier.criteria.steps - 1]
+        const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
 
-      const tierAchievedAt = backfillData.progress.lastUsedEmoteTimestamp || Date.now()
+        const tierAchievedAt = usageForTier || Date.now()
 
-      const completedAt = userAlreadyHasTier
-        ? Math.min(userAlreadyHasTier.completed_at, tierAchievedAt)
-        : tierAchievedAt
+        const completedAt = userAlreadyHasTier
+          ? Math.min(userAlreadyHasTier.completed_at, usageForTier)
+          : tierAchievedAt
 
-      if (!userAlreadyHasTier) {
-        userProgress.achieved_tiers!.push({ tier_id: tier.tierId, completed_at: completedAt })
-      }
-    })
+        return {
+          tier_id: tier.tierId,
+          completed_at: completedAt
+        }
+      })
+    }
 
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
       userProgress.completed_at = Date.now()

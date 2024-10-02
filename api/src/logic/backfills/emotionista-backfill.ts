@@ -6,7 +6,7 @@ function validateEmotionistaBackfillData(data: {
     emotesBought: {
       nftId: string
       saleAt: number
-      txHash: string
+      transactionHash: string
     }[]
   }
 }): boolean {
