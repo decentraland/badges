@@ -40,7 +40,7 @@ import { createWalkaboutWandererObserver } from './logic/badges/walkabout-wander
 import { createLandArchitectObserver } from './logic/badges/land-architect'
 import { createEmoteCreatorObserver } from './logic/badges/emote-creator'
 import { createWearableDesignerObserver } from './logic/badges/wearable-designer'
-import createRedisComponent from './adapters/redis'
+import { createRedisComponent } from './adapters/redis'
 
 function reportInitialMetrics({ metrics }: Pick<AppComponents, 'metrics'>): void {
   badges.forEach((badge) => {

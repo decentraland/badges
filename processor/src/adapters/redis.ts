@@ -3,7 +3,7 @@ import { AppComponents, ICacheStorage } from '../types'
 
 const TWO_HOURS_IN_SECONDS = 60 * 60 * 2
 
-export default async function createRedisComponent(
+export async function createRedisComponent(
   hostUrl: string,
   components: Pick<AppComponents, 'logs'>
 ): Promise<ICacheStorage> {
