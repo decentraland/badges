@@ -24,6 +24,7 @@
     "@well-known-components/pg-component": "^0.2.3",
     "dcl-catalyst-client": "^21.7.0",
     "lru-cache": "^9.1.2",
+    "redis": "^4.7.0",
     "sql-template-strings": "^2.2.2",
     "upgrade": "^1.1.0"
   },

@@ -38,7 +38,7 @@ export type AppComponents = BaseComponents & {
   eventDispatcher: IEventDispatcher
   eventParser: IEventParser
   badgeContext: IBadgeContext
-  memoryStorage: EventMemoryStorage
+  memoryStorage: ICacheStorage
   badgeStorage: IBadgeStorage
 }
 
@@ -103,9 +103,9 @@ export type IEventParser = {
   parse(event: any): Promise<Event | undefined>
 }
 
-export type EventMemoryStorage = {
-  set(key: string, value: any): void
-  get(key: string): any
+export type ICacheStorage = IBaseComponent & {
+  get(key: string): Promise<any>
+  set(key: string, value: any): Promise<void>
 }
 
 export type IBadgeContext = {
