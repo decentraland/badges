@@ -47,7 +47,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      published_emotes: ['anUrn']
+      published_emotes: [{ itemId: 'anUrn', publishedAt: timestamps.now() }]
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -95,7 +95,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      published_emotes: Array.from({ length: 1 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 1 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -119,7 +119,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 4,
-      published_emotes: Array.from({ length: 4 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 4 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -146,7 +146,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 9,
-      published_emotes: Array.from({ length: 9 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 9 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -173,7 +173,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 19,
-      published_emotes: Array.from({ length: 19 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 19 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -200,7 +200,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 49,
-      published_emotes: Array.from({ length: 49 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 49 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -227,7 +227,7 @@ describe('Emote Creator badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 99,
-      published_emotes: Array.from({ length: 99 }, (_, i) => `itemId-${i}`)
+      published_emotes: Array.from({ length: 99 }, (_, i) => ({ itemId: `itemId-${i}`, publishedAt: timestamps.oneMinuteBefore(timestamps.now()) }))
     })
 
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
@@ -273,7 +273,7 @@ describe('Emote Creator badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: { steps: number; published_emotes?: string[]; completed_at?: number }) {
+  function getMockedUserProgress(progress: { steps: number; published_emotes?: { itemId: string; publishedAt: number; }[]; completed_at?: number }) {
     const { steps, published_emotes = [], completed_at } = progress
     return {
       user_address: testAddress,
