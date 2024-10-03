@@ -1,29 +1,27 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
 
-// Timestamps already normalized to the start of the minute
 type BackfillData = {
   progress: {
-    lastUsedEmoteTimestamp: number
     usedEmotesCount: number
-    lastDayUsedEmotesTimestamps: number[]
+    achievedTier: {
+      tierId: string
+      completedAt: number
+    }[]
   }
 }
 
-const MINUTES_IN_DAY = 1440
-
 function validateMovesMasterBackfillData(data: BackfillData): boolean {
   return (
-    Number.isInteger(data.progress.lastUsedEmoteTimestamp) &&
     Number.isInteger(data.progress.usedEmotesCount) &&
-    Array.isArray(data.progress.lastDayUsedEmotesTimestamps) &&
-    data.progress.lastDayUsedEmotesTimestamps.every((timestamp) => Number.isInteger(timestamp))
+    Array.isArray(data.progress.achievedTier) &&
+    data.progress.achievedTier.every((tier) => typeof tier.tierId === 'string' && Number.isInteger(tier.completedAt))
   )
 }
 
 export function mergeMovesMasterProgress(
   userAddress: EthAddress,
-  currentUserProgress: UserBadge | undefined,
+  _: UserBadge | undefined,
   badge: Badge,
   backfillData: BackfillData
 ): UserBadge {
@@ -31,65 +29,31 @@ export function mergeMovesMasterProgress(
     throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(badge)}. User: ${userAddress}.`)
   }
 
-  const userProgress: UserBadge = currentUserProgress || {
+  const userProgress: UserBadge = {
     user_address: userAddress,
     badge_id: badge.id,
     completed_at: undefined,
     progress: {
-      steps: 0,
-      last_used_emote_timestamp: 0,
-      last_day_used_emotes_timestamps: []
+      steps: backfillData.progress.usedEmotesCount,
+      last_used_emote_timestamp: Date.now(), // TODO: normalize to minute start?
+      last_day_used_emotes_timestamps: [] // TODO: do we need to populate this so handler can catch-up?
     },
     achieved_tiers: []
   }
 
-  if (backfillData.progress.usedEmotesCount === 0) {
-    return userProgress
-  }
-
-  if (backfillData.progress.lastDayUsedEmotesTimestamps.length === 0) {
-    return userProgress
-  }
-
   try {
-    const userProgressLastDayUsedEmotesTimestampsSet = new Set(userProgress.progress.last_day_used_emotes_timestamps)
+    backfillData.progress.achievedTier.forEach((tier) => {
+      const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.tierId === tier.tierId)
 
-    const newEmotesUsed = backfillData.progress.lastDayUsedEmotesTimestamps.filter(
-      (timestamp) => !userProgressLastDayUsedEmotesTimestampsSet.has(timestamp)
-    )
+      if (!achievedTier) {
+        throw new Error('tierId received is invalid, breaking backfill')
+      }
 
-    const totalEmotesToAdd =
-      backfillData.progress.usedEmotesCount -
-      (userProgress.progress.last_day_used_emotes_timestamps.length - newEmotesUsed.length)
-
-    userProgress.progress.steps += totalEmotesToAdd
-
-    const sortedUsages = Array.from(
-      new Set([...userProgress.progress.last_day_used_emotes_timestamps, ...newEmotesUsed])
-    ).sort((a, b) => a - b)
-
-    userProgress.progress.last_used_emote_timestamp = backfillData.progress.lastUsedEmoteTimestamp
-    userProgress.progress.last_day_used_emotes_timestamps = sortedUsages.slice(-MINUTES_IN_DAY)
-
-    const achievedTiers = badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
-
-    if (achievedTiers.length > 0) {
-      userProgress.achieved_tiers = achievedTiers.map((tier) => {
-        const usageForTier = sortedUsages[tier.criteria.steps - 1]
-        const userAlreadyHasTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tierId)
-
-        const tierAchievedAt = usageForTier || Date.now()
-
-        const completedAt = userAlreadyHasTier
-          ? Math.min(userAlreadyHasTier.completed_at, usageForTier)
-          : tierAchievedAt
-
-        return {
-          tier_id: tier.tierId,
-          completed_at: completedAt
-        }
+      userProgress.achieved_tiers!.push({
+        tier_id: tier.tierId,
+        completed_at: tier.completedAt
       })
-    }
+    })
 
     if (userProgress.achieved_tiers!.length === badge.tiers!.length) {
       userProgress.completed_at = Date.now()
