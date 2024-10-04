@@ -51,9 +51,7 @@ export function createEmoteCreatorObserver({
     }
 
     userProgress.progress.published_emotes.push({ itemId, createdAt: event.timestamp })
-    const uniqueEmotesPublished = new Set<{ itemId: string; createdAt: number }>(userProgress.progress.published_emotes)
-    userProgress.progress.steps = uniqueEmotesPublished.size
-    userProgress.progress.published_emotes = Array.from(uniqueEmotesPublished)
+    userProgress.progress.steps++
 
     // can only achieve 1 tier at a time
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(

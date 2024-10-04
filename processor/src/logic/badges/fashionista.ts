@@ -37,8 +37,11 @@ export function createFashionistaObserver({
     }
 
     const txHash = event.key // This is the transaction hash set at events-notifier
+    const wearableWasAlreadyPurchased = userProgress.progress.transactions_wearable_purchase.find(
+      (purchasedWearable: any) => purchasedWearable.transactionHash === txHash
+    )
 
-    if (userProgress.progress.transactions_wearable_purchase.includes(txHash)) {
+    if (wearableWasAlreadyPurchased) {
       logger.info('User already has this wearable', {
         userAddress: userAddress,
         badgeId: badgeId,
@@ -48,12 +51,10 @@ export function createFashionistaObserver({
       return undefined
     }
 
-    userProgress.progress.transactions_wearable_purchase.push(txHash)
-    const uniqueWearablesPurchased = new Set<string>(userProgress.progress.transactions_wearable_purchase)
-    userProgress.progress.steps = uniqueWearablesPurchased.size
-    userProgress.progress.transactions_wearable_purchase = Array.from(uniqueWearablesPurchased)
+    userProgress.progress.transactions_wearable_purchase.push({ transactionHash: txHash, saleAt: event.timestamp })
+    userProgress.progress.steps++
 
-    // can only achieve 1 tier at a time
+    // Can only achieve 1 tier at a time
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
       (tier) =>
         userProgress.progress.steps >= tier.criteria.steps &&
@@ -82,7 +83,7 @@ export function createFashionistaObserver({
       badge_id: badgeId,
       progress: {
         steps: 0,
-        transactions_wearable_purchase: []
+        transactions_wearable_purchase: [] as { transactionHash: string; saleAt: number }[]
       },
       achieved_tiers: []
     }

@@ -1,5 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
+import { getUniqueSortedItems, tryToGetAchievedTiers, tryToGetCompletedAt } from '../utils'
 
 function validateWearableDesignerBackfillData(data: {
   progress: {
@@ -38,65 +39,25 @@ export function mergeWearableDesignerProgress(
     achieved_tiers: []
   }
 
-  const uniqueWearables = new Set<string>([
-    ...userProgress.progress.published_wearables,
-    ...backfillData.progress.wearablesPublished.map((wearable: any) => wearable.itemId)
-  ])
-
-  const sortedPublications = backfillData.progress.wearablesPublished.sort(
-    (a: any, b: any) => a.createdAt - b.createdAt
+  const uniqueSortedPublications = getUniqueSortedItems(
+    [...userProgress.progress.published_wearables, ...backfillData.progress.wearablesPublished],
+    'itemId',
+    'createdAt'
   )
 
   userProgress.progress = {
-    steps: uniqueWearables.size,
-    published_wearables: Array.from(uniqueWearables)
+    steps: uniqueSortedPublications.length,
+    published_wearables: uniqueSortedPublications
   }
 
-  // this badge has tiers
-  const achievedTiers = badge.tiers!.filter((tier) => {
-    return userProgress.progress.steps >= tier.criteria.steps
-  })
-
+  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, uniqueSortedPublications, 'createdAt')
   if (achievedTiers.length > 0) {
-    userProgress.achieved_tiers = achievedTiers.map((tier) => {
-      const publicationFound = sortedPublications[tier.criteria.steps - 1]
-      const userAlreadyHadThisTier = userProgress.achieved_tiers!.find(
-        (achievedTier) => achievedTier.tier_id === tier.tierId
-      )
-
-      if (publicationFound) {
-        return {
-          tier_id: tier.tierId,
-          completed_at:
-            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < publicationFound.createdAt
-              ? userAlreadyHadThisTier.completed_at
-              : publicationFound.createdAt
-        }
-      } else {
-        return {
-          tier_id: tier.tierId,
-          completed_at: userAlreadyHadThisTier ? userAlreadyHadThisTier.completed_at : Date.now()
-        }
-      }
-    })
+    userProgress.achieved_tiers = achievedTiers
   }
 
-  if (
-    userProgress.achieved_tiers &&
-    userProgress.achieved_tiers.length > 0 &&
-    userProgress.achieved_tiers.length === badge.tiers?.length
-  ) {
-    const [lastTier] = badge.tiers.slice(-1)
-    const alreadyAchievedDate = userProgress.completed_at
-    const foundRelatedSortedBuy = sortedPublications[lastTier?.criteria.steps - 1]
-
-    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.createdAt < alreadyAchievedDate)) {
-      userProgress.completed_at = foundRelatedSortedBuy.createdAt
-    }
-
-    if (!foundRelatedSortedBuy && !alreadyAchievedDate) {
-      userProgress.completed_at = Date.now()
-    }
+  const completedAt = tryToGetCompletedAt(badge, userProgress, uniqueSortedPublications, 'createdAt')
+  if (completedAt) {
+    userProgress.completed_at = completedAt
   }
 
   return userProgress

@@ -46,7 +46,12 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      transactions_emotes_purchase: ['0xTxHash']
+      transactions_emotes_purchase: [
+        {
+          transactionHash: '0xTxHash',
+          saleAt: timestamps.now()
+        }
+      ]
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -94,7 +99,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      transactions_emotes_purchase: Array.from({ length: 1 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 1 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -118,7 +126,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 9,
-      transactions_emotes_purchase: Array.from({ length: 9 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 9 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -145,7 +156,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 24,
-      transactions_emotes_purchase: Array.from({ length: 24 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 24 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -172,7 +186,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 49,
-      transactions_emotes_purchase: Array.from({ length: 49 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 49 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -199,7 +216,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 149,
-      transactions_emotes_purchase: Array.from({ length: 149 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 149 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -226,7 +246,10 @@ describe('Emotionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 299,
-      transactions_emotes_purchase: Array.from({ length: 299 }, (_, i) => `0x${i}`)
+      transactions_emotes_purchase: Array.from({ length: 299 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -279,7 +302,7 @@ describe('Emotionista badge handler should', () => {
 
   function getMockedUserProgress(progress: {
     steps: number
-    transactions_emotes_purchase?: string[]
+    transactions_emotes_purchase?: { saleAt: number; transactionHash: string }[]
     completed_at?: number
   }) {
     const { steps, transactions_emotes_purchase = [], completed_at } = progress
@@ -303,7 +326,7 @@ describe('Emotionista badge handler should', () => {
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
-    transactions_emotes_purchase?: number[]
+    transactions_emotes_purchase?: { saleAt: number; transactionHash: string }[]
   }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed, transactions_emotes_purchase } = progress
     return {
@@ -311,7 +334,8 @@ describe('Emotionista badge handler should', () => {
       badge_id: BadgeId.EMOTIONISTA,
       progress: {
         steps,
-        transactions_emotes_purchase: transactions_emotes_purchase || expect.any(Array<number>)
+        transactions_emotes_purchase:
+          transactions_emotes_purchase || expect.any(Array<{ saleAt: number; transactionHash: string }>)
       },
       achieved_tiers: badge.tiers
         .filter((tier) => steps >= tier.criteria.steps)

@@ -46,7 +46,12 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      transactions_wearable_purchase: ['0xTxHash']
+      transactions_wearable_purchase: [
+        {
+          transactionHash: '0xTxHash',
+          saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        }
+      ]
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -94,7 +99,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1,
-      transactions_wearable_purchase: Array.from({ length: 1 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 1 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -118,7 +126,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 24,
-      transactions_wearable_purchase: Array.from({ length: 24 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 24 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -145,7 +156,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 74,
-      transactions_wearable_purchase: Array.from({ length: 74 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 74 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -172,7 +186,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 249,
-      transactions_wearable_purchase: Array.from({ length: 249 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 249 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -199,7 +216,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 499,
-      transactions_wearable_purchase: Array.from({ length: 499 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 499 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -226,7 +246,10 @@ describe('Fashionista badge handler should', () => {
 
     const mockUserProgress = getMockedUserProgress({
       steps: 1499,
-      transactions_wearable_purchase: Array.from({ length: 1499 }, (_, i) => `0x${i}`)
+      transactions_wearable_purchase: Array.from({ length: 1499 }, (_, i) => ({
+        transactionHash: `0xTxHash${i}`,
+        saleAt: timestamp
+      }))
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -279,7 +302,7 @@ describe('Fashionista badge handler should', () => {
 
   function getMockedUserProgress(progress: {
     steps: number
-    transactions_wearable_purchase?: string[]
+    transactions_wearable_purchase?: { transactionHash: string; saleAt: number }[]
     completed_at?: number
   }) {
     const { steps, transactions_wearable_purchase = [], completed_at } = progress
@@ -303,7 +326,7 @@ describe('Fashionista badge handler should', () => {
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
-    transactions_wearable_purchase?: number[]
+    transactions_wearable_purchase?: { transactionHash: string; saleAt: number }[]
   }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed, transactions_wearable_purchase } = progress
     return {
@@ -311,7 +334,8 @@ describe('Fashionista badge handler should', () => {
       badge_id: BadgeId.FASHIONISTA,
       progress: {
         steps,
-        transactions_wearable_purchase: transactions_wearable_purchase || expect.any(Array<number>)
+        transactions_wearable_purchase:
+          transactions_wearable_purchase || expect.any(Array<{ transactionHash: string; saleAt: number }>)
       },
       achieved_tiers: badge.tiers
         .filter((tier) => steps >= tier.criteria.steps)

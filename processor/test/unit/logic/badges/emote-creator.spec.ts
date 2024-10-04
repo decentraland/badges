@@ -317,7 +317,7 @@ describe('Emote Creator badge handler should', () => {
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
-    published_emotes?: number[]
+    published_emotes?: { itemId: string; createdAt: number }[]
   }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed, published_emotes } = progress
     return {
@@ -325,7 +325,7 @@ describe('Emote Creator badge handler should', () => {
       badge_id: BadgeId.EMOTE_CREATOR,
       progress: {
         steps,
-        published_emotes: published_emotes || expect.any(Array<number>)
+        published_emotes: published_emotes || expect.any(Array<{ itemId: string; createdAt: number }>)
       },
       achieved_tiers: badge.tiers
         .filter((tier) => steps >= tier.criteria.steps)

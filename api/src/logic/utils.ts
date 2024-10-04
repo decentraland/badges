@@ -13,6 +13,84 @@ export function getCompletedAt(userProgress: UserBadge, lastTierAchievedAt?: num
   return Math.min(...possibleCompletedAt)
 }
 
+// TODO: this could be improved
+type KeyOfWithValue<T, ValueType> = {
+  [K in keyof T]: T[K] extends ValueType ? K : never
+}[keyof T]
+
+export function getUniqueSortedItems<T, IK extends KeyOfWithValue<T, string>, TK extends KeyOfWithValue<T, number>>(
+  items: T[],
+  idKey: IK,
+  timestampKey: TK
+): T[] {
+  const uniqueItems = new Map<string, number>(
+    items.map((item: T) => [item[idKey], item[timestampKey]] as [string, number])
+  )
+
+  const sortedItems = Array.from(uniqueItems).sort((a, b) => a[1] - b[1])
+
+  return sortedItems.map(
+    ([id, timestamp]) =>
+      ({
+        [idKey]: id,
+        [timestampKey]: timestamp
+      }) as T
+  )
+}
+
+export function getBadgeAchievedTiers(badge: Badge, userProgress: UserBadge) {
+  return badge.tiers!.filter((tier) => userProgress.progress.steps >= tier.criteria.steps)
+}
+
+export function tryToGetAchievedTiers<T, TK extends KeyOfWithValue<T, number>>(
+  badge: Badge,
+  userProgress: UserBadge,
+  sortedItems: T[],
+  timestampKey: TK
+): { tier_id: string; completed_at: number }[] {
+  const achievedTiers = getBadgeAchievedTiers(badge, userProgress)
+
+  return achievedTiers.map((tier) => {
+    const achievedWithItem = sortedItems[tier.criteria.steps - 1]
+    const userAlreadyHadThisTier = userProgress.achieved_tiers!.find(
+      (achievedTier) => achievedTier.tier_id === tier.tierId
+    )
+
+    // Should always be found, because we are using all registries from backfill and database
+    if (!achievedWithItem) {
+      throw new Error(`Could not find publication for tier ${tier.tierId}. Stopping the backfill process...`)
+    }
+
+    const achievedAt = achievedWithItem[timestampKey] as number
+
+    return {
+      tier_id: tier.tierId,
+      completed_at: Math.min(userAlreadyHadThisTier?.completed_at || Date.now(), achievedAt)
+    }
+  })
+}
+
+export function tryToGetCompletedAt<T, TK extends KeyOfWithValue<T, number>>(
+  badge: Badge,
+  userProgress: UserBadge,
+  sortedItems: T[],
+  timestampKey: TK
+): number | undefined {
+  if (
+    !userProgress.achieved_tiers ||
+    userProgress.achieved_tiers.length === 0 ||
+    !badge.tiers ||
+    badge.tiers?.length === 0
+  ) {
+    return undefined
+  }
+
+  const [lastTier] = badge.tiers.slice(-1)
+  const { [timestampKey]: lastTierAchievedAt } = sortedItems[lastTier?.criteria.steps - 1]
+
+  return getCompletedAt(userProgress, lastTierAchievedAt as number)
+}
+
 export function validateUserProgress(
   userProgress: UserBadge,
   badge: Badge | undefined
