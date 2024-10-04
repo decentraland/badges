@@ -1,6 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
-import { getCompletedAt } from '../utils'
+import { getSortedItems, tryToGetAchievedTiers, tryToGetCompletedAt } from '../utils'
 
 function validateEmoteCreatorBackfillData(data: {
   progress: {
@@ -39,53 +39,25 @@ export function mergeEmoteCreatorProgress(
     achieved_tiers: []
   }
 
-  const createdAtByItemId = new Map<string, number>([
-    ...userProgress.progress.published_emotes.map((emote: any) => [emote.itemId, emote.createdAt]),
-    ...backfillData.progress.emotesPublished.map((emote: any) => [emote.itemId, emote.createdAt])
-  ])
-
-  const sortedPublications = Array.from(createdAtByItemId, ([itemId, createdAt]) => ({ itemId, createdAt })).sort(
-    (a, b) => a.createdAt - b.createdAt
+  const sortedPublications = getSortedItems(
+    [...userProgress.progress.published_emotes, ...backfillData.progress.emotesPublished],
+    'itemId',
+    'createdAt'
   )
 
   userProgress.progress = {
-    steps: createdAtByItemId.size,
+    steps: sortedPublications.length,
     published_emotes: sortedPublications
   }
 
-  // this badge has tiers
-  const achievedTiers = badge.tiers!.filter((tier) => {
-    return userProgress.progress.steps >= tier.criteria.steps
-  })
-
+  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, sortedPublications, 'createdAt')
   if (achievedTiers.length > 0) {
-    userProgress.achieved_tiers = achievedTiers.map((tier) => {
-      const publicationFound = sortedPublications[tier.criteria.steps - 1]
-      const userAlreadyHadThisTier = userProgress.achieved_tiers!.find(
-        (achievedTier) => achievedTier.tier_id === tier.tierId
-      )
-
-      // should always be found, because we are using all registries from backfill and database
-      if (!publicationFound) {
-        throw new Error(`Could not find publication for tier ${tier.tierId}. Stopping the backfill process...`)
-      }
-
-      return {
-        tier_id: tier.tierId,
-        completed_at: Math.min(userAlreadyHadThisTier?.completed_at || Date.now(), publicationFound.createdAt)
-      }
-    })
+    userProgress.achieved_tiers = achievedTiers
   }
 
-  if (
-    userProgress.achieved_tiers &&
-    userProgress.achieved_tiers.length > 0 &&
-    userProgress.achieved_tiers.length === badge.tiers?.length
-  ) {
-    const [lastTier] = badge.tiers.slice(-1)
-    const { createdAt: lastTierAchievedAt } = sortedPublications[lastTier?.criteria.steps - 1]
-
-    userProgress.completed_at = getCompletedAt(userProgress, lastTierAchievedAt)
+  const completedAt = tryToGetCompletedAt(badge, userProgress, sortedPublications, 'createdAt')
+  if (completedAt) {
+    userProgress.completed_at = completedAt
   }
 
   return userProgress
