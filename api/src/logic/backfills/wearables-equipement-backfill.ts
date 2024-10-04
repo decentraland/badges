@@ -17,7 +17,7 @@ export function mergeWearablesEquipementProgress(
 ): UserBadge {
   const isValid = validateWearablesEquipementRelatedBadgesProgress(backfillData)
   if (!badge || !isValid) {
-    throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(badge)}. User: ${userAddress}.`)
+    throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }
 
   const userProgress = currentUserProgress || {
