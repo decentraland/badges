@@ -1,5 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
+import { getCompletedAt } from '../utils'
 
 function validateEmoteCreatorBackfillData(data: {
   progress: {
@@ -65,19 +66,13 @@ export function mergeEmoteCreatorProgress(
       )
 
       // should always be found, because we are using all registries from backfill and database
-      if (publicationFound) {
-        return {
-          tier_id: tier.tierId,
-          completed_at:
-            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < publicationFound.createdAt
-              ? userAlreadyHadThisTier.completed_at
-              : publicationFound.createdAt
-        }
-      } else {
-        return {
-          tier_id: tier.tierId,
-          completed_at: userAlreadyHadThisTier ? userAlreadyHadThisTier.completed_at : Date.now()
-        }
+      if (!publicationFound) {
+        throw new Error(`Could not find publication for tier ${tier.tierId}. Stopping the backfill process...`)
+      }
+
+      return {
+        tier_id: tier.tierId,
+        completed_at: Math.min(userAlreadyHadThisTier?.completed_at || Date.now(), publicationFound.createdAt)
       }
     })
   }
@@ -88,16 +83,9 @@ export function mergeEmoteCreatorProgress(
     userProgress.achieved_tiers.length === badge.tiers?.length
   ) {
     const [lastTier] = badge.tiers.slice(-1)
-    const alreadyAchievedDate = userProgress.completed_at
-    const foundRelatedSortedBuy = sortedPublications[lastTier?.criteria.steps - 1]
+    const { createdAt: lastTierAchievedAt } = sortedPublications[lastTier?.criteria.steps - 1]
 
-    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.createdAt < alreadyAchievedDate)) {
-      userProgress.completed_at = foundRelatedSortedBuy.createdAt
-    }
-
-    if (!foundRelatedSortedBuy && !alreadyAchievedDate) {
-      userProgress.completed_at = Date.now()
-    }
+    userProgress.completed_at = getCompletedAt(userProgress, lastTierAchievedAt)
   }
 
   return userProgress

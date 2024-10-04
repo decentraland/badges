@@ -7,6 +7,12 @@ export function parseBadgeId(id: string): BadgeId | undefined {
   return undefined
 }
 
+export function getCompletedAt(userProgress: UserBadge, lastTierAchievedAt?: number): number {
+  const { completed_at: alreadyCompletedAt } = userProgress
+  const possibleCompletedAt = [alreadyCompletedAt, lastTierAchievedAt, Date.now()].filter(Number.isFinite) as number[]
+  return Math.min(...possibleCompletedAt)
+}
+
 export function validateUserProgress(
   userProgress: UserBadge,
   badge: Badge | undefined
