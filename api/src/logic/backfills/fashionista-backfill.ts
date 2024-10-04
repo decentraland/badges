@@ -12,9 +12,15 @@ function validateFashionistaBackfillData(data: {
   }
 }): boolean {
   if (!Array.isArray(data.progress.wearablesBought)) return false
-  if (!data.progress.wearablesBought.every((wearable: any) => Number.isInteger(wearable.saleAt))) return false
-  if (!data.progress.wearablesBought.every((wearable: any) => typeof wearable.transactionHash === 'string'))
+
+  const invalidWearables = data.progress.wearablesBought.filter(
+    (wearable) => !Number.isInteger(wearable.saleAt) || typeof wearable.transactionHash !== 'string'
+  )
+
+  if (invalidWearables.length > 0) {
+    console.error('Invalid wearables found:', invalidWearables)
     return false
+  }
 
   return true
 }
@@ -25,6 +31,16 @@ export function mergeFashionistaProgress(
   badge: Badge,
   backfillData: any
 ): UserBadge {
+  backfillData.progress.achievedTiers = (backfillData.progress.achievedTiers || []).filter(
+    (tier: any) => tier.hasOwnProperty('steps') && tier.hasOwnProperty('completedAt')
+  )
+  backfillData.progress.wearablesBought = backfillData.progress.wearablesBought.filter(
+    (wearable: any) =>
+      wearable.hasOwnProperty('saleAt') &&
+      wearable.hasOwnProperty('transactionHash') &&
+      wearable.hasOwnProperty('nftId')
+  )
+
   const isValid = validateFashionistaBackfillData(backfillData)
   if (!badge || !isValid) {
     throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
