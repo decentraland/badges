@@ -1,5 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
+import { getCompletedAt } from '../utils'
 
 function validateEmoteCreatorBackfillData(data: {
   progress: {
@@ -38,16 +39,18 @@ export function mergeEmoteCreatorProgress(
     achieved_tiers: []
   }
 
-  const uniqueEmotes = new Set<string>([
-    ...userProgress.progress.published_emotes,
-    ...backfillData.progress.emotesPublished.map((emote: any) => emote.itemId)
+  const createdAtByItemId = new Map<string, number>([
+    ...userProgress.progress.published_emotes.map((emote: any) => [emote.itemId, emote.createdAt]),
+    ...backfillData.progress.emotesPublished.map((emote: any) => [emote.itemId, emote.createdAt])
   ])
 
-  const sortedPublications = backfillData.progress.emotesPublished.sort((a: any, b: any) => a.createdAt - b.createdAt)
+  const sortedPublications = Array.from(createdAtByItemId, ([itemId, createdAt]) => ({ itemId, createdAt })).sort(
+    (a, b) => a.createdAt - b.createdAt
+  )
 
   userProgress.progress = {
-    steps: uniqueEmotes.size,
-    published_emotes: Array.from(uniqueEmotes)
+    steps: createdAtByItemId.size,
+    published_emotes: sortedPublications
   }
 
   // this badge has tiers
@@ -62,19 +65,14 @@ export function mergeEmoteCreatorProgress(
         (achievedTier) => achievedTier.tier_id === tier.tierId
       )
 
-      if (publicationFound) {
-        return {
-          tier_id: tier.tierId,
-          completed_at:
-            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < publicationFound.createdAt
-              ? userAlreadyHadThisTier.completed_at
-              : publicationFound.createdAt
-        }
-      } else {
-        return {
-          tier_id: tier.tierId,
-          completed_at: userAlreadyHadThisTier ? userAlreadyHadThisTier.completed_at : Date.now()
-        }
+      // should always be found, because we are using all registries from backfill and database
+      if (!publicationFound) {
+        throw new Error(`Could not find publication for tier ${tier.tierId}. Stopping the backfill process...`)
+      }
+
+      return {
+        tier_id: tier.tierId,
+        completed_at: Math.min(userAlreadyHadThisTier?.completed_at || Date.now(), publicationFound.createdAt)
       }
     })
   }
@@ -85,16 +83,9 @@ export function mergeEmoteCreatorProgress(
     userProgress.achieved_tiers.length === badge.tiers?.length
   ) {
     const [lastTier] = badge.tiers.slice(-1)
-    const alreadyAchievedDate = userProgress.completed_at
-    const foundRelatedSortedBuy = sortedPublications[lastTier?.criteria.steps - 1]
+    const { createdAt: lastTierAchievedAt } = sortedPublications[lastTier?.criteria.steps - 1]
 
-    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.createdAt < alreadyAchievedDate)) {
-      userProgress.completed_at = foundRelatedSortedBuy.createdAt
-    }
-
-    if (!foundRelatedSortedBuy && !alreadyAchievedDate) {
-      userProgress.completed_at = Date.now()
-    }
+    userProgress.completed_at = getCompletedAt(userProgress, lastTierAchievedAt)
   }
 
   return userProgress
