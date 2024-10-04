@@ -16,7 +16,10 @@ function validateMovesMasterBackfillData(data: BackfillData): boolean {
   return (
     Number.isInteger(data.progress.usedEmotesCount) &&
     Array.isArray(data.progress.achievedTier) &&
-    data.progress.achievedTier.every((tier) => Number.isInteger(tier.steps) && Number.isInteger(tier.completedAt)) &&
+    data.progress.achievedTier.every(
+      (tier) =>
+        (Number.isInteger(tier.steps) || Number.isFinite(Number(tier.steps))) && Number.isInteger(tier.completedAt)
+    ) &&
     Number.isInteger(data.progress.lastEmoteTriggeredAt) &&
     data.progress.lastEmoteTriggeredAt > 0
   )
@@ -46,7 +49,7 @@ export function mergeMovesMasterProgress(
 
   try {
     backfillData.progress.achievedTier.forEach((tier) => {
-      const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.criteria.steps === tier.steps)
+      const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.criteria.steps === Number(tier.steps))
 
       if (!achievedTier) {
         throw new Error('tierId received is invalid, breaking backfill')
