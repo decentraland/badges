@@ -29,7 +29,7 @@ export function mergeMovesMasterProgress(
   backfillData: BackfillData
 ): UserBadge {
   if (!badge || !validateMovesMasterBackfillData(backfillData)) {
-    throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(badge)}. User: ${userAddress}.`)
+    throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }
 
   const userProgress: UserBadge = {
