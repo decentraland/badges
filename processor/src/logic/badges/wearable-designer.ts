@@ -37,8 +37,11 @@ export function createWearableDesignerObserver({
     }
 
     const { itemId } = event.metadata
+    const wearableWasAlreadyPublished = userProgress.progress.published_wearables.find(
+      (publishedWearable: any) => publishedWearable.itemId === itemId
+    )
 
-    if (userProgress.progress.published_wearables.includes(itemId)) {
+    if (wearableWasAlreadyPublished) {
       logger.info('User already published this wearable', {
         userAddress: userAddress,
         itemId
@@ -47,10 +50,8 @@ export function createWearableDesignerObserver({
       return undefined
     }
 
-    userProgress.progress.published_wearables.push(itemId)
-    const uniqueWearablesPublished = new Set<string>(userProgress.progress.published_wearables)
-    userProgress.progress.steps = uniqueWearablesPublished.size
-    userProgress.progress.published_wearables = Array.from(uniqueWearablesPublished)
+    userProgress.progress.published_wearables.push({ itemId, createdAt: event.timestamp })
+    userProgress.progress.steps++
 
     // can only achieve 1 tier at a time
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
@@ -81,7 +82,7 @@ export function createWearableDesignerObserver({
       badge_id: badgeId,
       progress: {
         steps: 0,
-        published_wearables: []
+        published_wearables: [] as { itemId: string; createdAt: number }[]
       },
       achieved_tiers: []
     }
