@@ -4,8 +4,9 @@ import { EthAddress } from '@dcl/schemas'
 type BackfillData = {
   progress: {
     usedEmotesCount: number
+    lastEmoteTriggeredAt: number
     achievedTier: {
-      tierId: string
+      steps: number
       completedAt: number
     }[]
   }
@@ -15,7 +16,9 @@ function validateMovesMasterBackfillData(data: BackfillData): boolean {
   return (
     Number.isInteger(data.progress.usedEmotesCount) &&
     Array.isArray(data.progress.achievedTier) &&
-    data.progress.achievedTier.every((tier) => typeof tier.tierId === 'string' && Number.isInteger(tier.completedAt))
+    data.progress.achievedTier.every((tier) => Number.isInteger(tier.steps) && Number.isInteger(tier.completedAt)) &&
+    Number.isInteger(data.progress.lastEmoteTriggeredAt) &&
+    data.progress.lastEmoteTriggeredAt > 0
   )
 }
 
@@ -35,22 +38,22 @@ export function mergeMovesMasterProgress(
     completed_at: undefined,
     progress: {
       steps: backfillData.progress.usedEmotesCount,
-      last_used_emote_timestamp: Date.now(), // TODO: normalize to minute start?
-      last_day_used_emotes_timestamps: [] // TODO: do we need to populate this so handler can catch-up?
+      last_used_emote_timestamp: backfillData.progress.lastEmoteTriggeredAt,
+      last_day_used_emotes_timestamps: []
     },
     achieved_tiers: []
   }
 
   try {
     backfillData.progress.achievedTier.forEach((tier) => {
-      const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.tierId === tier.tierId)
+      const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.criteria.steps === tier.steps)
 
       if (!achievedTier) {
         throw new Error('tierId received is invalid, breaking backfill')
       }
 
       userProgress.achieved_tiers!.push({
-        tier_id: tier.tierId,
+        tier_id: achievedTier.tierId,
         completed_at: tier.completedAt
       })
     })
