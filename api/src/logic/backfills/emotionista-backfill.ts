@@ -1,5 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
+import { getUniqueSortedItems, tryToGetAchievedTiers, tryToGetCompletedAt } from '../utils'
 
 function validateEmotionistaBackfillData(data: {
   progress: {
@@ -39,63 +40,25 @@ export function mergeEmotionistaProgress(
     achieved_tiers: []
   }
 
-  const uniqueTransactions = new Set<string>([
-    ...userProgress.progress.transactions_emotes_purchase,
-    ...backfillData.progress.emotesBought.map((emote: any) => emote.transactionHash)
-  ])
-
-  const sortedBuys = backfillData.progress.emotesBought.sort((a: any, b: any) => a.saleAt - b.saleAt)
+  const uniqueSortedBuys = getUniqueSortedItems(
+    [...userProgress.progress.transactions_emotes_purchase, ...backfillData.progress.emotesBought],
+    'transactionHash',
+    'saleAt'
+  )
 
   userProgress.progress = {
-    steps: uniqueTransactions.size,
-    transactions_emotes_purchase: Array.from(uniqueTransactions)
+    steps: uniqueSortedBuys.length,
+    transactions_emotes_purchase: uniqueSortedBuys
   }
 
-  // this badge has tiers
-  const achievedTiers = badge.tiers!.filter((tier) => {
-    return userProgress.progress.steps >= tier.criteria.steps
-  })
-
+  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, uniqueSortedBuys, 'saleAt')
   if (achievedTiers.length > 0) {
-    userProgress.achieved_tiers = achievedTiers.map((tier) => {
-      const transactionFound = sortedBuys[tier.criteria.steps - 1]
-      const userAlreadyHadThisTier = userProgress.achieved_tiers!.find(
-        (achievedTier) => achievedTier.tier_id === tier.tierId
-      )
-
-      if (transactionFound) {
-        return {
-          tier_id: tier.tierId,
-          completed_at:
-            userAlreadyHadThisTier && userAlreadyHadThisTier.completed_at < transactionFound.saleAt
-              ? userAlreadyHadThisTier.completed_at
-              : transactionFound.saleAt
-        }
-      } else {
-        return {
-          tier_id: tier.tierId,
-          completed_at: userAlreadyHadThisTier ? userAlreadyHadThisTier.completed_at : Date.now()
-        }
-      }
-    })
+    userProgress.achieved_tiers = achievedTiers
   }
 
-  if (
-    userProgress.achieved_tiers &&
-    userProgress.achieved_tiers.length > 0 &&
-    userProgress.achieved_tiers.length === badge.tiers?.length
-  ) {
-    const [lastTier] = badge.tiers.slice(-1)
-    const alreadyAchievedDate = userProgress.completed_at
-    const foundRelatedSortedBuy = sortedBuys[lastTier?.criteria.steps - 1]
-
-    if (foundRelatedSortedBuy && (!alreadyAchievedDate || foundRelatedSortedBuy.saleAt < alreadyAchievedDate)) {
-      userProgress.completed_at = foundRelatedSortedBuy.saleAt
-    }
-
-    if (!foundRelatedSortedBuy && !alreadyAchievedDate) {
-      userProgress.completed_at = Date.now()
-    }
+  const completedAt = tryToGetCompletedAt(badge, userProgress, uniqueSortedBuys, 'saleAt')
+  if (completedAt) {
+    userProgress.completed_at = completedAt
   }
 
   return userProgress

@@ -1,6 +1,6 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
-import { getSortedItems, tryToGetAchievedTiers, tryToGetCompletedAt } from '../utils'
+import { getUniqueSortedItems, tryToGetAchievedTiers, tryToGetCompletedAt } from '../utils'
 
 function validateEmoteCreatorBackfillData(data: {
   progress: {
@@ -39,23 +39,23 @@ export function mergeEmoteCreatorProgress(
     achieved_tiers: []
   }
 
-  const sortedPublications = getSortedItems(
+  const uniqueSortedPublications = getUniqueSortedItems(
     [...userProgress.progress.published_emotes, ...backfillData.progress.emotesPublished],
     'itemId',
     'createdAt'
   )
 
   userProgress.progress = {
-    steps: sortedPublications.length,
-    published_emotes: sortedPublications
+    steps: uniqueSortedPublications.length,
+    published_emotes: uniqueSortedPublications
   }
 
-  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, sortedPublications, 'createdAt')
+  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, uniqueSortedPublications, 'createdAt')
   if (achievedTiers.length > 0) {
     userProgress.achieved_tiers = achievedTiers
   }
 
-  const completedAt = tryToGetCompletedAt(badge, userProgress, sortedPublications, 'createdAt')
+  const completedAt = tryToGetCompletedAt(badge, userProgress, uniqueSortedPublications, 'createdAt')
   if (completedAt) {
     userProgress.completed_at = completedAt
   }

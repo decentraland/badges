@@ -18,7 +18,7 @@ type KeyOfWithValue<T, ValueType> = {
   [K in keyof T]: T[K] extends ValueType ? K : never
 }[keyof T]
 
-export function getSortedItems<T, IK extends KeyOfWithValue<T, string>, TK extends KeyOfWithValue<T, number>>(
+export function getUniqueSortedItems<T, IK extends KeyOfWithValue<T, string>, TK extends KeyOfWithValue<T, number>>(
   items: T[],
   idKey: IK,
   timestampKey: TK

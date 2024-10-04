@@ -37,8 +37,11 @@ export function createEmotionistaObserver({
     }
 
     const txHash = event.key // This is the transaction hash set at events-notifier
+    const emoteWasAlreadyPurchased = userProgress.progress.transactions_emotes_purchase.find(
+      (purchasedEmote: any) => purchasedEmote.transactionHash === txHash
+    )
 
-    if (userProgress.progress.transactions_emotes_purchase.includes(txHash)) {
+    if (emoteWasAlreadyPurchased) {
       logger.info('User already has this emote', {
         userAddress: userAddress,
         badgeId: badgeId,
@@ -48,10 +51,8 @@ export function createEmotionistaObserver({
       return undefined
     }
 
-    userProgress.progress.transactions_emotes_purchase.push(txHash)
-    const uniqueEmotesPurchased = new Set<string>(userProgress.progress.transactions_emotes_purchase)
-    userProgress.progress.steps = uniqueEmotesPurchased.size
-    userProgress.progress.transactions_emotes_purchase = Array.from(uniqueEmotesPurchased)
+    userProgress.progress.transactions_emotes_purchase.push({ transactionHash: txHash, saleAt: event.timestamp })
+    userProgress.progress.steps++
 
     // can only achieve 1 tier at a time
     const newAchievedTier: BadgeTier | undefined = badge.tiers!.find(
@@ -82,7 +83,7 @@ export function createEmotionistaObserver({
       badge_id: badgeId,
       progress: {
         steps: 0,
-        transactions_emotes_purchase: []
+        transactions_emotes_purchase: [] as { transactionHash: string; saleAt: number }[]
       },
       achieved_tiers: []
     }
