@@ -31,6 +31,10 @@ export function mergeMovesMasterProgress(
   badge: Badge,
   backfillData: BackfillData
 ): UserBadge {
+  backfillData.progress.achievedTiers = backfillData.progress.achievedTiers.filter(
+    (tier) => tier.hasOwnProperty('steps') && tier.hasOwnProperty('completedAt')
+  )
+
   if (!badge || !validateMovesMasterBackfillData(backfillData)) {
     throw new Error(`Failed while processing backfill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }
