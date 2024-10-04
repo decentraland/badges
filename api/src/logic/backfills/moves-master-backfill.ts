@@ -5,7 +5,7 @@ type BackfillData = {
   progress: {
     usedEmotesCount: number
     lastEmoteTriggeredAt: number
-    achievedTier: {
+    achievedTiers: {
       steps: number
       completedAt: number
     }[]
@@ -15,8 +15,8 @@ type BackfillData = {
 function validateMovesMasterBackfillData(data: BackfillData): boolean {
   return (
     Number.isInteger(data.progress.usedEmotesCount) &&
-    Array.isArray(data.progress.achievedTier) &&
-    data.progress.achievedTier.every(
+    Array.isArray(data.progress.achievedTiers) &&
+    data.progress.achievedTiers.every(
       (tier) =>
         (Number.isInteger(tier.steps) || Number.isFinite(Number(tier.steps))) && Number.isInteger(tier.completedAt)
     ) &&
@@ -48,7 +48,7 @@ export function mergeMovesMasterProgress(
   }
 
   try {
-    backfillData.progress.achievedTier.forEach((tier) => {
+    backfillData.progress.achievedTiers.forEach((tier) => {
       const achievedTier = badge.tiers?.find((badgeTier) => badgeTier.criteria.steps === Number(tier.steps))
 
       if (!achievedTier) {
