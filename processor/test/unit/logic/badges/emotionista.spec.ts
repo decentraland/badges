@@ -48,8 +48,8 @@ describe('Emotionista badge handler should', () => {
       steps: 1,
       transactions_emotes_purchase: [
         {
-          saleAt: timestamps.twoMinutesBefore(timestamps.now()),
-          transactionHash: '0xTxHash'
+          transactionHash: '0xTxHash',
+          saleAt: timestamps.now()
         }
       ]
     })
@@ -101,7 +101,7 @@ describe('Emotionista badge handler should', () => {
       steps: 1,
       transactions_emotes_purchase: Array.from({ length: 1 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
@@ -128,7 +128,7 @@ describe('Emotionista badge handler should', () => {
       steps: 9,
       transactions_emotes_purchase: Array.from({ length: 9 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
@@ -158,7 +158,7 @@ describe('Emotionista badge handler should', () => {
       steps: 24,
       transactions_emotes_purchase: Array.from({ length: 24 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
@@ -188,7 +188,7 @@ describe('Emotionista badge handler should', () => {
       steps: 49,
       transactions_emotes_purchase: Array.from({ length: 49 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
@@ -218,7 +218,7 @@ describe('Emotionista badge handler should', () => {
       steps: 149,
       transactions_emotes_purchase: Array.from({ length: 149 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
@@ -248,7 +248,7 @@ describe('Emotionista badge handler should', () => {
       steps: 299,
       transactions_emotes_purchase: Array.from({ length: 299 }, (_, i) => ({
         transactionHash: `0xTxHash${i}`,
-        saleAt: timestamps.twoMinutesBefore(timestamps.now())
+        saleAt: timestamp
       }))
     })
 
