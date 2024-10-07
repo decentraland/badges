@@ -98,7 +98,11 @@ export function createBackfillMergerComponent({
           throw new InvalidRequestError('Invalid Badge ID')
       }
     } catch (error: any) {
-      logger.error('Failure while backfilling badge', { error: error.message, stack: JSON.stringify(error.stack) })
+      logger.error('Failure while backfilling badge for user', {
+        error: error.message,
+        stack: JSON.stringify(error.stack),
+        userAddress
+      })
       throw new InvalidRequestError('Could not backfill this badge')
     }
   }
