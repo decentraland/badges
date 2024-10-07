@@ -51,7 +51,7 @@ export function createEventDispatcher({
   async function dispatch(event: Event): Promise<any> {
     try {
       const key = `${event.type}-${event.subType}`
-      logger.debug(`Dispatching event ${key}`, { event: JSON.stringify(event) })
+      logger.debug(`Receive event ${key} to dispatch`, { event: JSON.stringify(event) })
 
       const list = observers.get(key)
       if (!list || list.length === 0) {
@@ -62,9 +62,16 @@ export function createEventDispatcher({
       const badgeIds = list.map((observer) => observer.badgeId)
       const userAddresses = list.map((observer) => observer.getUserAddress(event))
 
-      const userProgresses = await db.getUserProgressesForMultipleBadges(badgeIds, userAddresses)
-      const userProgressMap = new Map(
-        userProgresses.map((userProgress) => [`${userProgress.badge_id}-${userProgress.user_address}`, userProgress])
+      logger.info('Dispatching event', {
+        eventKey: event.key,
+        eventType: event.type,
+        eventSubType: event.subType,
+        associatedUserAddresses: userAddresses.join(' - ')
+      })
+
+      const userProgresses: UserBadge[] = await db.getUserProgressesForMultipleBadges(badgeIds, userAddresses)
+      const userProgressMap: Map<string, UserBadge> = new Map(
+        userProgresses.map((userProgress: UserBadge) => [`${userProgress.badge_id}-${userProgress.user_address}`, userProgress])
       )
 
       const checks = list
