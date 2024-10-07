@@ -1,4 +1,4 @@
-import { Event } from '@dcl/schemas'
+import { Event, Events } from '@dcl/schemas'
 import { AppComponents, IEventDispatcher, IObserver } from '../types'
 import { UserBadge } from '@badges/common'
 
@@ -30,7 +30,6 @@ export function createEventDispatcher({
   }
 
   async function handleEvent(observer: IObserver, event: Event, userProgress: UserBadge | undefined): Promise<any> {
-    const key = `${event.type}-${event.subType}`
     try {
       const result = await observer.handle(event, userProgress)
       return result
@@ -40,31 +39,48 @@ export function createEventDispatcher({
         event_sub_type: event.subType,
         badge_name: observer.badge.name
       })
-      logger.error(`Failed while executing handler for badge ${observer.badge.name} for ${key}`, {
-        error: error.message
+      logger.error(`Failed while executing handler for badge ${observer.badge.name}`, {
+        error: error.message,
+        eventKey: event?.key
       })
 
-      logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack) })
+      logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack), eventKey: event?.key })
     }
   }
 
   async function dispatch(event: Event): Promise<any> {
     try {
-      const key = `${event.type}-${event.subType}`
-      logger.debug(`Dispatching event ${key}`, { event: JSON.stringify(event) })
+      const observerKey = `${event.type}-${event.subType}`
+      const eventMetadata = event.type === Events.Type.CATALYST_DEPLOYMENT ? event.entity : event.metadata
+      logger.debug(`Receive event to dispatch`, {
+        eventKey: event.key,
+        eventType: event.type,
+        eventSubType: event.subType,
+        eventMetadata: JSON.stringify(eventMetadata)
+      })
 
-      const list = observers.get(key)
+      const list = observers.get(observerKey)
       if (!list || list.length === 0) {
-        logger.debug(`No observers configured for event ${key}`)
+        logger.debug(`No observers configured for key ${observerKey}`)
         return
       }
 
       const badgeIds = list.map((observer) => observer.badgeId)
       const userAddresses = list.map((observer) => observer.getUserAddress(event))
 
-      const userProgresses = await db.getUserProgressesForMultipleBadges(badgeIds, userAddresses)
-      const userProgressMap = new Map(
-        userProgresses.map((userProgress) => [`${userProgress.badge_id}-${userProgress.user_address}`, userProgress])
+      logger.info('Dispatching event', {
+        eventKey: event.key,
+        eventType: event.type,
+        eventSubType: event.subType,
+        associatedUserAddresses: userAddresses.join(' - ')
+      })
+
+      const userProgresses: UserBadge[] = await db.getUserProgressesForMultipleBadges(badgeIds, userAddresses)
+      const userProgressMap: Map<string, UserBadge> = new Map(
+        userProgresses.map((userProgress: UserBadge) => [
+          `${userProgress.badge_id}-${userProgress.user_address}`,
+          userProgress
+        ])
       )
 
       const checks = list
@@ -88,8 +104,8 @@ export function createEventDispatcher({
 
       return badgesToGrant
     } catch (error: any) {
-      logger.error(`Failed while dispatching event`, { error: error.message })
-      logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack) })
+      logger.error(`Failed while dispatching event`, { error: error.message, eventKey: event?.key })
+      logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack), eventKey: event?.key })
     }
   }
 
