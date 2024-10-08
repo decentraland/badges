@@ -1,9 +1,9 @@
 import { test } from '../components'
 
-test('GET /badges', function ({ components }) {
-  const endpointPath = '/badges'
+test('GET /status', function ({ components }) {
+  const endpointPath = '/status'
 
-  it('should return all badges', async function () {
+  it('should return the service status', async function () {
     const response = await components.localFetch.fetch(endpointPath, {
       method: 'GET',
       redirect: 'manual',
@@ -16,7 +16,11 @@ test('GET /badges', function ({ components }) {
 
     expect(response.status).toBe(200)
     expect(body).toMatchObject({
-      data: components.badgeService.getAllBadges()
+      data: {
+        version: expect.any(String),
+        currentTime: expect.any(Number),
+        commitHash: expect.any(String)
+      }
     })
   })
 })
