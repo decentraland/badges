@@ -11,7 +11,7 @@ export async function badgesBackfillHandler(
   >
 ): Promise<IHttpServerComponent.IResponse> {
   const { badgeService, backfillMerger, logs } = context.components
-  const logger = logs.getLogger('badges-backfiller-handler')
+  const logger = logs.getLogger('badges-backfill-handler')
   try {
     const badgeId = context.params.id
 
