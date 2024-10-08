@@ -1,7 +1,7 @@
 import { Badge, UserBadge } from '@badges/common'
 import { EthAddress } from '@dcl/schemas'
 
-function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any }): boolean {
+function validateWearablesEquipmentRelatedBadgesProgress(data: { progress: any }): boolean {
   if (!Array.isArray(data.progress.completedWith)) return false
   if (!data.progress.completedAt || !Number.isInteger(data.progress.completedAt)) return false
   if (!data.progress.completedWith.every((wearableUrn: any) => typeof wearableUrn === 'string')) return false
@@ -9,13 +9,13 @@ function validateWearablesEquipementRelatedBadgesProgress(data: { progress: any 
   return true
 }
 
-export function mergeWearablesEquipementProgress(
+export function mergeWearablesEquipmentProgress(
   userAddress: EthAddress,
   currentUserProgress: UserBadge | undefined,
   badge: Badge,
   backfillData: any
 ): UserBadge {
-  const isValid = validateWearablesEquipementRelatedBadgesProgress(backfillData)
+  const isValid = validateWearablesEquipmentRelatedBadgesProgress(backfillData)
   if (!badge || !isValid) {
     throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }

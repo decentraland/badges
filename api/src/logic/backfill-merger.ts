@@ -1,7 +1,7 @@
 import { BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, IUserProgressValidator } from '../types'
 import { InvalidRequestError } from '@dcl/platform-server-commons'
-import { mergeWearablesEquipementProgress } from './backfills/wearables-equipement-backfill'
+import { mergeWearablesEquipmentProgress } from './backfills/wearables-equipment-backfill'
 import { mergeEmotionistaProgress } from './backfills/emotionista-backfill'
 import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
 import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
@@ -31,7 +31,7 @@ export function createBackfillMergerComponent({
         case BadgeId.UNIQUE_UNICORN:
         case BadgeId.LEGENDARY_LOOK:
         case BadgeId.MYTHIC_MODEL:
-          return mergeWearablesEquipementProgress(
+          return mergeWearablesEquipmentProgress(
             userAddress,
             currentUserProgress,
             badgeService.getBadge(badgeId),
