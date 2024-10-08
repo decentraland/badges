@@ -27,7 +27,9 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
   router.get('/status', getStatusHandler)
 
   // manage workflow
-  const shouldExposeEndpointsToManageWorkflows = (await context.components.config.getString('ENV')) === 'dev'
+  const env = await context.components.config.getString('ENV')
+  const shouldExposeEndpointsToManageWorkflows = env === 'dev' || env === 'test'
+
   if (shouldExposeEndpointsToManageWorkflows) {
     router.delete('/users/:address/badges/:id', resetUserProgressHandler)
   }

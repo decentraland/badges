@@ -17,6 +17,11 @@ export async function resetUserProgressHandler(
     throw new NotFoundError('Badge does not exists')
   }
 
+  console.log(
+    `Resetting user progress for badge ${parsedBadgeId} and user ${userAddress}`,
+    badgeService.resetUserProgressFor
+  )
+
   await badgeService.resetUserProgressFor(parsedBadgeId, userAddress)
 
   return {
