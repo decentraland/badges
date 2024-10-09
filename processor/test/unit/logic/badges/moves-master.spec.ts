@@ -4,14 +4,19 @@ import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, UsedEmoteEvent } from '@dcl/schemas'
 import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../../src/logic/badges/moves-master'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Moves Master badge handler should', () => {
   const testAddress = '0xTest'
   const testSessionId = 'testsessionid'
 
-  const badge = badges.get(BadgeId.MOVES_MASTER) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.MOVES_MASTER, testAddress)
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.MOVES_MASTER, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.MOVES_MASTER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -90,7 +95,7 @@ describe('Moves Master badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('should not update the user progress when the new timestamp matches the last used timestamp exactly', async () => {
@@ -134,7 +139,7 @@ describe('Moves Master badge handler should', () => {
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(
-      createExpectedUserProgress({
+      getExpectedUserProgress({
         steps: 1441,
         last_day_used_emotes_timestamps: Array.from({ length: MINUTES_IN_DAY }, (_) => expect.any(Number))
       })
@@ -157,7 +162,7 @@ describe('Moves Master badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 6 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 6 }))
   })
 
   it('increase the usages of emotes if the user used one for the first time in the last minute', async () => {
@@ -170,7 +175,7 @@ describe('Moves Master badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the usages of emotes and grant the first tier of the badge if the user used emotes for more than (or exactly) 100 times', async () => {
@@ -195,7 +200,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 100 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 100 }))
   })
 
   it('increase the usages of emotes and grant the second tier of the badge if the user used emotes for more than (or exactly) 1000 times', async () => {
@@ -220,7 +225,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1000 }))
   })
 
   it('increase the usages of emotes and grant the third tier of the badge if the user used emotes for more than (or exactly) 5000 times', async () => {
@@ -245,7 +250,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 5000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 5000 }))
   })
 
   it('increase the usages of emotes and grant the fourth tier of the badge if the user used emotes for more than (or exactly) 10000 times', async () => {
@@ -270,7 +275,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10000 }))
   })
 
   it('increase the usages of emotes and grant the fifth tier of the badge if the user used emotes for more than (or exactly) 100000 times', async () => {
@@ -295,7 +300,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 100000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 100000 }))
   })
 
   it('increase the usages of emotes and grant the fifth tier of the badge if the user used emotes for more than (or exactly) 500000 times', async () => {
@@ -320,7 +325,7 @@ describe('Moves Master badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 500000, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 500000, completed: true }))
   })
 
   // Helpers
@@ -363,28 +368,20 @@ describe('Moves Master badge handler should', () => {
     }
   }
 
-  function createExpectedUserProgress(progress: {
+  function getExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
     last_used_emote_timestamp?: number
     last_day_used_emotes_timestamps?: number[]
   }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed, last_used_emote_timestamp, last_day_used_emotes_timestamps } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.MOVES_MASTER,
+    return createExpectedUserProgress({
       progress: {
         steps,
         last_used_emote_timestamp: last_used_emote_timestamp || expect.any(Number),
         last_day_used_emotes_timestamps: last_day_used_emotes_timestamps || expect.any(Array<number>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })

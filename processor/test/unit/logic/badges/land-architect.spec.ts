@@ -19,7 +19,7 @@ describe('LAND Architect badge handler should', () => {
 
     const result = await handler.handle(event, mockUserProgress)
 
-    const expectedUserProgress = createExpectedUserProgress({ completed: true })
+    const expectedUserProgress = getExpectedUserProgress({ completed: true })
     const expectedResult = createExpectedResult(handler.badge)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
@@ -70,7 +70,7 @@ describe('LAND Architect badge handler should', () => {
     }
   }
 
-  function createExpectedUserProgress({ completed = false }: { completed?: boolean }): any {
+  function getExpectedUserProgress({ completed = false }: { completed?: boolean }): any {
     return {
       user_address: testAddress,
       badge_id: BadgeId.LAND_ARCHITECT,

@@ -4,12 +4,18 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createFashionistaObserver } from '../../../../src/logic/badges/fashionista'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Fashionista badge handler should', () => {
   const testAddress = '0xTest'
-  const badge = badges.get(BadgeId.FASHIONISTA) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.FASHIONISTA, testAddress)
+
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.FASHIONISTA, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.FASHIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -85,7 +91,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the number of wearables purchased and return undefined if the user does not achieve a new tier', async () => {
@@ -106,7 +112,7 @@ describe('Fashionista badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2 }))
   })
 
   it('increase the number of wearables purchased and grant the second tier of the badge if the user bought 25 wearables', async () => {
@@ -130,7 +136,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 25 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 25 }))
   })
 
   it('increase the number of wearables purchased and grant the third tier of the badge if the user bought 75 wearables', async () => {
@@ -154,7 +160,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 75 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 75 }))
   })
 
   it('increase the number of wearables purchased and grant the fourth tier of the badge if the user bought 250 wearables', async () => {
@@ -178,7 +184,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 250 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 250 }))
   })
 
   it('increase the number of wearables purchased and grant the fifth tier of the badge if the user bought 500 wearables', async () => {
@@ -202,7 +208,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 500 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 500 }))
   })
 
   it('increase the number of wearables purchased, grant the last tier of the badge, and mark it as completed if the user bought 1500 wearables', async () => {
@@ -226,7 +232,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1500, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1500, completed: true }))
   })
 
   // Helpers
@@ -279,27 +285,14 @@ describe('Fashionista badge handler should', () => {
     })
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    completed?: boolean
-    transactions_wearable_purchase?: { transactionHash: string; saleAt: number }[]
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, transactions_wearable_purchase } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.FASHIONISTA,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        transactions_wearable_purchase:
-          transactions_wearable_purchase || expect.any(Array<{ transactionHash: string; saleAt: number }>)
+        transactions_wearable_purchase: expect.any(Array<{ transactionHash: string; saleAt: number }>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })

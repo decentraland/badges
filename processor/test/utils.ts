@@ -16,13 +16,13 @@ export function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
   }
 }
 
-export function getMockedUserProgressForBadgeBuilder(badgeId: BadgeId, userAddress: string) {
+type UserProgress = Omit<UserBadge, 'badge_id' | 'achieved_tiers' | 'user_address'> &
+  Partial<Pick<UserBadge, 'user_address'>>
+
+export function getMockedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId, userAddress: string) {
   const badge = badges.get(badgeId) as Badge
 
-  return function (
-    userProgress: Omit<UserBadge, 'badge_id' | 'achieved_tiers' | 'user_address'> &
-      Partial<Pick<UserBadge, 'user_address'>>
-  ): UserBadge {
+  return function (userProgress: UserProgress): UserBadge {
     const {
       user_address,
       progress: { steps, ...progress },
@@ -42,6 +42,32 @@ export function getMockedUserProgressForBadgeBuilder(badgeId: BadgeId, userAddre
           completed_at: timestamps.twoMinutesBefore(timestamps.now())
         })),
       completed_at
+    }
+  }
+}
+
+export function getExpectedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId, userAddress: string) {
+  const badge = badges.get(badgeId) as Badge
+
+  return function (userProgress: UserProgress & { completed?: boolean }): UserBadge {
+    const {
+      progress: { steps, ...progress },
+      completed
+    } = userProgress
+    return {
+      user_address: userAddress,
+      badge_id: badgeId,
+      progress: {
+        steps,
+        ...progress
+      },
+      achieved_tiers: badge.tiers
+        .filter((tier) => steps >= tier.criteria.steps)
+        .map((tier) => ({
+          tier_id: tier.tierId,
+          completed_at: expect.any(Number)
+        })),
+      completed_at: completed ? expect.any(Number) : undefined
     }
   }
 }

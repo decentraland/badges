@@ -3,7 +3,12 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
 
 describe('Walkabout Wanderer badge handler should', () => {
@@ -11,7 +16,14 @@ describe('Walkabout Wanderer badge handler should', () => {
   const testSessionId = 'testSessionid'
 
   const badge = badges.get(BadgeId.WALKABOUT_WANDERER) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.WALKABOUT_WANDERER, testAddress)
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(
+    BadgeId.WALKABOUT_WANDERER,
+    testAddress
+  )
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(
+    BadgeId.WALKABOUT_WANDERER,
+    testAddress
+  )
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -41,7 +53,7 @@ describe('Walkabout Wanderer badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10 }))
   })
 
   it('increase the steps walked by the user and grant the first tier of the badge if the user reaches 10k steps', async () => {
@@ -63,7 +75,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10000 }))
   })
 
   it('increase the steps walked by the user and grant the second tier of the badge if the user reaches 40k steps', async () => {
@@ -85,7 +97,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 40000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 40000 }))
   })
 
   it('increase the steps walked by the user and grant the third tier of the badge if the user reaches 150k steps', async () => {
@@ -107,7 +119,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 150000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 150000 }))
   })
 
   it('increase the steps walked by the user and grant the fourth tier of the badge if the user reaches 600k steps', async () => {
@@ -129,7 +141,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 600000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 600000 }))
   })
 
   it('increase the steps walked by the user and grant the fifth tier of the badge if the user reaches 2.5M steps', async () => {
@@ -151,7 +163,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2500000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2500000 }))
   })
 
   it('increase the steps walked by the user and grant the sixth tier of the badge if the user reaches 10M steps', async () => {
@@ -173,7 +185,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10000010, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10000010, completed: true }))
   })
 
   // Helpers
@@ -216,21 +228,13 @@ describe('Walkabout Wanderer badge handler should', () => {
     }
   }
 
-  function createExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WALKABOUT_WANDERER,
+    return createExpectedUserProgress({
       progress: {
         steps
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })

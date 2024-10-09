@@ -4,12 +4,18 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createEmotionistaObserver } from '../../../../src/logic/badges/emotionista'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Emotionista badge handler should', () => {
   const testAddress = '0xTest'
-  const badge = badges.get(BadgeId.EMOTIONISTA) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.EMOTIONISTA, testAddress)
+
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTIONISTA, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an emote', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -87,7 +93,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the number of emotes purchased and return undefined if the users does not achieve a new tier', async () => {
@@ -108,7 +114,7 @@ describe('Emotionista badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2 }))
   })
 
   it('increase the number of emotes purchased and grant the second tier of the badge if the user bought 10 emotes', async () => {
@@ -132,7 +138,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10 }))
   })
 
   it('increase the number of emotes purchased and grant the third tier of the badge if the user bought 25 emotes', async () => {
@@ -156,7 +162,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 25 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 25 }))
   })
 
   it('increase the number of emotes purchased and grant the fourth tier of the badge if the user bought 50 emotes', async () => {
@@ -180,7 +186,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 50 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 50 }))
   })
 
   it('increase the number of emotes purchased and grant the fifth tier of the badge if the user bought 150 emotes', async () => {
@@ -204,7 +210,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 150 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 150 }))
   })
 
   it('increase the number of emotes purchased, grant the last tier of the badge, and mark it as completed if the user bought 300 emotes', async () => {
@@ -228,7 +234,7 @@ describe('Emotionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 300, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 300, completed: true }))
   })
 
   // Helpers
@@ -281,27 +287,14 @@ describe('Emotionista badge handler should', () => {
     })
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    completed?: boolean
-    transactions_emotes_purchase?: { saleAt: number; transactionHash: string }[]
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, transactions_emotes_purchase } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.EMOTIONISTA,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        transactions_emotes_purchase:
-          transactions_emotes_purchase || expect.any(Array<{ saleAt: number; transactionHash: string }>)
+        transactions_emotes_purchase: expect.any(Array<{ saleAt: number; transactionHash: string }>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })

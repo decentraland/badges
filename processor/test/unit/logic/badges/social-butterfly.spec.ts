@@ -4,15 +4,23 @@ import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, PassportOpenedEvent } from '@dcl/schemas'
 import { createSocialButterflyObserver } from '../../../../src/logic/badges/social-butterfly'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Social Butterfly badge handler should', () => {
   const testAddress = '0xTest'
   const testSessionId = 'testsessionid'
   const receiverAddress = '0xReceiver'
 
-  const badge = badges.get(BadgeId.SOCIAL_BUTTERFLY) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.SOCIAL_BUTTERFLY, testAddress)
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.SOCIAL_BUTTERFLY, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(
+    BadgeId.SOCIAL_BUTTERFLY,
+    testAddress
+  )
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -75,7 +83,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the profile visits and grant the second tier of the badge if the user visit a profile emotes for more than (or exactly) 50 times', async () => {
@@ -98,7 +106,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 50 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 50 }))
   })
 
   it('increase the profile visits and grant the third tier of the badge if the user visit a profile emotes for more than (or exactly) 100 times', async () => {
@@ -121,7 +129,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 100 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 100 }))
   })
 
   it('increase the profile visits and grant the fourth tier of the badge if the user visit a profile emotes for more than (or exactly) 250 times', async () => {
@@ -144,7 +152,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 250 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 250 }))
   })
 
   it('increase the profile visits and grant the fifth tier of the badge if the user visit a profile emotes for more than (or exactly) 500 times', async () => {
@@ -167,7 +175,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 500 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 500 }))
   })
 
   it('increase the profile visits and grant the sixth tier of the badge if the user visit a profile emotes for more than (or exactly) 1000 times', async () => {
@@ -190,7 +198,7 @@ describe('Social Butterfly badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1000, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1000, completed: true }))
   })
 
   // Helpers
@@ -230,26 +238,14 @@ describe('Social Butterfly badge handler should', () => {
     }
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    profiles_visited?: string[]
-    completed?: boolean
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, profiles_visited, completed } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.SOCIAL_BUTTERFLY,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        profiles_visited: profiles_visited || expect.any(Array<string>)
+        profiles_visited: expect.any(Array<string>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })

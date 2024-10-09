@@ -4,13 +4,18 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createEmoteCreatorObserver } from '../../../../src/logic/badges/emote-creator'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import {
+  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Emote Creator badge handler should', () => {
   const testAddress = '0xTest'
 
-  const badge = badges.get(BadgeId.EMOTE_CREATOR) as Badge
-  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.EMOTE_CREATOR, testAddress)
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTE_CREATOR, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTE_CREATOR, testAddress)
 
   it('do nothing if the item published is not an emote', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -81,7 +86,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the number of emotes published and return undefined if the user does not achieve a new tier', async () => {
@@ -102,7 +107,7 @@ describe('Emote Creator badge handler should', () => {
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2 }))
   })
 
   it('increase the number of emotes published and grant the second tier of the badge if the user published 5 emotes', async () => {
@@ -126,7 +131,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 5 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 5 }))
   })
 
   it('increase the number of emotes published and grant the third tier of the badge if the user published 10 emotes', async () => {
@@ -150,7 +155,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10 }))
   })
 
   it('increase the number of emotes published and grant the fourth tier of the badge if the user published 20 emotes', async () => {
@@ -174,7 +179,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 20 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 20 }))
   })
 
   it('increase the number of emotes published and grant the fifth tier of the badge if the user published 50 emotes', async () => {
@@ -198,7 +203,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 50 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 50 }))
   })
 
   it('increase the number of emotes published, grant the last tier of the badge, and mark it as completed if the user published 100 emotes', async () => {
@@ -222,7 +227,7 @@ describe('Emote Creator badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 100, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 100, completed: true }))
   })
 
   // Helpers
@@ -270,26 +275,14 @@ describe('Emote Creator badge handler should', () => {
     })
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    completed?: boolean
-    published_emotes?: { itemId: string; createdAt: number }[]
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, published_emotes } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.EMOTE_CREATOR,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        published_emotes: published_emotes || expect.any(Array<{ itemId: string; createdAt: number }>)
+        published_emotes: expect.any(Array<{ itemId: string; createdAt: number }>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
+      completed
+    })
   }
 })
