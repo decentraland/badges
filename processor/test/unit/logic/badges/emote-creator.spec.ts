@@ -4,7 +4,7 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createEmoteCreatorObserver } from '../../../../src/logic/badges/emote-creator'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Emote Creator badge handler should', () => {
   const testAddress = '0xTest'
@@ -334,13 +334,6 @@ describe('Emote Creator badge handler should', () => {
           completed_at: expect.any(Number)
         })),
       completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
     }
   }
 })

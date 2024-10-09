@@ -4,7 +4,7 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createFashionistaObserver } from '../../../../src/logic/badges/fashionista'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Fashionista badge handler should', () => {
   const testAddress = '0xTest'
@@ -344,13 +344,6 @@ describe('Fashionista badge handler should', () => {
           completed_at: expect.any(Number)
         })),
       completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
     }
   }
 })

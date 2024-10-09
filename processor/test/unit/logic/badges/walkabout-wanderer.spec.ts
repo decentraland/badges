@@ -3,7 +3,7 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
 
 describe('Walkabout Wanderer badge handler should', () => {
@@ -234,13 +234,6 @@ describe('Walkabout Wanderer badge handler should', () => {
           completed_at: expect.any(Number)
         })),
       completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
     }
   }
 })

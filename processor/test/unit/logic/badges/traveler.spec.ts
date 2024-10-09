@@ -4,7 +4,7 @@ import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../../src/logic/badges/traveler'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -22,13 +22,15 @@ describe('Traveler badge handler should', () => {
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
     const mockUserProgress = undefined
-    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
-      metadata: {
-        display: {
-          title: testSceneTitles.SCENE_TITLE_A
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
+      {
+        metadata: {
+          display: {
+            title: testSceneTitles.SCENE_TITLE_A
+          }
         }
       }
-    }])
+    ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -59,13 +61,15 @@ describe('Traveler badge handler should', () => {
         }
       ]
     }
-    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
-      metadata: {
-        display: {
-          title: testSceneTitles.SCENE_TITLE_A
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
+      {
+        metadata: {
+          display: {
+            title: testSceneTitles.SCENE_TITLE_A
+          }
         }
       }
-    }])
+    ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -88,13 +92,15 @@ describe('Traveler badge handler should', () => {
         on: timestamps.twoMinutesBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
-      metadata: {
-        display: {
-          title: testSceneTitles.SCENE_TITLE_A
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
+      {
+        metadata: {
+          display: {
+            title: testSceneTitles.SCENE_TITLE_A
+          }
         }
       }
-    }])
+    ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -140,13 +146,15 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
-      metadata: {
-        display: {
-          title: testSceneTitles.SCENE_TITLE_A
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
+      {
+        metadata: {
+          display: {
+            title: testSceneTitles.SCENE_TITLE_A
+          }
         }
       }
-    }])
+    ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -206,13 +214,15 @@ describe('Traveler badge handler should', () => {
         on: timestamps.tenSecondsBefore(event.timestamp)
       }
     ])
-    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([{
-      metadata: {
-        display: {
-          title: testSceneTitles.SCENE_TITLE_A
+    badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
+      {
+        metadata: {
+          display: {
+            title: testSceneTitles.SCENE_TITLE_A
+          }
         }
       }
-    }])
+    ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -291,13 +301,6 @@ describe('Traveler badge handler should', () => {
         userAddress: testAddress,
         realm: 'main'
       }
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
     }
   }
 
