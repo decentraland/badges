@@ -4,11 +4,12 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createEmotionistaObserver } from '../../../../src/logic/badges/emotionista'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Emotionista badge handler should', () => {
   const testAddress = '0xTest'
   const badge = badges.get(BadgeId.EMOTIONISTA) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.EMOTIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an emote', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -28,9 +29,11 @@ describe('Emotionista badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemSoldEvent = createItemSoldEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 300
+      progress: {
+        steps: 300
+      }
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -44,14 +47,16 @@ describe('Emotionista badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemSoldEvent = createItemSoldEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      transactions_emotes_purchase: [
-        {
-          transactionHash: '0xTxHash',
-          saleAt: timestamps.now()
-        }
-      ]
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 1,
+        transactions_emotes_purchase: [
+          {
+            transactionHash: '0xTxHash',
+            saleAt: timestamps.now()
+          }
+        ]
+      }
     })
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
@@ -97,13 +102,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      transactions_emotes_purchase: Array.from({ length: 1 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(1, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -124,13 +123,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 9,
-      transactions_emotes_purchase: Array.from({ length: 9 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(9, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -154,13 +147,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 24,
-      transactions_emotes_purchase: Array.from({ length: 24 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(24, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -184,13 +171,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 49,
-      transactions_emotes_purchase: Array.from({ length: 49 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(49, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -214,13 +195,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 149,
-      transactions_emotes_purchase: Array.from({ length: 149 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(149, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -244,13 +219,7 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 299,
-      transactions_emotes_purchase: Array.from({ length: 299 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(299, timestamp)
 
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -300,27 +269,16 @@ describe('Emotionista badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: {
-    steps: number
-    transactions_emotes_purchase?: { saleAt: number; transactionHash: string }[]
-    completed_at?: number
-  }) {
-    const { steps, transactions_emotes_purchase = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.EMOTIONISTA,
+  function getMockedUserProgressBySteps(steps: number, saleAt?: number) {
+    return createMockedUserProgress({
       progress: {
         steps,
-        transactions_emotes_purchase
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
+        transactions_emotes_purchase: Array.from({ length: steps }, (_, i) => ({
+          transactionHash: `0xTxHash${i}`,
+          saleAt: (saleAt || timestamps.now()) + i
+        }))
+      }
+    })
   }
 
   function createExpectedUserProgress(progress: {

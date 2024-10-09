@@ -4,12 +4,13 @@ import { AppComponents } from '../../../../src/types'
 import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createWearableDesignerObserver } from '../../../../src/logic/badges/wearable-designer'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Wearable Designer badge handler should', () => {
   const testAddress = '0xTest'
 
   const badge = badges.get(BadgeId.WEARABLE_DESIGNER) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.WEARABLE_DESIGNER, testAddress)
 
   it('do nothing if the item published is not a wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -29,9 +30,11 @@ describe('Wearable Designer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemPublishedEvent = createItemPublishedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 100
+      progress: {
+        steps: 100
+      }
     })
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
@@ -45,9 +48,11 @@ describe('Wearable Designer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemPublishedEvent = createItemPublishedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      published_wearables: [{ itemId: 'anUrn', createdAt: timestamps.now() }]
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 1,
+        published_wearables: [{ itemId: 'anUrn', createdAt: timestamps.now() }]
+      }
     })
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
@@ -93,13 +98,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      published_wearables: Array.from({ length: 1 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(1, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -120,13 +119,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 4,
-      published_wearables: Array.from({ length: 4 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(4, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -150,13 +143,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 24,
-      published_wearables: Array.from({ length: 24 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(24, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -180,13 +167,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 49,
-      published_wearables: Array.from({ length: 49 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(49, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -210,13 +191,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 174,
-      published_wearables: Array.from({ length: 174 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(174, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -240,13 +215,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 349,
-      published_wearables: Array.from({ length: 349 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(349, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -291,27 +260,16 @@ describe('Wearable Designer badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: {
-    steps: number
-    published_wearables?: { itemId: string; createdAt: number }[]
-    completed_at?: number
-  }) {
-    const { steps, published_wearables = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WEARABLE_DESIGNER,
+  function getMockedUserProgressBySteps(steps: number, createdAt?: number) {
+    return createMockedUserProgress({
       progress: {
         steps,
-        published_wearables
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
+        published_wearables: Array.from({ length: steps }, (_, i) => ({
+          itemId: `itemId-${i}`,
+          createdAt: (createdAt || timestamps.oneMinuteBefore(timestamps.now())) + i
+        }))
+      }
+    })
   }
 
   function createExpectedUserProgress(progress: {

@@ -4,22 +4,26 @@ import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, UsedEmoteEvent } from '@dcl/schemas'
 import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../../src/logic/badges/moves-master'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Moves Master badge handler should', () => {
   const testAddress = '0xTest'
   const testSessionId = 'testsessionid'
 
   const badge = badges.get(BadgeId.MOVES_MASTER) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.MOVES_MASTER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 500000,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+      progress: {
+        steps: 500000,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -37,9 +41,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamp
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 5,
-      last_used_emote_timestamp: timestamp
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 5,
+        last_used_emote_timestamp: timestamp,
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -58,9 +65,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.twoMinutesBefore(timestamp)
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 5,
-      last_used_emote_timestamp: timestamp
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 5,
+        last_used_emote_timestamp: timestamp,
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -89,9 +99,12 @@ describe('Moves Master badge handler should', () => {
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
     // Mock user progress where the last timestamp equals the event timestamp
-    const mockUserProgress = getMockedUserProgress({
-      steps: 5,
-      last_used_emote_timestamp: timestamp
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 5,
+        last_used_emote_timestamp: timestamp,
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -108,10 +121,12 @@ describe('Moves Master badge handler should', () => {
 
     // Mock user progress with exactly 1440 timestamps (one day of timestamps, one per minute)
     const lastDayTimestamps = Array.from({ length: MINUTES_IN_DAY }, (_, i) => timestamp - i * 60000)
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1440,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamp),
-      last_day_used_emotes_timestamps: lastDayTimestamps
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 1440,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamp),
+        last_day_used_emotes_timestamps: lastDayTimestamps
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -130,10 +145,12 @@ describe('Moves Master badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: UsedEmoteEvent = createUsedEmoteEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 5,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
-      last_day_used_emotes_timestamps: []
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 5,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -163,9 +180,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 99,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 99,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -185,9 +205,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 999,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -207,9 +230,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 4999,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 4999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -229,9 +255,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 9999,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 9999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -251,9 +280,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 99999,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 99999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -273,9 +305,12 @@ describe('Moves Master badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 499999,
-      last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now())
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 499999,
+        last_used_emote_timestamp: timestamps.twoMinutesBefore(timestamps.now()),
+        last_day_used_emotes_timestamps: []
+      }
     })
 
     const handler = createMovesMasterObserver({ db, logs, badgeStorage })
@@ -328,31 +363,6 @@ describe('Moves Master badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: {
-    steps: number
-    last_used_emote_timestamp: number
-    last_day_used_emotes_timestamps?: number[]
-    completed_at?: number
-  }) {
-    const { steps, last_used_emote_timestamp, last_day_used_emotes_timestamps = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.MOVES_MASTER,
-      progress: {
-        steps,
-        last_used_emote_timestamp,
-        last_day_used_emotes_timestamps
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
-  }
-
   function createExpectedUserProgress(progress: {
     steps: number
     completed?: boolean
@@ -375,13 +385,6 @@ describe('Moves Master badge handler should', () => {
           completed_at: expect.any(Number)
         })),
       completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
     }
   }
 })

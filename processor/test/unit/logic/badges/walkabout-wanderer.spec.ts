@@ -3,7 +3,7 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
 
 describe('Walkabout Wanderer badge handler should', () => {
@@ -11,14 +11,17 @@ describe('Walkabout Wanderer badge handler should', () => {
   const testSessionId = 'testSessionid'
 
   const badge = badges.get(BadgeId.WALKABOUT_WANDERER) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.WALKABOUT_WANDERER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 10000000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 10000000
+      },
+      completed_at: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -47,8 +50,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 9500
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 9500
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -67,8 +72,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 25000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 15000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 15000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -87,8 +94,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 1
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 149999
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 149999
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -107,8 +116,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 300000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 300000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 300000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -127,8 +138,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 2000000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 2000000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -147,8 +160,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 2500010
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 7500000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 7500000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -198,24 +213,6 @@ describe('Walkabout Wanderer badge handler should', () => {
         userAddress: testAddress,
         realm: 'main'
       }
-    }
-  }
-
-  function getMockedUserProgress(progress: { steps: number; completed_at?: number }) {
-    const { steps, completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WALKABOUT_WANDERER,
-      progress: {
-        steps
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
     }
   }
 

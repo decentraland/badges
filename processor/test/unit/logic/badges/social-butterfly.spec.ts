@@ -4,7 +4,7 @@ import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, PassportOpenedEvent } from '@dcl/schemas'
 import { createSocialButterflyObserver } from '../../../../src/logic/badges/social-butterfly'
 import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import { getMockedUserProgressForBadgeBuilder, mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 
 describe('Social Butterfly badge handler should', () => {
   const testAddress = '0xTest'
@@ -12,14 +12,17 @@ describe('Social Butterfly badge handler should', () => {
   const receiverAddress = '0xReceiver'
 
   const badge = badges.get(BadgeId.SOCIAL_BUTTERFLY) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeBuilder(BadgeId.SOCIAL_BUTTERFLY, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: PassportOpenedEvent = createPassportOpenedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 1000
+      progress: {
+        steps: 1000
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -45,9 +48,11 @@ describe('Social Butterfly badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: PassportOpenedEvent = createPassportOpenedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 5,
-      profiles_visited: [receiverAddress]
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 5,
+        profiles_visited: [receiverAddress]
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -80,8 +85,10 @@ describe('Social Butterfly badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 49
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 49
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -101,8 +108,10 @@ describe('Social Butterfly badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 99
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 99
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -122,8 +131,10 @@ describe('Social Butterfly badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 249
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 249
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -143,8 +154,10 @@ describe('Social Butterfly badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 499
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 499
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -164,8 +177,10 @@ describe('Social Butterfly badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 999
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 999
+      }
     })
 
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
@@ -212,25 +227,6 @@ describe('Social Butterfly badge handler should', () => {
         userAddress: testAddress,
         realm: 'main'
       }
-    }
-  }
-
-  function getMockedUserProgress(progress: { steps: number; profiles_visited?: string[]; completed_at?: number }) {
-    const { steps, profiles_visited = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.SOCIAL_BUTTERFLY,
-      progress: {
-        steps,
-        profiles_visited
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
     }
   }
 
