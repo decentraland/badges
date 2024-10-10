@@ -5,7 +5,4 @@ describe('Badges definitions', () => {
     const badgeIds = Object.values(BadgeId)
     expect(badgeIds.length).toBe(badges.size)
   })
-
-  // TODO
-  it.todo('should match the expected events for each badge')
 })
