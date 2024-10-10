@@ -80,13 +80,23 @@ export function tryToGetCompletedAt<T, TK extends KeyOfWithValue<T, number>>(
     !userProgress.achieved_tiers ||
     userProgress.achieved_tiers.length === 0 ||
     !badge.tiers ||
-    badge.tiers?.length === 0
+    badge.tiers?.length === 0 ||
+    badge.tiers.length !== userProgress.achieved_tiers.length
   ) {
     return undefined
   }
 
   const [lastTier] = badge.tiers.slice(-1)
-  const { [timestampKey]: lastTierAchievedAt } = sortedItems[lastTier?.criteria.steps - 1]
+  const itemThatAchievedLastTier = sortedItems[lastTier.criteria.steps - 1]
+
+  // Should always be found, because we are using all registries from backfill and database
+  if (!itemThatAchievedLastTier) {
+    throw new Error(
+      `Could not find the item related to the last tier ${lastTier?.tierId}. Stopping the backfill process...`
+    )
+  }
+
+  const { [timestampKey]: lastTierAchievedAt } = itemThatAchievedLastTier
 
   return getCompletedAt(userProgress, lastTierAchievedAt as number)
 }

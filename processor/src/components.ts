@@ -53,7 +53,7 @@ function reportInitialMetrics({ metrics }: Pick<AppComponents, 'metrics'>): void
 
 // Initialize all the components of the app
 export async function initComponents(): Promise<AppComponents> {
-  const config = await createDotEnvConfigComponent({ path: ['.env.default', '.env.local', '.env'] })
+  const config = await createDotEnvConfigComponent({ path: ['.env.test', '.env.default', '.env'] })
   const logs = await createLogComponent({ config })
 
   const logger = logs.getLogger('components')
