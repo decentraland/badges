@@ -12,11 +12,9 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 500 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ heightReached: 500, completed: true })
     const expectedResult = createExpectedResult(handler.badge)
@@ -30,11 +28,9 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 501 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ heightReached: 501, completed: true })
     const expectedResult = createExpectedResult(handler.badge)
@@ -48,11 +44,9 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 499 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)

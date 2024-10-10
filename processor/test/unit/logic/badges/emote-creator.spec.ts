@@ -75,10 +75,8 @@ describe('Emote Creator badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = undefined
-
     const handler = createEmoteCreatorObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),

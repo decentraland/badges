@@ -82,10 +82,8 @@ describe('Emotionista badge handler should', () => {
       category: 'emote'
     })
 
-    const mockUserProgress = undefined
-
     const handler = createEmotionistaObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),

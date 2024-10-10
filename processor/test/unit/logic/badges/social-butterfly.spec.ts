@@ -72,10 +72,8 @@ describe('Social Butterfly badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: PassportOpenedEvent = createPassportOpenedEvent()
 
-    const mockUserProgress = undefined
-
     const handler = createSocialButterflyObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),

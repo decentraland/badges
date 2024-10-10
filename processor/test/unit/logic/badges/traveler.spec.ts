@@ -23,7 +23,6 @@ describe('Traveler badge handler should', () => {
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
 
     memoryStorage.get = jest.fn().mockReturnValue(undefined)
-    const mockUserProgress = undefined
     badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([
       {
         metadata: {
@@ -35,7 +34,7 @@ describe('Traveler badge handler should', () => {
     ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
     expect(memoryStorage.get).toHaveBeenCalledWith(eventCacheKey)
@@ -86,8 +85,6 @@ describe('Traveler badge handler should', () => {
     const { db, logs, badgeContext, memoryStorage, badgeStorage } = await getMockedComponents()
     const event: MoveToParcelEvent = createMovementEvent()
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
-
-    const mockUserProgress = undefined
     memoryStorage.get = jest.fn().mockReturnValue([
       {
         sceneTitle: testSceneTitles.SCENE_TITLE_A,
@@ -105,7 +102,7 @@ describe('Traveler badge handler should', () => {
     ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
@@ -136,8 +133,6 @@ describe('Traveler badge handler should', () => {
       timestamp: timestamps.thirtySecondsInFuture(timestamps.now())
     })
     const eventCacheKey = `${event.metadata.userAddress}-${event.metadata.sessionId}-${event.subType}`
-
-    const mockUserProgress = undefined
     memoryStorage.get = jest.fn().mockReturnValue([
       {
         sceneTitle: testSceneTitles.SCENE_TITLE_A,
@@ -159,7 +154,7 @@ describe('Traveler badge handler should', () => {
     ])
 
     const handler = createTravelerObserver({ db, logs, badgeContext, memoryStorage, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),

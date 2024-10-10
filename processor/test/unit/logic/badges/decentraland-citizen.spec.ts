@@ -34,11 +34,9 @@ describe('Decentraland Citizen badge handler should', () => {
       }
     }
 
-    const mockUserProgress = undefined
-
     const handler = createDecentralandCitizenObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,

@@ -45,10 +45,8 @@ describe('Walkabout Wanderer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent({ stepCount: 10 })
 
-    const mockUserProgress = undefined
-
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
     expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10 }))

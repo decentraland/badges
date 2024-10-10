@@ -81,10 +81,8 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = undefined
-
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),

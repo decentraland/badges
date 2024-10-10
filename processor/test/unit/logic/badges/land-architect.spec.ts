@@ -11,11 +11,9 @@ describe('LAND Architect badge handler should', () => {
 
     const event = createSceneDeployedEvent()
 
-    const mockUserProgress = undefined
-
     const handler = createLandArchitectObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ completed: true })
     const expectedResult = createExpectedResult(handler.badge)
