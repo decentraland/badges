@@ -2,7 +2,7 @@ import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createEmotionistaObserver } from '../../../../src/logic/badges/emotionista'
 import { BadgeId, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -13,7 +13,7 @@ describe('Emotionista badge handler should', () => {
   const testAddress = '0xTest'
 
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTIONISTA, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTIONISTA, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.EMOTIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an emote', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

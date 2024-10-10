@@ -1,7 +1,7 @@
 import { CatalystDeploymentEvent, Events } from '@dcl/schemas'
 import { Badge, BadgeId } from '@badges/common'
 import { createLandArchitectObserver } from '../../../../src/logic/badges/land-architect'
-import { getMockedComponents } from '../../../utils'
+import { createExpectedResult, getMockedComponents } from '../../../utils'
 
 describe('LAND Architect badge handler should', () => {
   const testAddress = '0xTest'
@@ -16,7 +16,7 @@ describe('LAND Architect badge handler should', () => {
     const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ completed: true })
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -64,13 +64,6 @@ describe('LAND Architect badge handler should', () => {
       progress: {
         steps: completed ? 1 : 0
       }
-    }
-  }
-
-  function createExpectedResult(badgeGranted: Badge) {
-    return {
-      badgeGranted,
-      userAddress: testAddress
     }
   }
 })

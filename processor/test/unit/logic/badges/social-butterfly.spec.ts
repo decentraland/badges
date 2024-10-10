@@ -2,7 +2,7 @@ import { AuthLinkType, Events, PassportOpenedEvent } from '@dcl/schemas'
 import { createSocialButterflyObserver } from '../../../../src/logic/badges/social-butterfly'
 import { BadgeId, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -15,10 +15,7 @@ describe('Social Butterfly badge handler should', () => {
   const receiverAddress = '0xReceiver'
 
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.SOCIAL_BUTTERFLY, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(
-    BadgeId.SOCIAL_BUTTERFLY,
-    testAddress
-  )
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.SOCIAL_BUTTERFLY, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

@@ -6,6 +6,7 @@ import { createDbMock } from './mocks/db-mock'
 import { createMetricsMock } from './mocks/metrics-mock'
 import { AppComponents } from '../src/types'
 import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
+import { EthAddress, Rarity } from '@dcl/schemas'
 
 export const timestamps = {
   now: () => Date.now(),
@@ -53,7 +54,7 @@ export function getMockedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId, 
   }
 }
 
-export function getExpectedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId, userAddress: string) {
+export function getExpectedUserProgressForBadgeBuilder(badgeId: BadgeId, userAddress: string) {
   const badge = badges.get(badgeId) as Badge
 
   return function (userProgress: UserProgress & { completed?: boolean }): UserBadge {
@@ -61,19 +62,22 @@ export function getExpectedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId
       progress: { steps, ...progress },
       completed
     } = userProgress
+    const withTiers = !!badge.tiers && badge.tiers.length > 0
     return {
       user_address: userAddress,
       badge_id: badgeId,
       progress: {
-        steps,
+        steps: withTiers ? steps : completed ? 1 : 0,
         ...progress
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
+      achieved_tiers: withTiers
+        ? badge.tiers
+            .filter((tier) => steps >= tier.criteria.steps)
+            .map((tier) => ({
+              tier_id: tier.tierId,
+              completed_at: expect.any(Number)
+            }))
+        : undefined,
       completed_at: completed ? expect.any(Number) : undefined
     }
   }
@@ -89,5 +93,23 @@ export async function getMockedComponents(components: Partial<AppComponents> = {
     badgeStorage: await createBadgeStorageMock(),
     metrics: createMetricsMock(),
     ...components
+  }
+}
+
+export function createRandomWearableUrns(length: number, wearableBaseUrn?: string): string[] {
+  wearableBaseUrn ||= 'urn:decentraland:mumbai:collections-v2:0xaa40af0b4a18e0555ff3c87beab1d5b591947abe:'
+  return Array.from({ length }, (_, i) => wearableBaseUrn + i + ':1')
+}
+
+export function mapToWearablesWithRarity(wearablesUrns: string[], rarity: Rarity) {
+  return wearablesUrns.map((urn) => ({
+    metadata: { rarity, id: urn }
+  }))
+}
+
+export function createExpectedResult(badgeGranted: Badge, userAddress: EthAddress) {
+  return {
+    badgeGranted,
+    userAddress
   }
 }

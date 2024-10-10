@@ -2,7 +2,7 @@ import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createEmoteCreatorObserver } from '../../../../src/logic/badges/emote-creator'
 import { BadgeId, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -13,7 +13,7 @@ describe('Emote Creator badge handler should', () => {
   const testAddress = '0xTest'
 
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTE_CREATOR, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.EMOTE_CREATOR, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.EMOTE_CREATOR, testAddress)
 
   it('do nothing if the item published is not an emote', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

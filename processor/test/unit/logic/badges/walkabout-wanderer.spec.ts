@@ -1,7 +1,7 @@
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -18,10 +18,7 @@ describe('Walkabout Wanderer badge handler should', () => {
     BadgeId.WALKABOUT_WANDERER,
     testAddress
   )
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(
-    BadgeId.WALKABOUT_WANDERER,
-    testAddress
-  )
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.WALKABOUT_WANDERER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

@@ -1,14 +1,20 @@
 import { Events, CatalystDeploymentEvent, EntityType, Rarity } from '@dcl/schemas'
-import { Badge, BadgeId } from '@badges/common'
+import { BadgeId } from '@badges/common'
 import {
   AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED,
   createExoticEleganceObserver
 } from '../../../../src/logic/badges/exotic-elegance'
-import { getMockedComponents } from '../../../utils'
+import {
+  createExpectedResult,
+  createRandomWearableUrns,
+  getExpectedUserProgressForBadgeBuilder,
+  getMockedComponents,
+  mapToWearablesWithRarity
+} from '../../../utils'
 
 describe('Exotic Elegance Voyager badge handler should', () => {
   const testAddress = '0xTest'
-  const wearableBaseUrn = 'urn:decentraland:mumbai:collections-v2:0xaa40af0b4a18e0555ff3c87beab1d5b591947abe:'
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.EXOTIC_ELEGANCE, testAddress)
 
   it(`grant badge when a user has more than ${AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED} exotic wearables equipped`, async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
@@ -16,14 +22,16 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED + 1)
     const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
 
-    badgeContext.getWearablesWithRarity = jest.fn().mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns))
+    badgeContext.getWearablesWithRarity = jest
+      .fn()
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
 
     const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress(wearablesUrns)
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -35,14 +43,16 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED)
     const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
 
-    badgeContext.getWearablesWithRarity = jest.fn().mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns))
+    badgeContext.getWearablesWithRarity = jest
+      .fn()
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
 
     const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress(wearablesUrns)
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -54,7 +64,9 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED - 1)
     const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
 
-    badgeContext.getWearablesWithRarity = jest.fn().mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns))
+    badgeContext.getWearablesWithRarity = jest
+      .fn()
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
 
     const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
 
@@ -124,32 +136,11 @@ describe('Exotic Elegance Voyager badge handler should', () => {
   }
 
   function getExpectedUserProgress(completedWith?: string[]): any {
-    const completed = !!completedWith && completedWith.length > 0
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.EXOTIC_ELEGANCE,
-      completed_at: completed ? expect.any(Number) : undefined,
+    return createExpectedUserProgress({
       progress: {
-        steps: completed ? 1 : 0,
         completed_with: completedWith
-      }
-    }
-  }
-
-  function createRandomWearableUrns(length: number): string[] {
-    return Array.from({ length }, (_, i) => wearableBaseUrn + i + ':1')
-  }
-
-  function mapToWearablesWithRarity(wearablesUrns: string[]) {
-    return wearablesUrns.map((urn) => ({
-      metadata: { rarity: Rarity.EXOTIC, id: urn }
-    }))
-  }
-
-  function createExpectedResult(badgeGranted: Badge) {
-    return {
-      badgeGranted,
-      userAddress: testAddress
-    }
+      },
+      completed: !!completedWith && completedWith.length > 0
+    })
   }
 })

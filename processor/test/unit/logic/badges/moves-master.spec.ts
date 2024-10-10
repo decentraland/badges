@@ -2,7 +2,7 @@ import { AuthLinkType, Events, UsedEmoteEvent } from '@dcl/schemas'
 import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../../src/logic/badges/moves-master'
 import { BadgeId, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -14,7 +14,7 @@ describe('Moves Master badge handler should', () => {
   const testSessionId = 'testsessionid'
 
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.MOVES_MASTER, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.MOVES_MASTER, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.MOVES_MASTER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

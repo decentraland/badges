@@ -2,7 +2,7 @@ import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createWearableDesignerObserver } from '../../../../src/logic/badges/wearable-designer'
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -14,10 +14,7 @@ describe('Wearable Designer badge handler should', () => {
 
   const badge = badges.get(BadgeId.WEARABLE_DESIGNER) as Badge
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.WEARABLE_DESIGNER, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(
-    BadgeId.WEARABLE_DESIGNER,
-    testAddress
-  )
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.WEARABLE_DESIGNER, testAddress)
 
   it('do nothing if the item published is not a wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()

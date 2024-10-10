@@ -1,7 +1,7 @@
 import { AuthLinkType, Events, VerticalHeightReachedEvent } from '@dcl/schemas'
-import { Badge, BadgeId } from '@badges/common'
+import { BadgeId } from '@badges/common'
 import { createVerticalVoyagerObserver } from '../../../../src/logic/badges/vertical-voyager'
-import { getMockedComponents } from '../../../utils'
+import { createExpectedResult, getMockedComponents } from '../../../utils'
 
 describe('Vertical Voyager badge handler should', () => {
   const testAddress = '0xTest'
@@ -17,7 +17,7 @@ describe('Vertical Voyager badge handler should', () => {
     const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ heightReached: 500, completed: true })
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -33,7 +33,7 @@ describe('Vertical Voyager badge handler should', () => {
     const result = await handler.handle(event)
 
     const expectedUserProgress = getExpectedUserProgress({ heightReached: 501, completed: true })
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -115,13 +115,6 @@ describe('Vertical Voyager badge handler should', () => {
         steps: completed ? 1 : 0,
         height_reached: heightReached
       }
-    }
-  }
-
-  function createExpectedResult(badgeGranted: Badge) {
-    return {
-      badgeGranted,
-      userAddress: testAddress
     }
   }
 })

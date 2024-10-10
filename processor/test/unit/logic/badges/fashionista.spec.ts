@@ -2,7 +2,7 @@ import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createFashionistaObserver } from '../../../../src/logic/badges/fashionista'
 import { BadgeId, UserBadge } from '@badges/common'
 import {
-  getExpectedUserProgressForBadgeWithTiersBuilder,
+  getExpectedUserProgressForBadgeBuilder,
   getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
@@ -13,7 +13,7 @@ describe('Fashionista badge handler should', () => {
   const testAddress = '0xTest'
 
   const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.FASHIONISTA, testAddress)
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeWithTiersBuilder(BadgeId.FASHIONISTA, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.FASHIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
