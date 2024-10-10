@@ -11,6 +11,7 @@ import {
   getMockedComponents,
   mapToWearablesWithRarity
 } from '../../../utils'
+import { createCatalystDeploymentProfileEvent } from '../../../mocks/catalyst-deployment-event-mock'
 
 describe('Exotic Elegance Voyager badge handler should', () => {
   const testAddress = '0xTest'
@@ -20,7 +21,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED + 1)
-    const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
+    const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(wearablesUrns, testAddress)
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
@@ -30,7 +31,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
 
     const result = await handler.handle(event)
 
-    const expectedUserProgress = getExpectedUserProgress(wearablesUrns)
+    const expectedUserProgress = createExpectedUserProgress({ progress: { completed_with: wearablesUrns } })
     const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
@@ -41,7 +42,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED)
-    const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
+    const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(wearablesUrns, testAddress)
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
@@ -51,7 +52,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
 
     const result = await handler.handle(event)
 
-    const expectedUserProgress = getExpectedUserProgress(wearablesUrns)
+    const expectedUserProgress = createExpectedUserProgress({ progress: { completed_with: wearablesUrns } })
     const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
@@ -62,7 +63,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED - 1)
-    const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
+    const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(wearablesUrns, testAddress)
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
@@ -80,7 +81,7 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
     const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED)
-    const event: CatalystDeploymentEvent = createCatalystDeploymentEvent(wearablesUrns)
+    const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(wearablesUrns, testAddress)
 
     const mockUserProgress = {
       user_address: testAddress,
@@ -99,48 +100,4 @@ describe('Exotic Elegance Voyager badge handler should', () => {
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
   })
-
-  function createCatalystDeploymentEvent(wearables: string[]): CatalystDeploymentEvent {
-    return {
-      type: Events.Type.CATALYST_DEPLOYMENT,
-      subType: Events.SubType.CatalystDeployment.PROFILE,
-      key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
-      timestamp: 1708380838534,
-      entity: {
-        version: 'v3',
-        id: 'bafkreid7ohlfwnary6k73rp7x7xa5uum53p6qchmxlcf3nbvkw5inss5li',
-        type: EntityType.PROFILE,
-        pointers: [testAddress],
-        timestamp: 1708380838534,
-        content: [],
-        metadata: {
-          avatars: [
-            {
-              hasClaimedName: false,
-              description: 'A second description',
-              tutorialStep: 256,
-              name: 'PaleAleTest',
-              avatar: {
-                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-                wearables
-              },
-              ethAddress: testAddress,
-              version: 36,
-              userId: testAddress,
-              hasConnectedWeb3: true
-            }
-          ]
-        }
-      }
-    }
-  }
-
-  function getExpectedUserProgress(completedWith?: string[]): any {
-    return createExpectedUserProgress({
-      progress: {
-        completed_with: completedWith
-      },
-      completed: !!completedWith && completedWith.length > 0
-    })
-  }
 })

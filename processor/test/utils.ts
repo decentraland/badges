@@ -59,9 +59,9 @@ export function getExpectedUserProgressForBadgeBuilder(badgeId: BadgeId, userAdd
 
   return function (userProgress: UserProgress & { completed?: boolean }): UserBadge {
     const {
-      progress: { steps, ...progress },
-      completed
+      progress: { steps, ...progress }
     } = userProgress
+    const completed = userProgress.completed || (!!progress.completed_with && progress.completed_with.length > 0)
     const withTiers = !!badge.tiers && badge.tiers.length > 0
     return {
       user_address: userAddress,
