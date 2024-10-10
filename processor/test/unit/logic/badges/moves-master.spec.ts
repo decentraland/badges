@@ -1,16 +1,13 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, UsedEmoteEvent } from '@dcl/schemas'
 import { createMovesMasterObserver, MINUTES_IN_DAY } from '../../../../src/logic/badges/moves-master'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
+import { BadgeId, UserBadge } from '@badges/common'
 import {
   getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
   timestamps
 } from '../../../utils'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Moves Master badge handler should', () => {
   const testAddress = '0xTest'
@@ -330,14 +327,6 @@ describe('Moves Master badge handler should', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
-
   function createUsedEmoteEvent(
     options: { sessionId: string; timestamp: number } = { sessionId: testSessionId, timestamp: Date.now() }
   ): UsedEmoteEvent {

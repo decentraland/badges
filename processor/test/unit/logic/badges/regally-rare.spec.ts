@@ -1,24 +1,11 @@
-import { BadgeId, createBadgeStorage, UserBadge } from '@badges/common'
-import { AppComponents } from '../../../../src/types'
-import { createDbMock } from '../../../mocks/db-mock'
+import { BadgeId, UserBadge } from '@badges/common'
 import { CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
 import { createRegallyRareObserver } from '../../../../src/logic/badges/regally-rare'
-import { createLogComponent } from '@well-known-components/logger'
-import { createBadgeContextMock } from '../../../mocks/badge-context-mock'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
+import { getMockedComponents } from '../../../utils'
 
 describe('Regally Rare badge handler should', () => {
   const testAddress = '0xTest'
   const wearableBaseUrn = 'urn:decentraland:mumbai:collections-v2:0xaa40af0b4a18e0555ff3c87beab1d5b591947abe:'
-
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      badgeContext: createBadgeContextMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
 
   it('grant badge when a Profile deployment contains at least three rare wearables', async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()

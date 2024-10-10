@@ -1,10 +1,7 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents } from '../../../../src/types'
-import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, VerticalHeightReachedEvent } from '@dcl/schemas'
-import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
+import { Badge, BadgeId } from '@badges/common'
 import { createVerticalVoyagerObserver } from '../../../../src/logic/badges/vertical-voyager'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
+import { getMockedComponents } from '../../../utils'
 
 describe('Vertical Voyager badge handler should', () => {
   const testAddress = '0xTest'
@@ -83,14 +80,6 @@ describe('Vertical Voyager badge handler should', () => {
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
   })
-
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
 
   function createVerticalHeightReachedEvent(
     metadata?: Partial<VerticalHeightReachedEvent['metadata']>

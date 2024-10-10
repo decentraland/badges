@@ -1,9 +1,7 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents, ParsingEventError } from '../../../src/types'
+import { ParsingEventError } from '../../../src/types'
 import { createEventParser, SubType } from '../../../src/adapters/event-parser'
 import { CatalystDeploymentEvent, Events } from '@dcl/schemas'
-import * as CatalystClient from 'dcl-catalyst-client'
-import { createBadgeContextMock } from '../../mocks/badge-context-mock'
+import { getMockedComponents as getDefaultMockedComponents } from '../../utils'
 
 jest.mock('dcl-catalyst-client')
 
@@ -138,20 +136,14 @@ describe('Event Parser', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'config' | 'logs' | 'badgeContext'>> {
-    return {
+  async function getMockedComponents() {
+    return getDefaultMockedComponents({
       config: {
         requireString: jest.fn(),
         getString: jest.fn(),
         getNumber: jest.fn(),
         requireNumber: jest.fn()
-      },
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeContext: createBadgeContextMock({
-        getEntityById: jest.fn().mockResolvedValue({} as any),
-        getEntitiesByPointers: jest.fn().mockResolvedValue([] as any),
-        getWearablesWithRarity: jest.fn().mockResolvedValue([] as any)
-      })
-    }
+      }
+    })
   }
 })

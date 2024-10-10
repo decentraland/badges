@@ -1,16 +1,13 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createFashionistaObserver } from '../../../../src/logic/badges/fashionista'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
+import { BadgeId, UserBadge } from '@badges/common'
 import {
   getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
   timestamps
 } from '../../../utils'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Fashionista badge handler should', () => {
   const testAddress = '0xTest'
@@ -237,14 +234,6 @@ describe('Fashionista badge handler should', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
-
   function createItemSoldEvent(
     options: { txHash?: string; category?: string; timestamp: number } = {
       txHash: '0xTxHash',

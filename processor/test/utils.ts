@@ -1,4 +1,11 @@
 import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import { createLogComponent } from '@well-known-components/logger'
+import { createBadgeContextMock } from './mocks/badge-context-mock'
+import { createBadgeStorageMock } from './mocks/badge-storage-mock'
+import { createDbMock } from './mocks/db-mock'
+import { createMetricsMock } from './mocks/metrics-mock'
+import { AppComponents } from '../src/types'
+import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
 
 export const timestamps = {
   now: () => Date.now(),
@@ -69,5 +76,18 @@ export function getExpectedUserProgressForBadgeWithTiersBuilder(badgeId: BadgeId
         })),
       completed_at: completed ? expect.any(Number) : undefined
     }
+  }
+}
+
+export async function getMockedComponents(components: Partial<AppComponents> = {}) {
+  const config = await createDotEnvConfigComponent({ path: ['.env.test'] })
+  return {
+    db: createDbMock(),
+    config,
+    logs: await createLogComponent({ config }),
+    badgeContext: createBadgeContextMock(),
+    badgeStorage: await createBadgeStorageMock(),
+    metrics: createMetricsMock(),
+    ...components
   }
 }

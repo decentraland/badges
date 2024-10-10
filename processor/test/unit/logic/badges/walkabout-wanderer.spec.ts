@@ -1,16 +1,13 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
+import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
 import {
   getExpectedUserProgressForBadgeWithTiersBuilder,
+  getMockedComponents,
   getMockedUserProgressForBadgeWithTiersBuilder,
   mapBadgeToHaveTierNth,
   timestamps
 } from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Walkabout Wanderer badge handler should', () => {
   const testAddress = '0xTest'
@@ -190,14 +187,6 @@ describe('Walkabout Wanderer badge handler should', () => {
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
-
   function createWalkedDistanceEvent(
     options: { sessionId?: string; timestamp?: number; stepCount?: number } = {
       sessionId: testSessionId,

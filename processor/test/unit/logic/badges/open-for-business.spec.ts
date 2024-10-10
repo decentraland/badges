@@ -1,27 +1,10 @@
-import { Badge, BadgeId, createBadgeStorage, UserBadge } from '@badges/common'
+import { BadgeId, UserBadge } from '@badges/common'
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EntityType, Events } from '@dcl/schemas'
-import { createDbMock } from '../../../mocks/db-mock'
 import { createOpenForBusinessObserver } from '../../../../src/logic/badges/open-for-business'
-import { AppComponents } from '../../../../src/types'
-import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
+import { getMockedComponents } from '../../../utils'
 
 describe('Open for Business badge handler should', () => {
   const testAddress = '0xTest'
-
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: {
-        getLogger: jest.fn().mockReturnValue({
-          info: jest.fn(),
-          debug: jest.fn(),
-          error: jest.fn(),
-          warn: jest.fn()
-        })
-      },
-      badgeStorage: await createBadgeStorageMock()
-    }
-  }
 
   it('update userProgress correctly when a CatalystDeploymentEvent is received', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
