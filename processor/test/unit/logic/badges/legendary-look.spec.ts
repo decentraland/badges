@@ -1,9 +1,9 @@
 import { CatalystDeploymentEvent, Rarity } from '@dcl/schemas'
 import { BadgeId } from '@badges/common'
 import {
-  AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED,
-  createExoticEleganceObserver
-} from '../../../../src/logic/badges/exotic-elegance'
+  AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED,
+  createLegendaryLookObserver
+} from '../../../../src/logic/badges/legendary-look'
 import {
   createExpectedResult,
   createRandomWearableUrns,
@@ -13,23 +13,23 @@ import {
 } from '../../../utils'
 import { createCatalystDeploymentProfileEvent } from '../../../mocks/catalyst-deployment-event-mock'
 
-describe('Exotic Elegance badge handler should', () => {
+describe('Legendary Look badge handler should', () => {
   const testAddress = '0xTest'
-  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.EXOTIC_ELEGANCE, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.LEGENDARY_LOOK, testAddress)
 
-  it(`grant badge when a user has more than ${AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED} exotic wearables equipped`, async () => {
+  it(`grant badge when a user has more than ${AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED} legendary wearables equipped`, async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
-    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED + 1)
+    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED + 1)
     const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(testAddress, {
       wearables: wearablesUrns
     })
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
-      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.LEGENDARY))
 
-    const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
+    const handler = createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event)
 
@@ -40,19 +40,19 @@ describe('Exotic Elegance badge handler should', () => {
     expect(result).toMatchObject(expectedResult)
   })
 
-  it(`grant badge when a user has exactly ${AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED} exotic wearables equipped`, async () => {
+  it(`grant badge when a user has exactly ${AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED} legendary wearables equipped`, async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
-    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED)
+    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED)
     const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(testAddress, {
       wearables: wearablesUrns
     })
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
-      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.LEGENDARY))
 
-    const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
+    const handler = createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event)
 
@@ -63,19 +63,19 @@ describe('Exotic Elegance badge handler should', () => {
     expect(result).toMatchObject(expectedResult)
   })
 
-  it(`not grant badge when a user has less than ${AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED} exotic wearables equipped`, async () => {
+  it(`not grant badge when a user has less than ${AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED} legendary wearables equipped`, async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
-    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED - 1)
+    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED - 1)
     const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(testAddress, {
       wearables: wearablesUrns
     })
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
-      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.EXOTIC))
+      .mockResolvedValueOnce(mapToWearablesWithRarity(wearablesUrns, Rarity.LEGENDARY))
 
-    const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
+    const handler = createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event)
 
@@ -86,14 +86,14 @@ describe('Exotic Elegance badge handler should', () => {
   it('not grant badge when the user has already the badge granted', async () => {
     const { db, logs, badgeContext, badgeStorage } = await getMockedComponents()
 
-    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_EXOTIC_WEARABLES_REQUIRED)
+    const wearablesUrns = createRandomWearableUrns(AMOUNT_OF_LEGENDARY_WEARABLES_REQUIRED)
     const event: CatalystDeploymentEvent = createCatalystDeploymentProfileEvent(testAddress, {
       wearables: wearablesUrns
     })
 
     const mockUserProgress = {
       user_address: testAddress,
-      badge_id: BadgeId.EXOTIC_ELEGANCE,
+      badge_id: BadgeId.LEGENDARY_LOOK,
       completed_at: expect.any(Number),
       progress: {
         steps: 1,
@@ -101,7 +101,7 @@ describe('Exotic Elegance badge handler should', () => {
       }
     }
 
-    const handler = createExoticEleganceObserver({ db, logs, badgeContext, badgeStorage })
+    const handler = createLegendaryLookObserver({ db, logs, badgeContext, badgeStorage })
 
     const result = await handler.handle(event, mockUserProgress)
 

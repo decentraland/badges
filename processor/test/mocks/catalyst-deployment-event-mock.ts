@@ -1,8 +1,8 @@
 import { CatalystDeploymentEvent, EntityType, EthAddress, Events } from '@dcl/schemas'
 
 export function createCatalystDeploymentProfileEvent(
-  wearables: string[],
-  userAddress: EthAddress
+  userAddress: EthAddress,
+  { wearables, description }: { wearables?: string[]; description?: string } = {}
 ): CatalystDeploymentEvent {
   return {
     type: Events.Type.CATALYST_DEPLOYMENT,
@@ -20,7 +20,7 @@ export function createCatalystDeploymentProfileEvent(
         avatars: [
           {
             hasClaimedName: false,
-            description: 'A second description',
+            description: description ?? 'A second description',
             tutorialStep: 256,
             name: 'PaleAleTest',
             avatar: {
