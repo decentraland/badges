@@ -10,6 +10,7 @@ import {
   timestamps
 } from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Walkabout Wanderer badge handler should', () => {
   const testAddress = '0xTest'
@@ -193,9 +194,7 @@ describe('Walkabout Wanderer badge handler should', () => {
     return {
       db: createDbMock(),
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 

@@ -4,6 +4,8 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
 import { createRegallyRareObserver } from '../../../../src/logic/badges/regally-rare'
 import { createLogComponent } from '@well-known-components/logger'
+import { createBadgeContextMock } from '../../../mocks/badge-context-mock'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Regally Rare badge handler should', () => {
   const testAddress = '0xTest'
@@ -12,15 +14,9 @@ describe('Regally Rare badge handler should', () => {
   async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeContext' | 'badgeStorage'>> {
     return {
       db: createDbMock(),
-      badgeContext: {
-        getWearablesWithRarity: jest.fn(),
-        getEntityById: jest.fn(),
-        getEntitiesByPointers: jest.fn()
-      },
+      badgeContext: createBadgeContextMock(),
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 

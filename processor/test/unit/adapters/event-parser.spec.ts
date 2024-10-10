@@ -3,6 +3,7 @@ import { AppComponents, ParsingEventError } from '../../../src/types'
 import { createEventParser, SubType } from '../../../src/adapters/event-parser'
 import { CatalystDeploymentEvent, Events } from '@dcl/schemas'
 import * as CatalystClient from 'dcl-catalyst-client'
+import { createBadgeContextMock } from '../../mocks/badge-context-mock'
 
 jest.mock('dcl-catalyst-client')
 
@@ -127,9 +128,10 @@ describe('Event Parser', () => {
         contentServerUrls: ['http://some-url']
       }
 
-      badgeContext.getEntitiesByPointers = jest.fn().mockRejectedValue(new Error('Error fetching entity from content server'))
+      badgeContext.getEntitiesByPointers = jest
+        .fn()
+        .mockRejectedValue(new Error('Error fetching entity from content server'))
       const parser = await createEventParser({ config, logs, badgeContext })
-
 
       await expect(parser.parse(event)).rejects.toThrow(ParsingEventError)
     })
@@ -145,11 +147,11 @@ describe('Event Parser', () => {
         requireNumber: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeContext: {
+      badgeContext: createBadgeContextMock({
         getEntityById: jest.fn().mockResolvedValue({} as any),
         getEntitiesByPointers: jest.fn().mockResolvedValue([] as any),
         getWearablesWithRarity: jest.fn().mockResolvedValue([] as any)
-      }
+      })
     }
   }
 })

@@ -5,6 +5,8 @@ import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../../src/logic/badges/traveler'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
 import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
+import { createBadgeContextMock } from '../../../mocks/badge-context-mock'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -259,19 +261,13 @@ describe('Traveler badge handler should', () => {
   > {
     return {
       db: createDbMock(),
-      badgeContext: {
-        getWearablesWithRarity: jest.fn(),
-        getEntityById: jest.fn(),
-        getEntitiesByPointers: jest.fn()
-      },
+      badgeContext: createBadgeContextMock(),
       memoryStorage: {
         get: jest.fn(),
         set: jest.fn()
       },
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 

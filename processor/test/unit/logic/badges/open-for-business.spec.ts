@@ -3,6 +3,7 @@ import { CatalystDeploymentEvent, CollectionCreatedEvent, EntityType, Events } f
 import { createDbMock } from '../../../mocks/db-mock'
 import { createOpenForBusinessObserver } from '../../../../src/logic/badges/open-for-business'
 import { AppComponents } from '../../../../src/types'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Open for Business badge handler should', () => {
   const testAddress = '0xTest'
@@ -18,9 +19,7 @@ describe('Open for Business badge handler should', () => {
           warn: jest.fn()
         })
       },
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 

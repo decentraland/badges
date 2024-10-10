@@ -10,6 +10,7 @@ import {
   mapBadgeToHaveTierNth,
   timestamps
 } from '../../../utils'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Moves Master badge handler should', () => {
   const testAddress = '0xTest'
@@ -333,9 +334,7 @@ describe('Moves Master badge handler should', () => {
     return {
       db: createDbMock(),
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 

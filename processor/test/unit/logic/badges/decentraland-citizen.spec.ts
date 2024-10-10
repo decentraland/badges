@@ -4,6 +4,7 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createDecentralandCitizenObserver } from '../../../../src/logic/badges/decentraland-citizen'
 import { BadgeId, createBadgeStorage } from '@badges/common'
+import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
 
 describe('Decentraland Citizen badge handler should', () => {
   const testAddress = '0xTest'
@@ -12,9 +13,7 @@ describe('Decentraland Citizen badge handler should', () => {
     return {
       db: createDbMock(),
       logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
+      badgeStorage: await createBadgeStorageMock()
     }
   }
 
