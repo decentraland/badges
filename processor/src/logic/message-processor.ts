@@ -13,6 +13,7 @@ export async function createMessageProcessorComponent({
 >): Promise<MessageProcessorComponent> {
   const logger = logs.getLogger('message-processor')
   const isDevEnvironment = (await config.getString('ENV')) === 'dev'
+  const isDebugging = (await config.getString('DEBUG')) === 'true'
 
   const generateIdempotencyKey = (result: BadgeProcessorResult): string => {
     const tierAchieved: string = !!result.badgeGranted.tiers?.length ? '-' + result.badgeGranted.tiers[0].tierId : ''
@@ -31,6 +32,11 @@ export async function createMessageProcessorComponent({
   async function process(event: Event): Promise<void> {
     const { end: endMetricTimer } = metrics.startTimer('events_processing_duration_seconds')
     logger.info(`Processing entity`, { eventType: event.type, eventSubType: event.subType, eventKey: event.key })
+
+    if (isDebugging) {
+      logger.info('Debugging mode enabled', { event: JSON.stringify(event) })
+      return
+    }
 
     const processorsResult: BadgeProcessorResult[] = await eventDispatcher.dispatch(event)
 
