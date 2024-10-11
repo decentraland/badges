@@ -44,12 +44,21 @@ export async function createEventParser({
 
   async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent | undefined> {
     const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
+    let entity: Entity | undefined
 
-    const fetchedEntity: Entity | undefined = (
-      await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentUrl })
-    ).at(0)
+    if (!Entity.validate(event.entity)) {
+      logger.debug('Entity received on Catalyst event is not completed, calling Catalyst...', {
+        entity: JSON.stringify(event.entity),
+        validationErrors: Entity.validate.errors?.map((error) => error.message || '')?.join(' - ') || ''
+      })
 
-    if (!fetchedEntity) {
+      entity = (await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentUrl })).at(0)
+    }
+
+    if (!entity) {
+      logger.warn('Could not complete entity from Catalyst event', {
+        entity: JSON.stringify(event.entity)
+      })
       return undefined
     }
 
@@ -57,8 +66,8 @@ export async function createEventParser({
       type: Events.Type.CATALYST_DEPLOYMENT,
       subType: event.entity.entityType,
       key: event.entity.entityId,
-      timestamp: fetchedEntity.timestamp,
-      entity: fetchedEntity
+      timestamp: entity.timestamp,
+      entity: entity
     } as CatalystDeploymentEvent
   }
 
