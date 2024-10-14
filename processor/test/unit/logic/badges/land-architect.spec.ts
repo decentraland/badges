@@ -65,7 +65,10 @@ describe('LAND Architect badge handler should', () => {
       key: 'aKey',
       timestamp: 1708380838534,
       entity: {
-        pointers: [testAddress]
+        pointers: ['-105,65'],
+        metadata: {
+          owner: testAddress
+        }
       } as any
     }
   }

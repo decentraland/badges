@@ -12,7 +12,7 @@ export function createLandArchitectObserver({
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
   function getUserAddress(event: CatalystDeploymentEvent): EthAddress {
-    return event.entity.pointers[0]
+    return event.entity.metadata.owner
   }
 
   async function handle(
