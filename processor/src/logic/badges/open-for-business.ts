@@ -17,7 +17,8 @@ export function createOpenForBusinessObserver({
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
         progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, store_completed: true }
-      })
+      }),
+      stepAlreadyCompleted: (userProgress: UserBadge) => userProgress.progress.store_completed
     }),
     [Events.Type.BLOCKCHAIN]: (event: any) => ({
       getUserAddress: () => event.metadata.creator,
@@ -28,7 +29,8 @@ export function createOpenForBusinessObserver({
           steps: (userProgress.progress.steps || 0) + 1,
           collection_submitted: true
         }
-      })
+      }),
+      stepAlreadyCompleted: (userProgress: UserBadge) => userProgress.progress.collection_submitted
     })
   }
 
@@ -50,6 +52,16 @@ export function createOpenForBusinessObserver({
       logger.info('User already has badge', {
         userAddress: userAddress!,
         badgeId: badgeId
+      })
+
+      return undefined
+    }
+
+    if (functions.stepAlreadyCompleted(userProgress)) {
+      logger.info('User already completed the step associated to this event', {
+        userAddress: userAddress!,
+        badgeId: badgeId,
+        eventType: event.type
       })
 
       return undefined
