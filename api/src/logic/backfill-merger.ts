@@ -10,6 +10,8 @@ import { mergeSocialButterflyProgress } from './backfills/social-butterfly-backf
 import { mergeLandArchitectProgress } from './backfills/land-architect-backfill'
 import { mergeEmoteCreatorProgress } from './backfills/emote-creator-backfill'
 import { mergeWearableDesignerProgress } from './backfills/wearable-designer-backfill'
+import { mergeProfileProProgress } from './backfills/profile-pro-backfill'
+import { mergeOpenForBusinessProgress } from './backfills/open-for-business-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -91,6 +93,20 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.LAND_ARCHITECT),
+            backfillData
+          )
+        case BadgeId.PROFILE_PRO:
+          return mergeProfileProProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.PROFILE_PRO),
+            backfillData
+          )
+        case BadgeId.OPEN_FOR_BUSINESS:
+          return mergeOpenForBusinessProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.OPEN_FOR_BUSINESS),
             backfillData
           )
 
