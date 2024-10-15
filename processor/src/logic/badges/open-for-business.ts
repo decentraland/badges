@@ -1,6 +1,7 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
-import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
+import { Authenticator } from '@dcl/crypto'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 
 export function createOpenForBusinessObserver({
   db,
@@ -13,11 +14,12 @@ export function createOpenForBusinessObserver({
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
-      getUserAddress: () => event.entity.metadata.owner,
+      getUserAddress: () => Authenticator.ownerAddress(event.authChain),
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
         progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, store_completed: true }
-      })
+      }),
+      stepAlreadyCompleted: (userProgress: UserBadge) => userProgress.progress.store_completed
     }),
     [Events.Type.BLOCKCHAIN]: (event: any) => ({
       getUserAddress: () => event.metadata.creator,
@@ -28,7 +30,8 @@ export function createOpenForBusinessObserver({
           steps: (userProgress.progress.steps || 0) + 1,
           collection_submitted: true
         }
-      })
+      }),
+      stepAlreadyCompleted: (userProgress: UserBadge) => userProgress.progress.collection_submitted
     })
   }
 
@@ -44,12 +47,27 @@ export function createOpenForBusinessObserver({
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = getUserAddress(event)
 
+    if (!EthAddress.validate(userAddress)) {
+      logger.error('Invalid user address', { userAddress, badgeId, eventType: event.type })
+      return undefined
+    }
+
     userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
       logger.info('User already has badge', {
         userAddress: userAddress!,
         badgeId: badgeId
+      })
+
+      return undefined
+    }
+
+    if (functions.stepAlreadyCompleted(userProgress)) {
+      logger.info('User already completed the step associated to this event', {
+        userAddress: userAddress!,
+        badgeId: badgeId,
+        eventType: event.type
       })
 
       return undefined
