@@ -5,7 +5,7 @@ import { createOpenForBusinessObserver } from '../../../../src/logic/badges/open
 import { AppComponents } from '../../../../src/types'
 
 describe('Open for Business badge handler should', () => {
-  const testAddress = '0xTest'
+  const testAddress = '0x1234567890abcdef1234567890abcdef12345678'
 
   async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
     return {
@@ -109,7 +109,7 @@ describe('Open for Business badge handler should', () => {
   })
 
   it.each([createCatalystDeploymentEvent(), createCollectionCreatedEvent()])(
-    'do not grant badge when the user already has the badge granted and the event type $type and the subtype is $subType',
+    'not grant badge when the user already has the badge granted and the event type $type and the subtype is $subType',
     async (event: Event) => {
       const { db, logs, badgeStorage } = await getMockedComponents()
 
@@ -124,7 +124,7 @@ describe('Open for Business badge handler should', () => {
     }
   )
 
-  it('do not increase the steps when the user already completed the store information and the event is a store deployment', async () => {
+  it('not increase the steps when the user already completed the store information and the event is a store deployment', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const currentUserProgress = getMockUserProgress({ storeCompleted: true, collectionSubmitted: false, steps: 1 })
@@ -139,7 +139,7 @@ describe('Open for Business badge handler should', () => {
     expect(result).toBeUndefined()
   })
 
-  it('do not increase the steps when the user already submitted the collection and the event is collection created', async () => {
+  it('not increase the steps when the user already submitted the collection and the event is collection created', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
 
     const currentUserProgress = getMockUserProgress({ storeCompleted: false, collectionSubmitted: true, steps: 1 })
@@ -149,6 +149,22 @@ describe('Open for Business badge handler should', () => {
     const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
 
     let result = await handler.handle(collectionCreatedEvent, currentUserProgress)
+
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+    expect(result).toBeUndefined()
+  })
+
+  it('do nothing when the auth chain has an invalid owner address', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+
+    const currentUserProgress = getMockUserProgress({ storeCompleted: false, collectionSubmitted: true, steps: 1 })
+
+    const storeDeploymentEvent = createCatalystDeploymentEvent()
+    storeDeploymentEvent.authChain[0].payload = '0xInvalidAddress'
+
+    const handler = createOpenForBusinessObserver({ db, logs, badgeStorage })
+
+    const result = await handler.handle(storeDeploymentEvent, currentUserProgress)
 
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBeUndefined()

@@ -47,6 +47,11 @@ export function createOpenForBusinessObserver({
     const functions = functionsPerEvent[event.type](event)
     const userAddress: EthAddress = getUserAddress(event)
 
+    if (!EthAddress.validate(userAddress)) {
+      logger.error('Invalid user address', { userAddress, badgeId, eventType: event.type })
+      return undefined
+    }
+
     userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
