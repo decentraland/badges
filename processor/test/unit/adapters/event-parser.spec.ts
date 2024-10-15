@@ -81,8 +81,12 @@ describe('Event Parser', () => {
       const { config, logs, badgeContext } = await getMockedComponents()
       const parser = await createEventParser({ config, logs, badgeContext })
       const event = {
-        entity: { entityId: 'some-id', pointers: ['0xTest'], entityType: Events.SubType.CatalystDeployment.PROFILE },
-        authChain: mockAuthChain
+        entity: {
+          entityId: 'some-id',
+          pointers: ['0xTest'],
+          entityType: Events.SubType.CatalystDeployment.PROFILE,
+          authChain: mockAuthChain
+        }
       }
 
       badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([mockEntity])
@@ -110,8 +114,7 @@ describe('Event Parser', () => {
         const { config, logs, badgeContext } = await getMockedComponents()
         const parser = await createEventParser({ config, logs, badgeContext })
         const event = {
-          entity: { entityId: 'some-id', entityType: subType },
-          authChain: mockAuthChain,
+          entity: { entityId: 'some-id', entityType: subType, authChain: mockAuthChain },
           contentServerUrls: ['http://some-url']
         }
 
