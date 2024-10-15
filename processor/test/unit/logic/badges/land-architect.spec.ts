@@ -48,6 +48,19 @@ describe('LAND Architect badge handler should', () => {
     expect(result).toBe(undefined)
   })
 
+  it('not do anything if the user address is empty', async () => {
+    const { db, logs, badgeStorage } = await getMockedComponents()
+
+    const event = createSceneDeployedEvent({ owner: '' })
+
+    const handler = createLandArchitectObserver({ db, logs, badgeStorage })
+
+    const result = await handler.handle(event)
+
+    expect(db.saveUserProgress).not.toHaveBeenCalled()
+    expect(result).toBe(undefined)
+  })
+
   async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
     return {
       db: createDbMock(),
@@ -58,7 +71,7 @@ describe('LAND Architect badge handler should', () => {
     }
   }
 
-  function createSceneDeployedEvent(): CatalystDeploymentEvent {
+  function createSceneDeployedEvent({ owner }: { owner?: string } = {}): CatalystDeploymentEvent {
     return {
       type: Events.Type.CATALYST_DEPLOYMENT,
       subType: Events.SubType.CatalystDeployment.SCENE,
@@ -67,7 +80,7 @@ describe('LAND Architect badge handler should', () => {
       entity: {
         pointers: ['-105,65'],
         metadata: {
-          owner: testAddress
+          owner: owner ?? testAddress
         }
       } as any
     }

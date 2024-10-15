@@ -21,6 +21,11 @@ export function createLandArchitectObserver({
   ): Promise<BadgeProcessorResult | undefined> {
     const userAddress = getUserAddress(event)
 
+    if (!userAddress) {
+      logger.error('User address is empty', { badgeId: badgeId })
+      return undefined
+    }
+
     userProgress ||= initProgressFor(userAddress)
 
     if (userProgress.completed_at) {
