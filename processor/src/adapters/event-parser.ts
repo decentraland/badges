@@ -59,7 +59,7 @@ export async function createEventParser({
       key: event.entity.entityId,
       timestamp: fetchedEntity.timestamp,
       entity: fetchedEntity,
-      authChain: event.authChain
+      authChain: event.entity.authChain
     } as CatalystDeploymentEvent
   }
 
