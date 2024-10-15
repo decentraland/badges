@@ -1,6 +1,7 @@
 import { CatalystDeploymentEvent, CollectionCreatedEvent, EthAddress, Events } from '@dcl/schemas'
-import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
+import { Authenticator } from '@dcl/crypto'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 
 export function createOpenForBusinessObserver({
   db,
@@ -13,7 +14,7 @@ export function createOpenForBusinessObserver({
 
   const functionsPerEvent = {
     [Events.Type.CATALYST_DEPLOYMENT]: (event: any) => ({
-      getUserAddress: () => event.entity.metadata.owner,
+      getUserAddress: () => Authenticator.ownerAddress(event.authChain),
       updateUserProgress: (userProgress: UserBadge) => ({
         ...userProgress,
         progress: { ...userProgress.progress, steps: (userProgress.progress.steps || 0) + 1, store_completed: true }

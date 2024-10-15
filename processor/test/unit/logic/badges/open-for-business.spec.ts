@@ -1,5 +1,5 @@
-import { Badge, BadgeId, createBadgeStorage, UserBadge } from '@badges/common'
-import { CatalystDeploymentEvent, CollectionCreatedEvent, EntityType, Event, Events } from '@dcl/schemas'
+import { BadgeId, createBadgeStorage, UserBadge } from '@badges/common'
+import { AuthLinkType, CatalystDeploymentEvent, CollectionCreatedEvent, EntityType, Event, Events } from '@dcl/schemas'
 import { createDbMock } from '../../../mocks/db-mock'
 import { createOpenForBusinessObserver } from '../../../../src/logic/badges/open-for-business'
 import { AppComponents } from '../../../../src/types'
@@ -169,9 +169,15 @@ describe('Open for Business badge handler should', () => {
         timestamp: 1630051200,
         content: [],
         metadata: {
-          owner: testAddress
+          owner: ''
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
   }
 
