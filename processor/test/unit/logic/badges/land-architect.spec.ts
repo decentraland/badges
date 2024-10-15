@@ -1,7 +1,7 @@
 import { createLogComponent } from '@well-known-components/logger'
 import { AppComponents } from '../../../../src/types'
 import { createDbMock } from '../../../mocks/db-mock'
-import { CatalystDeploymentEvent, Events } from '@dcl/schemas'
+import { AuthLinkType, CatalystDeploymentEvent, Entity, Events } from '@dcl/schemas'
 import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
 import { createLandArchitectObserver } from '../../../../src/logic/badges/land-architect'
 
@@ -48,19 +48,6 @@ describe('LAND Architect badge handler should', () => {
     expect(result).toBe(undefined)
   })
 
-  it('not do anything if the user address is empty', async () => {
-    const { db, logs, badgeStorage } = await getMockedComponents()
-
-    const event = createSceneDeployedEvent({ owner: '' })
-
-    const handler = createLandArchitectObserver({ db, logs, badgeStorage })
-
-    const result = await handler.handle(event)
-
-    expect(db.saveUserProgress).not.toHaveBeenCalled()
-    expect(result).toBe(undefined)
-  })
-
   async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
     return {
       db: createDbMock(),
@@ -71,18 +58,21 @@ describe('LAND Architect badge handler should', () => {
     }
   }
 
-  function createSceneDeployedEvent({ owner }: { owner?: string } = {}): CatalystDeploymentEvent {
+  function createSceneDeployedEvent(): CatalystDeploymentEvent {
     return {
       type: Events.Type.CATALYST_DEPLOYMENT,
       subType: Events.SubType.CatalystDeployment.SCENE,
       key: 'aKey',
       timestamp: 1708380838534,
       entity: {
-        pointers: ['-105,65'],
-        metadata: {
-          owner: owner ?? testAddress
+        pointers: ['-105,65']
+      } as Entity,
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
         }
-      } as any
+      ]
     }
   }
 

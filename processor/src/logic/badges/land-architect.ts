@@ -1,6 +1,7 @@
 import { CatalystDeploymentEvent, EthAddress, Events } from '@dcl/schemas'
-import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
+import { Authenticator } from '@dcl/crypto'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 
 export function createLandArchitectObserver({
   db,
@@ -12,7 +13,7 @@ export function createLandArchitectObserver({
   const badge: Badge = badgeStorage.getBadge(badgeId)
 
   function getUserAddress(event: CatalystDeploymentEvent): EthAddress {
-    return event.entity.metadata.owner
+    return Authenticator.ownerAddress(event.authChain)
   }
 
   async function handle(
@@ -20,11 +21,6 @@ export function createLandArchitectObserver({
     userProgress: UserBadge | undefined
   ): Promise<BadgeProcessorResult | undefined> {
     const userAddress = getUserAddress(event)
-
-    if (!userAddress) {
-      logger.error('User address is empty', { badgeId: badgeId })
-      return undefined
-    }
 
     userProgress ||= initProgressFor(userAddress)
 
