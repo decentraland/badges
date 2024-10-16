@@ -18,7 +18,8 @@ export function createMemoryQueueAdapter(): QueueComponent {
   }
 
   async function receiveSingleMessage(): Promise<Message[]> {
-    return queue.size > 0 ? [queue.values().next().value] : []
+    const message = queue.size > 0 ? queue.values().next().value : undefined
+    return !!message ? [message] : []
   }
 
   async function deleteMessage(receiptHandle: string): Promise<void> {
