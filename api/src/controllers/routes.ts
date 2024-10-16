@@ -35,6 +35,7 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
   }
 
   const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
+
   if (!!adminToken) {
     router.post('/badges/:id/backfill', bearerTokenMiddleware(adminToken), badgesBackfillHandler)
   }

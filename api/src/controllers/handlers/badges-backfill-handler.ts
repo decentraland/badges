@@ -83,12 +83,15 @@ export async function badgesBackfillHandler(
       }
     }
   } catch (error: any) {
+    const status = error instanceof NotFoundError ? 404 : error.status || 500
+
     logger.error('Error processing backfill', {
       error: error.message,
       stack: JSON.stringify(error.stack)
     })
+
     return {
-      status: error.status || 500,
+      status,
       body: {
         message: error.message,
         details: {
