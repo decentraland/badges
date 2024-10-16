@@ -133,6 +133,21 @@ describe('Event Parser', () => {
       }
     )
 
+    it('and the entity is not found', async () => {
+      const { config, logs, badgeContext } = await getMockedComponents()
+      const parser = await createEventParser({ config, logs, badgeContext })
+
+      const event = {
+        entity: { entityId: 'some-id', entityType: Events.SubType.CatalystDeployment.PROFILE },
+        contentServerUrls: ['http://some-url']
+      }
+
+      badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([])
+
+      const result = await parser.parse(event)
+      expect(result).toBeUndefined()
+    })
+
     it('and something goes wrong when fetching the entity should throw a ParsingEventError', async () => {
       const { config, logs, badgeContext } = await getMockedComponents()
       const parser = await createEventParser({ config, logs, badgeContext })
