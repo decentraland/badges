@@ -1,5 +1,5 @@
 import { BadgeId, UserBadge } from '@badges/common'
-import { CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
+import { AuthLinkType, CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
 import { createEpicEnsembleObserver } from '../../../../src/logic/badges/epic-ensemble'
 import { getMockedComponents } from '../../../utils'
 
@@ -49,7 +49,13 @@ describe('Epic Ensemble badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     badgeContext.getWearablesWithRarity = jest
@@ -120,7 +126,13 @@ describe('Epic Ensemble badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     badgeContext.getWearablesWithRarity = jest
@@ -185,7 +197,13 @@ describe('Epic Ensemble badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     const handler = createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage })

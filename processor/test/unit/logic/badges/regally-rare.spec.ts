@@ -1,5 +1,5 @@
 import { BadgeId, UserBadge } from '@badges/common'
-import { CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
+import { AuthLinkType, CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
 import { createRegallyRareObserver } from '../../../../src/logic/badges/regally-rare'
 import { getMockedComponents } from '../../../utils'
 
@@ -49,7 +49,13 @@ describe('Regally Rare badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     badgeContext.getWearablesWithRarity = jest
@@ -121,7 +127,13 @@ describe('Regally Rare badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     badgeContext.getWearablesWithRarity = jest
@@ -185,7 +197,13 @@ describe('Regally Rare badge handler should', () => {
             }
           ]
         }
-      }
+      },
+      authChain: [
+        {
+          payload: testAddress,
+          type: AuthLinkType.SIGNER
+        }
+      ]
     }
 
     const handler = createRegallyRareObserver({ db, logs, badgeContext, badgeStorage })

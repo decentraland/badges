@@ -1,6 +1,6 @@
 import { ParsingEventError } from '../../../src/types'
 import { createEventParser, SubType } from '../../../src/adapters/event-parser'
-import { CatalystDeploymentEvent, Events } from '@dcl/schemas'
+import { AuthChain, AuthLinkType, Events } from '@dcl/schemas'
 import { getMockedComponents as getDefaultMockedComponents } from '../../utils'
 
 jest.mock('dcl-catalyst-client')
@@ -59,6 +59,13 @@ describe('Event Parser', () => {
       }
     }
 
+    const mockAuthChain: AuthChain = [
+      {
+        payload: 'auth-chain-payload',
+        type: AuthLinkType.SIGNER
+      }
+    ]
+
     it('and the entity type is not included in the subtypes should return undefined', async () => {
       const { config, logs, badgeContext } = await getMockedComponents()
       const parser = await createEventParser({ config, logs, badgeContext })
@@ -74,7 +81,12 @@ describe('Event Parser', () => {
       const { config, logs, badgeContext } = await getMockedComponents()
       const parser = await createEventParser({ config, logs, badgeContext })
       const event = {
-        entity: { entityId: 'some-id', pointers: ['0xTest'], entityType: Events.SubType.CatalystDeployment.PROFILE }
+        entity: {
+          entityId: 'some-id',
+          pointers: ['0xTest'],
+          entityType: Events.SubType.CatalystDeployment.PROFILE,
+          authChain: mockAuthChain
+        }
       }
 
       badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([mockEntity])
@@ -91,7 +103,8 @@ describe('Event Parser', () => {
         subType: Events.SubType.CatalystDeployment.PROFILE,
         key: event.entity.entityId,
         timestamp: mockEntity.timestamp,
-        entity: mockEntity
+        entity: mockEntity,
+        authChain: mockAuthChain
       })
     })
 
@@ -101,7 +114,7 @@ describe('Event Parser', () => {
         const { config, logs, badgeContext } = await getMockedComponents()
         const parser = await createEventParser({ config, logs, badgeContext })
         const event = {
-          entity: { entityId: 'some-id', entityType: subType },
+          entity: { entityId: 'some-id', entityType: subType, authChain: mockAuthChain },
           contentServerUrls: ['http://some-url']
         }
 
@@ -114,13 +127,16 @@ describe('Event Parser', () => {
           subType,
           key: event.entity.entityId,
           timestamp: mockEntity.timestamp,
-          entity: mockEntity
-        } as CatalystDeploymentEvent)
+          entity: mockEntity,
+          authChain: mockAuthChain
+        })
       }
     )
 
     it('and something goes wrong when fetching the entity should throw a ParsingEventError', async () => {
       const { config, logs, badgeContext } = await getMockedComponents()
+      const parser = await createEventParser({ config, logs, badgeContext })
+
       const event = {
         entity: { entityId: 'some-id', entityType: Events.SubType.CatalystDeployment.PROFILE },
         contentServerUrls: ['http://some-url']
@@ -129,7 +145,6 @@ describe('Event Parser', () => {
       badgeContext.getEntitiesByPointers = jest
         .fn()
         .mockRejectedValue(new Error('Error fetching entity from content server'))
-      const parser = await createEventParser({ config, logs, badgeContext })
 
       await expect(parser.parse(event)).rejects.toThrow(ParsingEventError)
     })
