@@ -1,15 +1,17 @@
 import { BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, IUserProgressValidator } from '../types'
 import { InvalidRequestError } from '@dcl/platform-server-commons'
-import { mergeWearablesEquipmentProgress } from './backfills/wearables-equipment-backfill'
-import { mergeEmotionistaProgress } from './backfills/emotionista-backfill'
-import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
-import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
-import { mergeMovesMasterProgress } from './backfills/moves-master-backfill'
-import { mergeSocialButterflyProgress } from './backfills/social-butterfly-backfill'
-import { mergeLandArchitectProgress } from './backfills/land-architect-backfill'
-import { mergeEmoteCreatorProgress } from './backfills/emote-creator-backfill'
-import { mergeWearableDesignerProgress } from './backfills/wearable-designer-backfill'
+import {
+  mergeWearablesEquipmentProgress,
+  mergeEmotionistaProgress,
+  mergeFashionistaProgress,
+  mergeEventEnthusiastProgress,
+  mergeMovesMasterProgress,
+  mergeSocialButterflyProgress,
+  mergeLandArchitectProgress,
+  mergeEmoteCreatorProgress,
+  mergeWearableDesignerProgress
+} from './backfills'
 
 export function createBackfillMergerComponent({
   logs,
