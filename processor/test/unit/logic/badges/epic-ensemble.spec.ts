@@ -1,7 +1,7 @@
 import { BadgeId, UserBadge } from '@badges/common'
-import { AuthLinkType, CatalystDeploymentEvent, EntityType, Events } from '@dcl/schemas'
 import { createEpicEnsembleObserver } from '../../../../src/logic/badges/epic-ensemble'
 import { getMockedComponents } from '../../../utils'
+import { createCatalystDeploymentProfileEvent } from '../../../mocks/catalyst-deployment-event-mock'
 
 describe('Epic Ensemble badge handler should', () => {
   const testAddress = '0xTest'
@@ -19,44 +19,7 @@ describe('Epic Ensemble badge handler should', () => {
       updated_at: 1708380838534
     }
 
-    const event: CatalystDeploymentEvent = {
-      type: Events.Type.CATALYST_DEPLOYMENT,
-      subType: Events.SubType.CatalystDeployment.PROFILE,
-      key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
-      timestamp: 1708380838534,
-      entity: {
-        version: 'v3',
-        id: 'bafkreid7ohlfwnary6k73rp7x7xa5uum53p6qchmxlcf3nbvkw5inss5li',
-        type: EntityType.PROFILE,
-        pointers: [testAddress],
-        timestamp: 1708380838534,
-        content: [],
-        metadata: {
-          avatars: [
-            {
-              hasClaimedName: false,
-              description: 'A second description',
-              tutorialStep: 256,
-              name: 'PaleAleTest',
-              avatar: {
-                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-                wearables: wearablesUrn
-              },
-              ethAddress: testAddress,
-              version: 36,
-              userId: testAddress,
-              hasConnectedWeb3: true
-            }
-          ]
-        }
-      },
-      authChain: [
-        {
-          payload: testAddress,
-          type: AuthLinkType.SIGNER
-        }
-      ]
-    }
+    const event = createCatalystDeploymentProfileEvent(testAddress, { wearables: wearablesUrn })
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
@@ -96,44 +59,7 @@ describe('Epic Ensemble badge handler should', () => {
       updated_at: 1708380838534
     }
 
-    const event: CatalystDeploymentEvent = {
-      type: Events.Type.CATALYST_DEPLOYMENT,
-      subType: Events.SubType.CatalystDeployment.PROFILE,
-      key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
-      timestamp: 1708380838534,
-      entity: {
-        version: 'v3',
-        id: 'bafkreid7ohlfwnary6k73rp7x7xa5uum53p6qchmxlcf3nbvkw5inss5li',
-        type: EntityType.PROFILE,
-        pointers: [testAddress],
-        timestamp: 1708380838534,
-        content: [],
-        metadata: {
-          avatars: [
-            {
-              hasClaimedName: false,
-              description: 'A second description',
-              tutorialStep: 256,
-              name: 'PaleAleTest',
-              avatar: {
-                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-                wearables: wearablesUrn
-              },
-              ethAddress: testAddress,
-              version: 36,
-              userId: testAddress,
-              hasConnectedWeb3: true
-            }
-          ]
-        }
-      },
-      authChain: [
-        {
-          payload: testAddress,
-          type: AuthLinkType.SIGNER
-        }
-      ]
-    }
+    const event = createCatalystDeploymentProfileEvent(testAddress, { wearables: wearablesUrn })
 
     badgeContext.getWearablesWithRarity = jest
       .fn()
@@ -167,44 +93,7 @@ describe('Epic Ensemble badge handler should', () => {
       updated_at: 1708380838534
     }
 
-    const event: CatalystDeploymentEvent = {
-      type: Events.Type.CATALYST_DEPLOYMENT,
-      subType: Events.SubType.CatalystDeployment.PROFILE,
-      key: 'bafkreicamuc6ecbu6a3jzew2g6bkiu4m7zclfm6wy5js4mlnyo6pljsveu',
-      timestamp: 1708380838534,
-      entity: {
-        version: 'v3',
-        id: 'bafkreid7ohlfwnary6k73rp7x7xa5uum53p6qchmxlcf3nbvkw5inss5li',
-        type: EntityType.PROFILE,
-        pointers: [testAddress],
-        timestamp: 1708380838534,
-        content: [],
-        metadata: {
-          avatars: [
-            {
-              hasClaimedName: false,
-              description: 'A second description',
-              tutorialStep: 256,
-              name: 'PaleAleTest',
-              avatar: {
-                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
-                wearables: wearablesUrn
-              },
-              ethAddress: testAddress,
-              version: 36,
-              userId: testAddress,
-              hasConnectedWeb3: true
-            }
-          ]
-        }
-      },
-      authChain: [
-        {
-          payload: testAddress,
-          type: AuthLinkType.SIGNER
-        }
-      ]
-    }
+    const event = createCatalystDeploymentProfileEvent(testAddress, { wearables: wearablesUrn })
 
     const handler = createEpicEnsembleObserver({ db, logs, badgeContext, badgeStorage })
 

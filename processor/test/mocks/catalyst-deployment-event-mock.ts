@@ -1,4 +1,4 @@
-import { CatalystDeploymentEvent, EntityType, EthAddress, Events } from '@dcl/schemas'
+import { AuthLinkType, CatalystDeploymentEvent, EntityType, EthAddress, Events } from '@dcl/schemas'
 
 export function createCatalystDeploymentProfileEvent(
   userAddress: EthAddress,
@@ -34,6 +34,12 @@ export function createCatalystDeploymentProfileEvent(
           }
         ]
       }
-    }
+    },
+    authChain: [
+      {
+        payload: userAddress,
+        type: AuthLinkType.SIGNER
+      }
+    ]
   }
 }
