@@ -13,7 +13,7 @@ jest.mock('dcl-catalyst-client', () => ({
 
 const LOAD_BALANCER_URL = 'http://localhost:5000'
 
-describe('badge-context', () => {
+describe('Badge Context', () => {
   let badgeContext: IBadgeContext
   let contentClientMock: ContentClient
 

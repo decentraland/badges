@@ -1,4 +1,4 @@
-import { Badge, BadgeId, BadgeTier } from 'types'
+import { Badge, BadgeId, BadgeTier } from '../types'
 
 function addAssetsTo(badge: Badge, cdnUrl: string): Badge {
   const isTieredBadge = badge.tiers && badge.tiers.length > 0

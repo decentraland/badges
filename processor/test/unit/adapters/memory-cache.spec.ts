@@ -1,6 +1,6 @@
 import { createInMemoryCacheComponent } from '../../../src/adapters/memory-cache'
 
-describe('memory-cache', () => {
+describe('Memory Cache', () => {
   const cache = createInMemoryCacheComponent()
 
   it('should get and set values in the cache', async () => {

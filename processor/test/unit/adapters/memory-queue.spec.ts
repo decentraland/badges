@@ -4,7 +4,7 @@ jest.mock('node:crypto', () => ({
   randomUUID: jest.fn().mockReturnValue('uuid')
 }))
 
-describe('memory-queue', () => {
+describe('Memory Queue', () => {
   const queue = createMemoryQueueAdapter()
 
   it('should send and receive messages', async () => {

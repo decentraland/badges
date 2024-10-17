@@ -1,6 +1,6 @@
 import SQL, { SQLStatement } from 'sql-template-strings'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { Badge, BadgeId, UserBadge } from 'types'
+import { Badge, BadgeId, UserBadge } from '../types'
 import { EthAddress } from '@dcl/schemas'
 
 export type DbComponents = {
