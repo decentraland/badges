@@ -24,6 +24,7 @@ export type DbComponent = {
 }
 
 export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent {
+  // TODO: can we remove this function?
   async function getBadgeDefinitions(): Promise<Badge[]> {
     const query: SQLStatement = SQL`
       SELECT * FROM badge
