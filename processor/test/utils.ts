@@ -6,7 +6,7 @@ import { createDbMock } from './mocks/db-mock'
 import { createMetricsMock } from './mocks/metrics-mock'
 import { AppComponents } from '../src/types'
 import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
-import { EthAddress, Rarity } from '@dcl/schemas'
+import { EthAddress, Event, Events, Rarity } from '@dcl/schemas'
 
 export const timestamps = {
   now: () => Date.now(),
@@ -112,4 +112,14 @@ export function createExpectedResult(badgeGranted: Badge, userAddress: EthAddres
     badgeGranted,
     userAddress
   }
+}
+
+export function getMockEvent(type: Events.Type, subType: Event['subType'], userAddress: EthAddress): Event {
+  return {
+    type,
+    subType,
+    key: [userAddress, type, subType].join('-'),
+    timestamp: Date.now(),
+    metadata: {} as any
+  } as Event
 }
