@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@dcl/schemas": "^15.0.0",
-    "@well-known-components/interfaces": "^1.4.3"
+    "@well-known-components/interfaces": "^1.4.3",
+    "@well-known-components/pg-component": "^0.2.3"
   },
   "devDependencies": {
     "@dcl/eslint-config": "^2.1.0",
