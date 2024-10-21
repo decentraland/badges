@@ -38,7 +38,11 @@ export function mergeOpenForBusinessProgress(
 
     return userProgress
   } catch (error) {
-    console.error(`Error processing user ${userAddress}:`, error)
+    console.error(`Error processing user ${userAddress}:`, {
+      error,
+      backfillData: JSON.stringify(backfillData),
+      userProgress: JSON.stringify(userProgress)
+    })
     throw error
   }
 }
