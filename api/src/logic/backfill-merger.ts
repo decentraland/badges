@@ -10,7 +10,9 @@ import {
   mergeSocialButterflyProgress,
   mergeLandArchitectProgress,
   mergeEmoteCreatorProgress,
-  mergeWearableDesignerProgress
+  mergeWearableDesignerProgress,
+  mergeProfileProProgress,
+  mergeOpenForBusinessProgress
 } from './backfills'
 
 export function createBackfillMergerComponent({
@@ -93,6 +95,20 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.LAND_ARCHITECT),
+            backfillData
+          )
+        case BadgeId.PROFILE_PRO:
+          return mergeProfileProProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.PROFILE_PRO),
+            backfillData
+          )
+        case BadgeId.OPEN_FOR_BUSINESS:
+          return mergeOpenForBusinessProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.OPEN_FOR_BUSINESS),
             backfillData
           )
 
