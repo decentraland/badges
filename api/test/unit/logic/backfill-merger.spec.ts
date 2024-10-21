@@ -11,6 +11,8 @@ import {
   mergeFashionistaProgress,
   mergeLandArchitectProgress,
   mergeMovesMasterProgress,
+  mergeOpenForBusinessProgress,
+  mergeProfileProProgress,
   mergeSocialButterflyProgress,
   mergeWearableDesignerProgress,
   mergeWearablesEquipmentProgress
@@ -64,7 +66,9 @@ describe('Backfill Merger', () => {
     [BadgeId.EVENT_ENTHUSIAST, mergeEventEnthusiastProgress],
     [BadgeId.MOVES_MASTER, mergeMovesMasterProgress],
     [BadgeId.SOCIAL_BUTTERFLY, mergeSocialButterflyProgress],
-    [BadgeId.LAND_ARCHITECT, mergeLandArchitectProgress]
+    [BadgeId.LAND_ARCHITECT, mergeLandArchitectProgress],
+    [BadgeId.PROFILE_PRO, mergeProfileProProgress],
+    [BadgeId.OPEN_FOR_BUSINESS, mergeOpenForBusinessProgress]
   ])('should merge the progress for the user when the badge id is %s', (badgeId: BadgeId, merger: jest.Mock) => {
     const mergerMock = merger as jest.Mock
 
