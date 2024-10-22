@@ -1,6 +1,6 @@
 # Badges
 
-## Database design
+## Database Design
 
 ```mermaid
 erDiagram
