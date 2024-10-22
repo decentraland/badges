@@ -1,5 +1,7 @@
 # Badges
 
+[![Coverage Status](https://coveralls.io/repos/github/decentraland/badges/badge.svg)](https://coveralls.io/github/decentraland/badges)
+
 ## Database design
 
 ```mermaid
