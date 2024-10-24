@@ -10,7 +10,7 @@ test('GET /users/:address/preview', function ({ components }) {
   const userAddress = '0x1234567890abcdef1234567890abcdef12345678'
 
   describe('when the user has no badges achieved', function () {
-    it('should return the latest badges the user achieved', async function () {
+    it('should return empty array on `latestAchievedBadges`', async function () {
       const response = await components.localFetch.fetch(endpointPath(userAddress), {
         method: 'GET',
         redirect: 'manual',
