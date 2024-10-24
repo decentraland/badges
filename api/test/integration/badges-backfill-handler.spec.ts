@@ -1,7 +1,7 @@
 import { BadgeId, UserBadge } from '@badges/common'
 import { test } from '../components'
 
-test('GET /badges/:id/backfill', function ({ components }) {
+test('POST /badges/:id/backfill', function ({ components }) {
   const endpointPath = (id: string) => `/badges/${id}/backfill`
 
   describe('when the request is not correctly authorized', () => {
