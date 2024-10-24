@@ -1,3 +1,4 @@
+import path from 'path'
 import { createDotEnvConfigComponent } from '@well-known-components/env-config-provider'
 import {
   createServerComponent,
@@ -47,7 +48,18 @@ export async function initComponents(): Promise<AppComponents> {
     databaseUrl = `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbDatabaseName}`
   }
 
-  const pg = await createPgComponent({ logs, config, metrics })
+  const pg = await createPgComponent(
+    { logs, config, metrics },
+    {
+      migration: {
+        databaseUrl,
+        dir: path.resolve(__dirname, '../../processor/src/migrations'),
+        migrationsTable: 'pgmigrations',
+        ignorePattern: '.*\\.map',
+        direction: 'up'
+      }
+    }
+  )
   const db = createDbComponent({ pg })
 
   const badgeStorage = await createBadgeStorage({ config })

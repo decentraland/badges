@@ -1,5 +1,5 @@
 import { EthAddress } from '@dcl/schemas'
-import { AppComponents, IBadgeService, UserBadgesPreview } from '../types'
+import { AppComponents, IBadgeService, TierProgress, UserBadgesPreview } from '../types'
 import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 
 export async function createBadgeService({
@@ -142,10 +142,7 @@ export async function createBadgeService({
     }
   }
 
-  function getCurrentTierProgress(
-    badge: Badge,
-    userProgress: Pick<UserBadge, 'achieved_tiers'>
-  ): { nextTier: BadgeTier | undefined; currentTier: BadgeTier | undefined } {
+  function getCurrentTierProgress(badge: Badge, userProgress: Pick<UserBadge, 'achieved_tiers'>): TierProgress {
     const lastAccomplishedTarget = userProgress.achieved_tiers!.length
       ? userProgress.achieved_tiers![userProgress.achieved_tiers!.length - 1]
       : undefined

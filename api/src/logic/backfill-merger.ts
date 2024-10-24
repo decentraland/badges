@@ -1,17 +1,19 @@
 import { BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, IUserProgressValidator } from '../types'
 import { InvalidRequestError } from '@dcl/platform-server-commons'
-import { mergeWearablesEquipementProgress } from './backfills/wearables-equipement-backfill'
-import { mergeEmotionistaProgress } from './backfills/emotionista-backfill'
-import { mergeFashionistaProgress } from './backfills/fashionista-backfill'
-import { mergeEventEnthusiastProgress } from './backfills/event-enthusiast-backfill'
-import { mergeMovesMasterProgress } from './backfills/moves-master-backfill'
-import { mergeSocialButterflyProgress } from './backfills/social-butterfly-backfill'
-import { mergeLandArchitectProgress } from './backfills/land-architect-backfill'
-import { mergeEmoteCreatorProgress } from './backfills/emote-creator-backfill'
-import { mergeWearableDesignerProgress } from './backfills/wearable-designer-backfill'
-import { mergeProfileProProgress } from './backfills/profile-pro-backfill'
-import { mergeOpenForBusinessProgress } from './backfills/open-for-business-backfill'
+import {
+  mergeWearablesEquipmentProgress,
+  mergeEmotionistaProgress,
+  mergeFashionistaProgress,
+  mergeEventEnthusiastProgress,
+  mergeMovesMasterProgress,
+  mergeSocialButterflyProgress,
+  mergeLandArchitectProgress,
+  mergeEmoteCreatorProgress,
+  mergeWearableDesignerProgress,
+  mergeProfileProProgress,
+  mergeOpenForBusinessProgress
+} from './backfills'
 
 export function createBackfillMergerComponent({
   logs,
@@ -33,7 +35,7 @@ export function createBackfillMergerComponent({
         case BadgeId.UNIQUE_UNICORN:
         case BadgeId.LEGENDARY_LOOK:
         case BadgeId.MYTHIC_MODEL:
-          return mergeWearablesEquipementProgress(
+          return mergeWearablesEquipmentProgress(
             userAddress,
             currentUserProgress,
             badgeService.getBadge(badgeId),

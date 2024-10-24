@@ -2,7 +2,8 @@ import { CatalystDeploymentEvent, Entity, EthAddress, Events, Rarity } from '@dc
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Badge, BadgeId, UserBadge } from '@badges/common'
 
-const AMOUNT_OF_MYTHIC_WEARABLES_REQUIRED = 3
+export const AMOUNT_OF_MYTHIC_WEARABLES_REQUIRED = 3
+
 export function createMythicModelObserver({
   db,
   logs,

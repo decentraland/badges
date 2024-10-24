@@ -1,14 +1,19 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { Events, ItemSoldEvent } from '@dcl/schemas'
 import { createFashionistaObserver } from '../../../../src/logic/badges/fashionista'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { BadgeId, UserBadge } from '@badges/common'
+import {
+  getExpectedUserProgressForBadgeBuilder,
+  getMockedComponents,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Fashionista badge handler should', () => {
   const testAddress = '0xTest'
-  const badge = badges.get(BadgeId.FASHIONISTA) as Badge
+
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.FASHIONISTA, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.FASHIONISTA, testAddress)
 
   it('do nothing if the item purchased is not an wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -28,9 +33,9 @@ describe('Fashionista badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemSoldEvent = createItemSoldEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 300
+      progress: { steps: 300 }
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -44,14 +49,16 @@ describe('Fashionista badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemSoldEvent = createItemSoldEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      transactions_wearable_purchase: [
-        {
-          transactionHash: '0xTxHash',
-          saleAt: timestamps.twoMinutesBefore(timestamps.now())
-        }
-      ]
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 1,
+        transactions_wearable_purchase: [
+          {
+            transactionHash: '0xTxHash',
+            saleAt: timestamps.twoMinutesBefore(timestamps.now())
+          }
+        ]
+      }
     })
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
@@ -73,16 +80,14 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = undefined
-
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the number of wearables purchased and return undefined if the user does not achieve a new tier', async () => {
@@ -97,19 +102,13 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      transactions_wearable_purchase: Array.from({ length: 1 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(1, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2 }))
   })
 
   it('increase the number of wearables purchased and grant the second tier of the badge if the user bought 25 wearables', async () => {
@@ -124,13 +123,7 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 24,
-      transactions_wearable_purchase: Array.from({ length: 24 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(24, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -139,7 +132,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 25 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 25 }))
   })
 
   it('increase the number of wearables purchased and grant the third tier of the badge if the user bought 75 wearables', async () => {
@@ -154,13 +147,7 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 74,
-      transactions_wearable_purchase: Array.from({ length: 74 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(74, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -169,7 +156,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 75 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 75 }))
   })
 
   it('increase the number of wearables purchased and grant the fourth tier of the badge if the user bought 250 wearables', async () => {
@@ -184,13 +171,7 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 249,
-      transactions_wearable_purchase: Array.from({ length: 249 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(249, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -199,7 +180,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 250 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 250 }))
   })
 
   it('increase the number of wearables purchased and grant the fifth tier of the badge if the user bought 500 wearables', async () => {
@@ -214,13 +195,7 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 499,
-      transactions_wearable_purchase: Array.from({ length: 499 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(499, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -229,7 +204,7 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 500 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 500 }))
   })
 
   it('increase the number of wearables purchased, grant the last tier of the badge, and mark it as completed if the user bought 1500 wearables', async () => {
@@ -244,13 +219,7 @@ describe('Fashionista badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1499,
-      transactions_wearable_purchase: Array.from({ length: 1499 }, (_, i) => ({
-        transactionHash: `0xTxHash${i}`,
-        saleAt: timestamp
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(1499, timestamp)
 
     const handler = createFashionistaObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -259,20 +228,10 @@ describe('Fashionista badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1500, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1500, completed: true }))
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
-    }
-  }
-
   function createItemSoldEvent(
     options: { txHash?: string; category?: string; timestamp: number } = {
       txHash: '0xTxHash',
@@ -300,57 +259,26 @@ describe('Fashionista badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: {
-    steps: number
-    transactions_wearable_purchase?: { transactionHash: string; saleAt: number }[]
-    completed_at?: number
-  }) {
-    const { steps, transactions_wearable_purchase = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.FASHIONISTA,
+  function getMockedUserProgressBySteps(steps: number, saleAt?: number) {
+    return createMockedUserProgress({
       progress: {
         steps,
-        transactions_wearable_purchase
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
+        transactions_wearable_purchase: Array.from({ length: steps }, (_, i) => ({
+          transactionHash: `0xTxHash${i}`,
+          saleAt: (saleAt || timestamps.now()) + 1
+        }))
+      }
+    })
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    completed?: boolean
-    transactions_wearable_purchase?: { transactionHash: string; saleAt: number }[]
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, transactions_wearable_purchase } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.FASHIONISTA,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        transactions_wearable_purchase:
-          transactions_wearable_purchase || expect.any(Array<{ transactionHash: string; saleAt: number }>)
+        transactions_wearable_purchase: expect.any(Array<{ transactionHash: string; saleAt: number }>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
-    }
+      completed
+    })
   }
 })

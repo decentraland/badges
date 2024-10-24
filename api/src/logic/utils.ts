@@ -134,13 +134,13 @@ export function validateUserProgress(
       }
 
       if (tierDefinition.criteria.steps > userProgress.progress.steps) {
-        errors.push(`tier achieved ${achievedTier.tier_id} is higher than badge criteria`)
+        errors.push(`tier achieved ${achievedTier.tier_id} criteria steps are greater than progress steps`)
       }
 
       if (i > 0) {
         const previousTier = userProgress.achieved_tiers![i - 1]
         if (previousTier.completed_at > achievedTier.completed_at) {
-          errors.push(`tier achieved ${achievedTier.tier_id} completed before previous tier`)
+          errors.push(`tier achieved ${achievedTier.tier_id} completed before previous tier ${previousTier.tier_id}`)
         }
       }
     })

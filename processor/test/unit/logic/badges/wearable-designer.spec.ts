@@ -1,15 +1,20 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { Events, ItemPublishedEvent } from '@dcl/schemas'
 import { createWearableDesignerObserver } from '../../../../src/logic/badges/wearable-designer'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import {
+  getExpectedUserProgressForBadgeBuilder,
+  getMockedComponents,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 
 describe('Wearable Designer badge handler should', () => {
   const testAddress = '0xTest'
 
   const badge = badges.get(BadgeId.WEARABLE_DESIGNER) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(BadgeId.WEARABLE_DESIGNER, testAddress)
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.WEARABLE_DESIGNER, testAddress)
 
   it('do nothing if the item published is not a wearable', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -29,9 +34,11 @@ describe('Wearable Designer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemPublishedEvent = createItemPublishedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
+    const mockUserProgress = createMockedUserProgress({
       completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 100
+      progress: {
+        steps: 100
+      }
     })
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
@@ -45,9 +52,11 @@ describe('Wearable Designer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: ItemPublishedEvent = createItemPublishedEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      published_wearables: [{ itemId: 'anUrn', createdAt: timestamps.now() }]
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 1,
+        published_wearables: [{ itemId: 'anUrn', createdAt: timestamps.now() }]
+      }
     })
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
@@ -69,16 +78,14 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = undefined
-
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toMatchObject({
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 1 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 1 }))
   })
 
   it('increase the number of wearables published and return undefined if the user does not achieve a new tier', async () => {
@@ -93,19 +100,13 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 1,
-      published_wearables: Array.from({ length: 1 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(1, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2 }))
   })
 
   it('increase the number of wearables published and grant the second tier of the badge if the user published 5 wearables', async () => {
@@ -120,13 +121,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 4,
-      published_wearables: Array.from({ length: 4 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(4, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -135,7 +130,7 @@ describe('Wearable Designer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 5 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 5 }))
   })
 
   it('increase the number of wearables published and grant the third tier of the badge if the user published 25 wearables', async () => {
@@ -150,13 +145,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 24,
-      published_wearables: Array.from({ length: 24 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(24, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -165,7 +154,7 @@ describe('Wearable Designer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 25 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 25 }))
   })
 
   it('increase the number of wearables published and grant the fourth tier of the badge if the user published 50 wearables', async () => {
@@ -180,13 +169,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 49,
-      published_wearables: Array.from({ length: 49 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(49, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -195,7 +178,7 @@ describe('Wearable Designer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 50 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 50 }))
   })
 
   it('increase the number of wearables published and grant the fifth tier of the badge if the user published 175 wearables', async () => {
@@ -210,13 +193,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 174,
-      published_wearables: Array.from({ length: 174 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(174, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -225,7 +202,7 @@ describe('Wearable Designer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 175 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 175 }))
   })
 
   it('increase the number of wearables published, grant the last tier of the badge, and mark it as completed if the user published 350 wearables', async () => {
@@ -240,13 +217,7 @@ describe('Wearable Designer badge handler should', () => {
       category: 'wearable'
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 349,
-      published_wearables: Array.from({ length: 349 }, (_, i) => ({
-        itemId: `itemId-${i}`,
-        createdAt: timestamps.oneMinuteBefore(timestamps.now())
-      }))
-    })
+    const mockUserProgress = getMockedUserProgressBySteps(349, timestamps.oneMinuteBefore(timestamps.now()))
 
     const handler = createWearableDesignerObserver({ db, logs, badgeStorage })
     const result = await handler.handle(event, mockUserProgress)
@@ -255,20 +226,10 @@ describe('Wearable Designer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 350, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 350, completed: true }))
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
-    }
-  }
-
   function createItemPublishedEvent(
     options: { itemId?: string; category?: string; timestamp: number } = {
       itemId: 'anUrn',
@@ -291,56 +252,26 @@ describe('Wearable Designer badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: {
-    steps: number
-    published_wearables?: { itemId: string; createdAt: number }[]
-    completed_at?: number
-  }) {
-    const { steps, published_wearables = [], completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WEARABLE_DESIGNER,
+  function getMockedUserProgressBySteps(steps: number, createdAt?: number) {
+    return createMockedUserProgress({
       progress: {
         steps,
-        published_wearables
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
+        published_wearables: Array.from({ length: steps }, (_, i) => ({
+          itemId: `itemId-${i}`,
+          createdAt: (createdAt || timestamps.oneMinuteBefore(timestamps.now())) + i
+        }))
+      }
+    })
   }
 
-  function createExpectedUserProgress(progress: {
-    steps: number
-    completed?: boolean
-    published_wearables?: { itemId: string; createdAt: number }[]
-  }): Omit<UserBadge, 'updated_at'> {
-    const { steps, completed, published_wearables } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WEARABLE_DESIGNER,
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+    const { steps, completed } = progress
+    return createExpectedUserProgress({
       progress: {
         steps,
-        published_wearables: published_wearables || expect.any(Array<{ itemId: string; createdAt: number }>)
+        published_wearables: expect.any(Array<{ itemId: string; createdAt: number }>)
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
-    }
+      completed
+    })
   }
 })

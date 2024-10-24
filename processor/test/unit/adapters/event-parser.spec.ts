@@ -1,7 +1,7 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents, ParsingEventError } from '../../../src/types'
+import { ParsingEventError } from '../../../src/types'
 import { createEventParser, SubType } from '../../../src/adapters/event-parser'
 import { AuthChain, AuthLinkType, Events } from '@dcl/schemas'
+import { getMockedComponents as getDefaultMockedComponents } from '../../utils'
 
 jest.mock('dcl-catalyst-client')
 
@@ -133,8 +133,25 @@ describe('Event Parser', () => {
       }
     )
 
+    it('and the entity is not found', async () => {
+      const { config, logs, badgeContext } = await getMockedComponents()
+      const parser = await createEventParser({ config, logs, badgeContext })
+
+      const event = {
+        entity: { entityId: 'some-id', entityType: Events.SubType.CatalystDeployment.PROFILE },
+        contentServerUrls: ['http://some-url']
+      }
+
+      badgeContext.getEntitiesByPointers = jest.fn().mockResolvedValue([])
+
+      const result = await parser.parse(event)
+      expect(result).toBeUndefined()
+    })
+
     it('and something goes wrong when fetching the entity should throw a ParsingEventError', async () => {
       const { config, logs, badgeContext } = await getMockedComponents()
+      const parser = await createEventParser({ config, logs, badgeContext })
+
       const event = {
         entity: { entityId: 'some-id', entityType: Events.SubType.CatalystDeployment.PROFILE },
         contentServerUrls: ['http://some-url']
@@ -143,27 +160,20 @@ describe('Event Parser', () => {
       badgeContext.getEntitiesByPointers = jest
         .fn()
         .mockRejectedValue(new Error('Error fetching entity from content server'))
-      const parser = await createEventParser({ config, logs, badgeContext })
 
       await expect(parser.parse(event)).rejects.toThrow(ParsingEventError)
     })
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'config' | 'logs' | 'badgeContext'>> {
-    return {
+  async function getMockedComponents() {
+    return getDefaultMockedComponents({
       config: {
         requireString: jest.fn(),
         getString: jest.fn(),
         getNumber: jest.fn(),
         requireNumber: jest.fn()
-      },
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeContext: {
-        getEntityById: jest.fn().mockResolvedValue({} as any),
-        getEntitiesByPointers: jest.fn().mockResolvedValue([] as any),
-        getWearablesWithRarity: jest.fn().mockResolvedValue([] as any)
       }
-    }
+    })
   }
 })

@@ -1,6 +1,6 @@
 import SQL, { SQLStatement } from 'sql-template-strings'
 import { IPgComponent } from '@well-known-components/pg-component'
-import { Badge, BadgeId, UserBadge } from 'types'
+import { Badge, BadgeId, UserBadge } from '../types'
 import { EthAddress } from '@dcl/schemas'
 
 export type DbComponents = {
@@ -24,6 +24,7 @@ export type DbComponent = {
 }
 
 export function createDbComponent({ pg }: Pick<DbComponents, 'pg'>): DbComponent {
+  // TODO: can we remove this function?
   async function getBadgeDefinitions(): Promise<Badge[]> {
     const query: SQLStatement = SQL`
       SELECT * FROM badge

@@ -29,20 +29,22 @@ export async function createSnsComponent({ config }: Pick<AppComponents, 'config
     const batches = chunk(events, MAX_BATCH_SIZE)
 
     const publishBatchPromises = batches.map(async (batch, batchIndex) => {
-      const entries = batch.map((event, index) => ({
-        Id: `msg_${batchIndex * MAX_BATCH_SIZE + index}`,
-        Message: JSON.stringify(event),
-        MessageAttributes: {
-          type: {
-            DataType: 'String',
-            StringValue: event.type
-          },
-          subType: {
-            DataType: 'String',
-            StringValue: event.subType
+      const entries = batch.map((event, index) => {
+        return {
+          Id: `msg_${batchIndex * MAX_BATCH_SIZE + index}`,
+          Message: JSON.stringify(event),
+          MessageAttributes: {
+            type: {
+              DataType: 'String',
+              StringValue: event.type
+            },
+            subType: {
+              DataType: 'String',
+              StringValue: event.subType
+            }
           }
         }
-      }))
+      })
 
       const command = new PublishBatchCommand({
         TopicArn: snsArn,
@@ -55,6 +57,7 @@ export async function createSnsComponent({ config }: Pick<AppComponents, 'config
         Successful?.map((result) => result.MessageId).filter(
           (messageId: string | undefined) => messageId !== undefined
         ) || []
+
       const failedEvents =
         Failed?.map((failure) => {
           const failedEntry = entries.find((entry) => entry.Id === failure.Id)
