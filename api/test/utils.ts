@@ -66,3 +66,11 @@ export function getExpectedNotAchievedBadge(badge: Badge) {
     }
   }
 }
+
+// Return a partition of badge ids: [ [non-tiered badge ids], [tiered badge ids] ]
+export function getBadgeIdsPartition(): [BadgeId[], BadgeId[]] {
+  const tieredBadgeIds = Object.values(BadgeId).filter((id) => !!badges.get(id).tiers)
+  const nonTieredBadgeIds = Object.values(BadgeId).filter((id) => !badges.get(id).tiers)
+
+  return [nonTieredBadgeIds, tieredBadgeIds]
+}

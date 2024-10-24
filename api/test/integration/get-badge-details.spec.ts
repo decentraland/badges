@@ -21,23 +21,25 @@ test('GET /badges/:id', function ({ components }) {
     })
   })
 
-  it('should return the badge definition when the id is valid', async function () {
-    const badgeId = BadgeId.DECENTRALAND_CITIZEN
-    const response = await components.localFetch.fetch(endpointPath(badgeId), {
-      method: 'GET',
-      redirect: 'manual',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+  it.each(Object.values(BadgeId))(
+    'should return the badge definition when the id is %s',
+    async function (badgeId: BadgeId) {
+      const response = await components.localFetch.fetch(endpointPath(badgeId), {
+        method: 'GET',
+        redirect: 'manual',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const body = await response.json()
+      const body = await response.json()
 
-    expect(response.status).toBe(200)
-    expect(body).toMatchObject({
-      data: {
-        badge: components.badgeService.getBadge(badgeId)
-      }
-    })
-  })
+      expect(response.status).toBe(200)
+      expect(body).toMatchObject({
+        data: {
+          badge: components.badgeService.getBadge(badgeId)
+        }
+      })
+    }
+  )
 })
