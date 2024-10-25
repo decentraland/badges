@@ -8,3 +8,4 @@ contents
 yarn-error.log
 .env.local
 *.log
+api/src/migrations
