@@ -53,7 +53,7 @@ export async function initComponents(): Promise<AppComponents> {
     {
       migration: {
         databaseUrl,
-        dir: path.resolve(__dirname, '../../processor/src/migrations'),
+        dir: path.resolve(__dirname, 'migrations'),
         migrationsTable: 'pgmigrations',
         ignorePattern: '.*\\.map',
         direction: 'up'

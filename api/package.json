@@ -3,7 +3,8 @@
   "license": "Apache-2.0",
   "version": "0.0.0",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "yarn copy-migrations && tsc -p tsconfig.json",
+    "copy-migrations": "cp -R ../processor/src/migrations ./src/migrations",
     "start": "node --trace-warnings --abort-on-uncaught-exception --unhandled-rejections=strict dist/index.js",
     "test": "jest --forceExit --detectOpenHandles --coverage --verbose --passWithNoTests",
     "lint:check": "eslint '**/*.{js,ts}'",
