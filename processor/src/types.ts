@@ -100,7 +100,7 @@ export type IObserver = {
 }
 
 export type IEventParser = {
-  parse(event: any): Promise<Event | undefined>
+  parse(event: any): Promise<RetryableEvent | undefined>
 }
 
 export type ICacheStorage = IBaseComponent & {
@@ -131,3 +131,5 @@ export type BadgeProcessorResult = {
   badgeGranted: Badge
   userAddress: string
 }
+
+export type RetryableEvent = { _retry: number } & Event

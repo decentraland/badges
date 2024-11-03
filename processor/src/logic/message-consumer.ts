@@ -1,14 +1,19 @@
 import { Event } from '@dcl/schemas'
-import { AppComponents, MessageConsumerComponent } from '../types'
+import { AppComponents, MessageConsumerComponent, RetryableEvent } from '../types'
 import { sleep } from '../utils/timer'
+import { retry } from '../utils/retryer'
 
 export function createMessagesConsumerComponent({
   logs,
+  config,
   metrics,
   queue,
   messageProcessor,
   eventParser
-}: Pick<AppComponents, 'logs' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
+}: Pick<
+  AppComponents,
+  'logs' | 'config' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'
+>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
   const intervalToWaitInSeconds = 5 // wait time when no messages are found in the queue
   let isRunning = false
@@ -19,6 +24,7 @@ export function createMessagesConsumerComponent({
   }
 
   async function start() {
+    const maxRetries = (await config.getNumber('MAX_RETRIES')) || 3
     logger.info('Starting to listen messages from queue')
     isRunning = true
     while (isRunning) {
@@ -32,7 +38,7 @@ export function createMessagesConsumerComponent({
 
       for (const message of messages) {
         const { Body, ReceiptHandle } = message
-        let parsedMessage: Event | undefined
+        let parsedMessage: RetryableEvent | undefined
 
         try {
           const message = JSON.parse(JSON.parse(Body!).Message)
@@ -53,6 +59,7 @@ export function createMessagesConsumerComponent({
         }
 
         try {
+          logger.debug('Processing message from queue', { eventKey: parsedMessage.key, retry: parsedMessage._retry })
           await messageProcessor.process(parsedMessage)
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         } catch (error: any) {
@@ -62,13 +69,25 @@ export function createMessagesConsumerComponent({
           })
           logger.error('Failed while processing message from queue', {
             messageHandle: ReceiptHandle!,
-            entityId: parsedMessage?.key || 'unknown',
+            eventKey: parsedMessage?.key || 'unknown',
             error: error?.message || 'Unexpected failure'
           })
           logger.debug('Failed while processing message from queue', {
             stack: JSON.stringify(error?.stack)
           })
-          // TODO: Add a retry mechanism OR DLQ
+
+          if (parsedMessage._retry && parsedMessage._retry >= maxRetries) {
+            logger.warn('Max retries reached, removing message from queue', {
+              messageHandle: ReceiptHandle!,
+              eventKey: parsedMessage?.key || 'unknown',
+              retry: parsedMessage._retry
+            })
+          } else {
+            logger.info('Retrying message', { entityId: parsedMessage.key })
+            await queue.send({ ...parsedMessage, _retry: (parsedMessage._retry || 0) + 1 })
+          }
+
+          // current message must be removed either way
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         }
       }

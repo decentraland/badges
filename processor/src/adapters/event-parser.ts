@@ -13,7 +13,7 @@ import {
   WalkedDistanceEvent,
   ItemPublishedEvent
 } from '@dcl/schemas'
-import { AppComponents, IEventParser, ParsingEventError } from '../types'
+import { AppComponents, IEventParser, ParsingEventError, RetryableEvent } from '../types'
 
 export type SubType = BaseEvent['subType']
 type EventParser = (event: any) => Event
@@ -79,10 +79,12 @@ export async function createEventParser({
     return undefined
   }
 
-  async function parse(event: any): Promise<Event | undefined> {
+  async function parse(event: any): Promise<RetryableEvent | undefined> {
+    const aggregateRetry = (e: Event | undefined) => (e ? { ...e, _retry: event._retry || 0 } : e)
+
     try {
       if (event.entity && Object.values(Events.SubType.CatalystDeployment).includes(event.entity.entityType)) {
-        return await parseCatalystEvent(event)
+        return aggregateRetry(await parseCatalystEvent(event))
       }
 
       const parsedEvent = parseEvent(event)
@@ -91,7 +93,7 @@ export async function createEventParser({
         logger.debug('Event not parsed', { event: JSON.stringify(event) })
       }
 
-      return parsedEvent
+      return aggregateRetry(parsedEvent)
     } catch (error: any) {
       const message = error?.message || 'No details'
       logger.debug('Error while parsing event', {
