@@ -1,6 +1,6 @@
-import { Event, Events } from '@dcl/schemas'
+import { EthAddress, Event, Events } from '@dcl/schemas'
 import { AppComponents, IEventDispatcher, IObserver } from '../types'
-import { UserBadge } from '@badges/common'
+import { BadgeId, UserBadge } from '@badges/common'
 
 export function createEventDispatcher({
   logs,
@@ -39,12 +39,18 @@ export function createEventDispatcher({
         event_sub_type: event.subType,
         badge_name: observer.badge.name
       })
+
       logger.error(`Failed while executing handler for badge ${observer.badge.name}`, {
         error: error.message,
+        rootCause: error?.cause?.message,
         eventKey: event?.key
       })
 
-      logger.debug(`Details about the error`, { stack: JSON.stringify(error.stack), eventKey: event?.key })
+      logger.debug(`Details about the error`, {
+        stack: JSON.stringify(error.stack),
+        rootStack: JSON.stringify(error?.cause?.stack),
+        eventKey: event?.key
+      })
     }
   }
 
@@ -59,14 +65,16 @@ export function createEventDispatcher({
         eventMetadata: JSON.stringify(eventMetadata)
       })
 
-      const list = observers.get(observerKey)
-      if (!list || list.length === 0) {
+      const observersToInvoke = observers.get(observerKey)
+      if (!observersToInvoke || observersToInvoke.length === 0) {
         logger.debug(`No observers configured for key ${observerKey}`)
         return
       }
 
-      const badgeIds = list.map((observer) => observer.badgeId)
-      const userAddresses = list.map((observer) => observer.getUserAddress(event))
+      const badgeIds: BadgeId[] = observersToInvoke.map((observer) => observer.badgeId)
+      const userAddresses: EthAddress[] = Array.from(
+        new Set<EthAddress>(observersToInvoke.map((observer) => observer.getUserAddress(event)))
+      )
 
       logger.info('Dispatching event', {
         eventKey: event.key,
@@ -83,7 +91,7 @@ export function createEventDispatcher({
         ])
       )
 
-      const checks = list
+      const asyncResults = observersToInvoke
         .filter((observer) => {
           const userProgress = userProgressMap.get(`${observer.badgeId}-${observer.getUserAddress(event)}`)
           return !userProgress || !userProgress.completed_at
@@ -93,7 +101,7 @@ export function createEventDispatcher({
           return handleEvent(observer, event, userProgress)
         })
 
-      const badgesToGrant = (await Promise.all(checks)).filter(Boolean).flat()
+      const badgesToGrant = (await Promise.all(asyncResults)).filter(Boolean).flat()
 
       metrics.increment('events_correctly_handled_count', {
         event_type: event.type,
