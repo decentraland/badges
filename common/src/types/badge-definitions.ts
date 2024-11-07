@@ -1,8 +1,34 @@
+import {
+  TierEmoteCreator,
+  TierEmotionista,
+  TierEventEnthusiast,
+  TierFashionista,
+  TierMovesMaster,
+  TierMusicFestival,
+  TierSocialButterfly,
+  TierTraveler,
+  TierWalkaboutWanderer,
+  TierWearableDesigner
+} from './tiers'
+
 export type UserBadge = {
   user_address: string
   badge_id: BadgeId
   progress: any
-  achieved_tiers?: { tier_id: string; completed_at: number }[]
+  achieved_tiers?: {
+    tier_id:
+      | TierTraveler
+      | TierEmotionista
+      | TierFashionista
+      | TierEventEnthusiast
+      | TierMovesMaster
+      | TierSocialButterfly
+      | TierWalkaboutWanderer
+      | TierEmoteCreator
+      | TierWearableDesigner
+      | TierMusicFestival
+    completed_at: number
+  }[]
   completed_at?: number
   updated_at?: number
 }
@@ -29,7 +55,17 @@ export type Badge = {
 }
 
 export type BadgeTier = {
-  tierId: string
+  tierId:
+    | TierTraveler
+    | TierEmotionista
+    | TierFashionista
+    | TierEventEnthusiast
+    | TierMovesMaster
+    | TierSocialButterfly
+    | TierWalkaboutWanderer
+    | TierEmoteCreator
+    | TierWearableDesigner
+    | TierMusicFestival
   /**
    * The tier name
    * e.g. "Bronze", "Silver", "Gold"
@@ -61,7 +97,8 @@ export enum BadgeId {
   WALKABOUT_WANDERER = 'walkabout_wanderer',
   LAND_ARCHITECT = 'land_architect',
   EMOTE_CREATOR = 'emote_creator',
-  WEARABLE_DESIGNER = 'wearable_designer'
+  WEARABLE_DESIGNER = 'wearable_designer',
+  MUSIC_FESTIVAL = 'music_festival'
 }
 
 export enum BadgeCategory {
