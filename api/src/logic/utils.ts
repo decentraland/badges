@@ -1,4 +1,16 @@
 import { Badge, BadgeId, UserBadge } from '@badges/common'
+import {
+  TierEmoteCreator,
+  TierEmotionista,
+  TierEventEnthusiast,
+  TierFashionista,
+  TierMovesMaster,
+  TierMusicFestival,
+  TierSocialButterfly,
+  TierTraveler,
+  TierWalkaboutWanderer,
+  TierWearableDesigner
+} from '@badges/common/src/types/tiers'
 
 export function parseBadgeId(id: string): BadgeId | undefined {
   if (Object.values(BadgeId).includes(id as BadgeId)) {
@@ -47,7 +59,20 @@ export function tryToGetAchievedTiers<T, TK extends KeyOfWithValue<T, number>>(
   userProgress: UserBadge,
   sortedItems: T[],
   timestampKey: TK
-): { tier_id: string; completed_at: number }[] {
+): {
+  tier_id:
+    | TierTraveler
+    | TierEmotionista
+    | TierFashionista
+    | TierEventEnthusiast
+    | TierMovesMaster
+    | TierSocialButterfly
+    | TierWalkaboutWanderer
+    | TierEmoteCreator
+    | TierWearableDesigner
+    | TierMusicFestival
+  completed_at: number
+}[] {
   const achievedTiers = getBadgeAchievedTiers(badge, userProgress)
 
   return achievedTiers.map((tier) => {

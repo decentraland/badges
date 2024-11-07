@@ -14,6 +14,7 @@ import {
   mergeProfileProProgress,
   mergeOpenForBusinessProgress
 } from './backfills'
+import { mergeEventMusicFestivalProgress } from './backfills/event-music-festival-backfill'
 
 export function createBackfillMergerComponent({
   logs,
@@ -109,6 +110,13 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.OPEN_FOR_BUSINESS),
+            backfillData
+          )
+        case BadgeId.MUSIC_FESTIVAL:
+          return mergeEventMusicFestivalProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(BadgeId.MUSIC_FESTIVAL),
             backfillData
           )
 
