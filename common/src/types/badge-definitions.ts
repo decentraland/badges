@@ -1,32 +1,11 @@
-import {
-  TierEmoteCreator,
-  TierEmotionista,
-  TierEventEnthusiast,
-  TierFashionista,
-  TierMovesMaster,
-  TierMusicFestival,
-  TierSocialButterfly,
-  TierTraveler,
-  TierWalkaboutWanderer,
-  TierWearableDesigner
-} from './tiers'
+import { TierId } from './tiers'
 
 export type UserBadge = {
   user_address: string
   badge_id: BadgeId
   progress: any
   achieved_tiers?: {
-    tier_id:
-      | TierTraveler
-      | TierEmotionista
-      | TierFashionista
-      | TierEventEnthusiast
-      | TierMovesMaster
-      | TierSocialButterfly
-      | TierWalkaboutWanderer
-      | TierEmoteCreator
-      | TierWearableDesigner
-      | TierMusicFestival
+    tier_id: TierId
     completed_at: number
   }[]
   completed_at?: number
@@ -55,17 +34,7 @@ export type Badge = {
 }
 
 export type BadgeTier = {
-  tierId:
-    | TierTraveler
-    | TierEmotionista
-    | TierFashionista
-    | TierEventEnthusiast
-    | TierMovesMaster
-    | TierSocialButterfly
-    | TierWalkaboutWanderer
-    | TierEmoteCreator
-    | TierWearableDesigner
-    | TierMusicFestival
+  tierId: TierId
   /**
    * The tier name
    * e.g. "Bronze", "Silver", "Gold"

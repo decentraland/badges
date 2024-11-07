@@ -86,6 +86,18 @@ enum TierMusicFestival {
   FINAL_DAY = 'music-festival-final-day'
 }
 
+type TierId =
+  | TierTraveler
+  | TierEmotionista
+  | TierFashionista
+  | TierEventEnthusiast
+  | TierMovesMaster
+  | TierSocialButterfly
+  | TierWalkaboutWanderer
+  | TierEmoteCreator
+  | TierWearableDesigner
+  | TierMusicFestival
+
 export {
   TierTraveler,
   TierEmotionista,
@@ -96,5 +108,6 @@ export {
   TierWalkaboutWanderer,
   TierEmoteCreator,
   TierWearableDesigner,
-  TierMusicFestival
+  TierMusicFestival,
+  TierId
 }

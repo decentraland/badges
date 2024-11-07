@@ -12,9 +12,9 @@ import {
   mergeEmoteCreatorProgress,
   mergeWearableDesignerProgress,
   mergeProfileProProgress,
-  mergeOpenForBusinessProgress
+  mergeOpenForBusinessProgress,
+  mergeEventMusicFestivalProgress
 } from './backfills'
-import { mergeEventMusicFestivalProgress } from './backfills/event-music-festival-backfill'
 
 export function createBackfillMergerComponent({
   logs,

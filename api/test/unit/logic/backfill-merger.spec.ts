@@ -15,9 +15,9 @@ import {
   mergeProfileProProgress,
   mergeSocialButterflyProgress,
   mergeWearableDesignerProgress,
-  mergeWearablesEquipmentProgress
+  mergeWearablesEquipmentProgress,
+  mergeEventMusicFestivalProgress
 } from '../../../src/logic/backfills'
-import { mergeEventMusicFestivalProgress } from '../../../src/logic/backfills/event-music-festival-backfill'
 
 jest.mock('../../../src/logic/backfills')
 
