@@ -8,6 +8,7 @@ import {
   tryToGetCompletedAt,
   validateUserProgress
 } from '../../../src/logic/utils'
+import { TierId } from '@badges/common/src/types/tiers'
 
 describe('Utils', () => {
   describe('when parsing a badge id', () => {
@@ -75,24 +76,24 @@ describe('Utils', () => {
     it('should return achieved tiers based on user progress steps', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
       const userProgress = { progress: { steps: 5 } } as UserBadge
       const result = getBadgeAchievedTiers(badge, userProgress)
       expect(result).toEqual([
-        { tierId: 'tier1', criteria: { steps: 1 } },
-        { tierId: 'tier2', criteria: { steps: 5 } }
+        { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+        { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
       ])
     })
 
     it('should return an empty array if no tiers are achieved', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 10 } },
-          { tierId: 'tier2', criteria: { steps: 20 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 10 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 20 } }
         ]
       } as Badge
 
@@ -106,16 +107,16 @@ describe('Utils', () => {
     it('should return achieved tiers with completed_at timestamps', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
       const userProgress = {
         progress: { steps: 5 },
         achieved_tiers: [
-          { tier_id: 'tier1', completed_at: 10000 },
-          { tier_id: 'tier2', completed_at: 50000 }
+          { tier_id: 'tier1' as TierId, completed_at: 10000 },
+          { tier_id: 'tier2' as TierId, completed_at: 50000 }
         ]
       } as UserBadge
 
@@ -125,14 +126,14 @@ describe('Utils', () => {
 
       const result = tryToGetAchievedTiers(badge, userProgress, sortedItems, 'timestamp')
       expect(result).toEqual([
-        { tier_id: 'tier1', completed_at: 1000 },
-        { tier_id: 'tier2', completed_at: 5000 }
+        { tier_id: 'tier1' as TierId, completed_at: 1000 },
+        { tier_id: 'tier2' as TierId, completed_at: 5000 }
       ])
     })
 
     it('should throw an error if no item found for a tier', () => {
       const badge = {
-        tiers: [{ tierId: 'tier1', criteria: { steps: 1 } }]
+        tiers: [{ tierId: 'tier1' as TierId, criteria: { steps: 1 } }]
       } as Badge
 
       const userProgress = { progress: { steps: 1 }, achieved_tiers: [] } as UserBadge
@@ -147,12 +148,12 @@ describe('Utils', () => {
     it('should return undefined when the user have not achieved all the tiers', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
-      const userProgress = { achieved_tiers: [{ tier_id: 'tier2', completed_at: 2000 }] } as UserBadge
+      const userProgress = { achieved_tiers: [{ tier_id: 'tier2' as TierId, completed_at: 2000 }] } as UserBadge
 
       const sortedItems = [{ timestamp: 1000 }, { timestamp: 2000 }]
 
@@ -171,8 +172,8 @@ describe('Utils', () => {
     it('should return the completed at timestamp from the last tier', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
@@ -193,12 +194,12 @@ describe('Utils', () => {
 
     it('should throw an error if the item for the last tier is not found', () => {
       const badge = {
-        tiers: [{ tierId: 'tier1', criteria: { steps: 1 } }]
+        tiers: [{ tierId: 'tier1' as TierId, criteria: { steps: 1 } }]
       } as Badge
 
       const userProgress = {
         progress: { steps: 1 },
-        achieved_tiers: [{ tier_id: 'tier1', completed_at: 1000 }]
+        achieved_tiers: [{ tier_id: 'tier1' as TierId, completed_at: 1000 }]
       } as UserBadge
 
       const sortedItems = []
@@ -211,15 +212,15 @@ describe('Utils', () => {
     it('should return ok when no errors nor mismatches found', () => {
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
       const userProgress = {
         achieved_tiers: [
-          { tier_id: 'tier1', completed_at: 1000 },
-          { tier_id: 'tier2', completed_at: 2000 }
+          { tier_id: 'tier1' as TierId, completed_at: 1000 },
+          { tier_id: 'tier2' as TierId, completed_at: 2000 }
         ],
         progress: { steps: 5 },
         completed_at: 2000
@@ -247,7 +248,7 @@ describe('Utils', () => {
       } as UserBadge
 
       const badge = {
-        tiers: [{ tierId: 'tier1', criteria: { steps: 1 } }]
+        tiers: [{ tierId: 'tier1' as TierId, criteria: { steps: 1 } }]
       } as Badge
 
       const result = validateUserProgress(userProgress, badge)
@@ -272,11 +273,11 @@ describe('Utils', () => {
 
     it('should return an error when user achieved a non existent tier', () => {
       const userProgress = {
-        achieved_tiers: [{ tier_id: 'non-existent-tier', completed_at: 1000 }]
+        achieved_tiers: [{ tier_id: 'non-existent-tier' as TierId, completed_at: 1000 }]
       } as UserBadge
 
       const badge = {
-        tiers: [{ tierId: 'tier1', criteria: { steps: 1 } }]
+        tiers: [{ tierId: 'tier1' as TierId, criteria: { steps: 1 } }]
       } as Badge
 
       const result = validateUserProgress(userProgress, badge)
@@ -287,18 +288,18 @@ describe('Utils', () => {
     it('should return an error when there is a mismatch between the tier criteria and the user progress', () => {
       const userProgress = {
         achieved_tiers: [
-          { tier_id: 'tier1', completed_at: 1000 },
-          { tier_id: 'tier2', completed_at: 2000 },
-          { tier_id: 'tier3', completed_at: 3000 }
+          { tier_id: 'tier1' as TierId, completed_at: 1000 },
+          { tier_id: 'tier2' as TierId, completed_at: 2000 },
+          { tier_id: 'tier3' as TierId, completed_at: 3000 }
         ],
         progress: { steps: 5 }
       } as UserBadge
 
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } },
-          { tierId: 'tier3', criteria: { steps: 10 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } },
+          { tierId: 'tier3' as TierId, criteria: { steps: 10 } }
         ]
       } as Badge
 
@@ -310,16 +311,16 @@ describe('Utils', () => {
     it('should return an error when there is a mismatch between the completion time of two contiguous tiers', () => {
       const userProgress = {
         achieved_tiers: [
-          { tier_id: 'tier1', completed_at: 1000 },
-          { tier_id: 'tier2', completed_at: 500 }
+          { tier_id: 'tier1' as TierId, completed_at: 1000 },
+          { tier_id: 'tier2' as TierId, completed_at: 500 }
         ],
         progress: { steps: 5 }
       } as UserBadge
 
       const badge = {
         tiers: [
-          { tierId: 'tier1', criteria: { steps: 1 } },
-          { tierId: 'tier2', criteria: { steps: 5 } }
+          { tierId: 'tier1' as TierId, criteria: { steps: 1 } },
+          { tierId: 'tier2' as TierId, criteria: { steps: 5 } }
         ]
       } as Badge
 
