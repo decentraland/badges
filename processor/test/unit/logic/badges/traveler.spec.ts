@@ -7,6 +7,7 @@ import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
 import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 import { createBadgeContextMock } from '../../../mocks/badge-context-mock'
 import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
+import { TierTraveler } from '@badges/common/src/types/tiers'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -58,7 +59,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: timestamps.twoMinutesBefore(event.timestamp),
-          tier_id: 'traveler-starter'
+          tier_id: TierTraveler.STARTER
         }
       ]
     }
@@ -120,7 +121,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: 'traveler-starter'
+          tier_id: TierTraveler.STARTER
         }
       ]
     })
@@ -172,7 +173,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: 'traveler-starter'
+          tier_id: TierTraveler.STARTER
         }
       ]
     })
@@ -197,7 +198,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-          tier_id: 'traveler-starter'
+          tier_id: TierTraveler.STARTER
         }
       ]
     }
@@ -240,11 +241,11 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: 'traveler-starter'
+          tier_id: TierTraveler.STARTER
         },
         {
           completed_at: expect.any(Number),
-          tier_id: 'traveler-bronze'
+          tier_id: TierTraveler.BRONZE
         }
       ]
     })
