@@ -13,7 +13,7 @@ import {
   mergeWearableDesignerProgress,
   mergeProfileProProgress,
   mergeOpenForBusinessProgress,
-  mergeEventMusicFestivalProgress
+  mergeEventDCLProgress
 } from './backfills'
 
 export function createBackfillMergerComponent({
@@ -113,12 +113,7 @@ export function createBackfillMergerComponent({
             backfillData
           )
         case BadgeId.MUSIC_FESTIVAL:
-          return mergeEventMusicFestivalProgress(
-            userAddress,
-            currentUserProgress,
-            badgeService.getBadge(BadgeId.MUSIC_FESTIVAL),
-            backfillData
-          )
+          return mergeEventDCLProgress(userAddress, currentUserProgress, badgeService.getBadge(badgeId), backfillData)
 
         default:
           throw new InvalidRequestError('Invalid Badge ID')

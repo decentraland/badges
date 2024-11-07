@@ -1,5 +1,6 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
-import { TierId } from '@badges/common/src/types/tiers'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
+import { TierDay, TierEvent, TierEventType, TierId } from '@badges/common/src/types/tiers'
+import { createEventBadgeTiers } from '@badges/common/src/types/utils'
 
 export function parseBadgeId(id: string): BadgeId | undefined {
   if (Object.values(BadgeId).includes(id as BadgeId)) {
@@ -151,4 +152,8 @@ export function validateUserProgress(
   }
 
   return { ok: errors.length === 0, errors }
+}
+
+export function validateEventTiers(tier: TierId, badgeTiers: BadgeTier[]): boolean {
+  return badgeTiers.some((badgeTier) => badgeTier.tierId === tier)
 }

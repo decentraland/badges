@@ -3,11 +3,11 @@ import { createDbMock } from '../../../mocks/db-mock'
 import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createTravelerObserver } from '../../../../src/logic/badges/traveler'
-import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
+import { BadgeId } from '@badges/common'
 import { mapBadgeToHaveTierNth, timestamps } from '../../../utils'
 import { createBadgeContextMock } from '../../../mocks/badge-context-mock'
 import { createBadgeStorageMock } from '../../../mocks/badge-storage-mock'
-import { TierTraveler } from '@badges/common/src/types/tiers'
+import { TierBadge, TierBadgeLevelType, TierLevel } from '@badges/common/src/types/tiers'
 
 describe('Traveler badge handler should', () => {
   const testAddress = '0xTest'
@@ -59,7 +59,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: timestamps.twoMinutesBefore(event.timestamp),
-          tier_id: TierTraveler.STARTER
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.STARTER}` as TierBadgeLevelType
         }
       ]
     }
@@ -121,7 +121,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: TierTraveler.STARTER
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.STARTER}` as TierBadgeLevelType
         }
       ]
     })
@@ -173,7 +173,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: TierTraveler.STARTER
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.STARTER}` as TierBadgeLevelType
         }
       ]
     })
@@ -198,7 +198,7 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-          tier_id: TierTraveler.STARTER
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.STARTER}` as TierBadgeLevelType
         }
       ]
     }
@@ -241,11 +241,11 @@ describe('Traveler badge handler should', () => {
       achieved_tiers: [
         {
           completed_at: expect.any(Number),
-          tier_id: TierTraveler.STARTER
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.STARTER}` as TierBadgeLevelType
         },
         {
           completed_at: expect.any(Number),
-          tier_id: TierTraveler.BRONZE
+          tier_id: `${TierBadge.TRAVELER}-${TierLevel.BRONZE}` as TierBadgeLevelType
         }
       ]
     })

@@ -1,27 +1,29 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
-import { TierMusicFestival } from '@badges/common/src/types/tiers'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
+import { TierEventType } from '@badges/common/src/types/tiers'
 import { EthAddress } from '@dcl/schemas'
-import { tryToGetAchievedTiers } from '../utils'
+import { tryToGetAchievedTiers, validateEventTiers } from '../utils'
 
-function validateEventMusicFestivalProgress(data: {
-  progress: {
-    steps: number
-    tier: TierMusicFestival
+function validateEventDCLProgress(
+  badgeTiers: BadgeTier[],
+  data: {
+    progress: {
+      steps: number
+      tier: TierEventType
+    }
   }
-}): boolean {
+): boolean {
   if (!Number.isInteger(data.progress.steps)) return false
-  if (!Object.values(TierMusicFestival).includes(data.progress.tier)) return false
 
-  return true
+  return validateEventTiers(data.progress.tier, badgeTiers)
 }
 
-export function mergeEventMusicFestivalProgress(
+export function mergeEventDCLProgress(
   userAddress: EthAddress,
   currentUserProgress: UserBadge | undefined,
   badge: Badge,
-  backfillData: { badgeId: BadgeId; progress: { steps: number; tier: TierMusicFestival } }
+  backfillData: { badgeId: BadgeId; progress: { steps: number; tier: TierEventType } }
 ): UserBadge {
-  const isValid = validateEventMusicFestivalProgress(backfillData)
+  const isValid = validateEventDCLProgress(badge.tiers!, backfillData)
   if (!badge || !isValid) {
     throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }
@@ -31,12 +33,11 @@ export function mergeEventMusicFestivalProgress(
     badge_id: backfillData.badgeId,
     completed_at: undefined,
     progress: {
-      steps: 0,
-      tier: TierMusicFestival
+      steps: 0
     },
     achieved_tiers: []
   }
-
+  badge.tiers
   userProgress.progress = {
     steps: backfillData.progress.steps,
     tier: backfillData.progress.tier
