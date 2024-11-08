@@ -1,6 +1,5 @@
 import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
-import { TierDay, TierEvent, TierEventType, TierId } from '@badges/common/src/types/tiers'
-import { createEventBadgeTiers } from '@badges/common/src/types/utils'
+import { TierId } from '@badges/common/src/types/tiers'
 
 export function parseBadgeId(id: string): BadgeId | undefined {
   if (Object.values(BadgeId).includes(id as BadgeId)) {

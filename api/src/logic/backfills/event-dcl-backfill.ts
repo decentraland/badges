@@ -37,7 +37,7 @@ export function mergeEventDCLProgress(
     },
     achieved_tiers: []
   }
-  badge.tiers
+
   userProgress.progress = {
     steps: backfillData.progress.steps,
     tier: backfillData.progress.tier

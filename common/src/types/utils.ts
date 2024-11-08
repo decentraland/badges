@@ -26,6 +26,9 @@ const capitalize = (text: string): string => {
 }
 
 const createLevelBadgeTiers = (tierBadge: TierBadge, steps: number[], descriptions: string[]): BadgeTier[] => {
+  if (steps.length !== Object.values(TierLevel).length) {
+    throw new Error('The number of steps must match the number of levels')
+  }
   const levels = Object.values(TierLevel)
 
   return levels.map((level, step) => {
@@ -38,4 +41,4 @@ const createLevelBadgeTiers = (tierBadge: TierBadge, steps: number[], descriptio
   })
 }
 
-export { createEventBadgeTiers, createLevelBadgeTiers }
+export { getEnumKeyPosition, createEventBadgeTiers, createLevelBadgeTiers, capitalize }
