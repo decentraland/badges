@@ -1,29 +1,39 @@
 import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 import { TierEventType } from '@badges/common/src/types/tiers'
 import { EthAddress } from '@dcl/schemas'
-import { tryToGetAchievedTiers, validateEventTiers } from '../utils'
+import { tryToGetAchievedTiers, tryToGetCompletedAt, validateEventTiers, validateUserProgress } from '../utils'
 
 function validateEventDCLProgress(
   badgeTiers: BadgeTier[],
-  data: {
-    progress: {
-      steps: number
-      tier: TierEventType
-    }
+  progress: {
+    steps: number
+    tiers: {
+      id: TierEventType
+      at: number
+    }[]
   }
 ): boolean {
-  if (!Number.isInteger(data.progress.steps)) return false
+  if (!Number.isInteger(progress.steps)) return false
 
-  return validateEventTiers(data.progress.tier, badgeTiers)
+  return validateEventTiers(progress.tiers, badgeTiers)
 }
 
 export function mergeEventDCLProgress(
   userAddress: EthAddress,
   currentUserProgress: UserBadge | undefined,
   badge: Badge,
-  backfillData: { badgeId: BadgeId; progress: { steps: number; tier: TierEventType } }
+  backfillData: {
+    badgeId: BadgeId
+    progress: {
+      steps: number
+      tiers: {
+        id: TierEventType
+        at: number
+      }[]
+    }
+  }
 ): UserBadge {
-  const isValid = validateEventDCLProgress(badge.tiers!, backfillData)
+  const isValid = validateEventDCLProgress(badge.tiers!, backfillData.progress)
   if (!badge || !isValid) {
     throw new Error(`Failed while processing back-fill. Badge: ${JSON.stringify(backfillData)}. User: ${userAddress}.`)
   }
@@ -33,32 +43,32 @@ export function mergeEventDCLProgress(
     badge_id: backfillData.badgeId,
     completed_at: undefined,
     progress: {
-      steps: 0
+      steps: 0,
+      tiers: []
     },
     achieved_tiers: []
   }
 
-  userProgress.progress = {
-    steps: backfillData.progress.steps,
-    tier: backfillData.progress.tier
-  }
+  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, backfillData.progress.tiers, 'at')
 
-  const achievedTiers = tryToGetAchievedTiers(badge, userProgress, [backfillData.progress], 'steps')
-  if (backfillData.progress.steps <= userProgress.progress.steps || achievedTiers.length > 0) {
-    return userProgress
-  }
+  achievedTiers.forEach((tier) => {
+    const existingTier = userProgress.achieved_tiers?.find((t) => t.tier_id === tier.tier_id)
+    if (!existingTier) {
+      userProgress.achieved_tiers?.push(tier)
+    } else {
+      existingTier.completed_at = Math.min(existingTier.completed_at, tier.completed_at)
+    }
+  })
 
-  if (achievedTiers.length > 0) {
-    userProgress.achieved_tiers = achievedTiers.map((tier) => {
-      const userAlreadyHadThisTier = userProgress.achieved_tiers!.find(
-        (achievedTier) => achievedTier.tier_id === tier.tier_id
-      )
+  userProgress.achieved_tiers?.sort((a, b) => a.completed_at - b.completed_at)
 
-      return {
-        tier_id: tier.tier_id,
-        completed_at: userAlreadyHadThisTier ? userAlreadyHadThisTier.completed_at : Date.now()
-      }
-    })
+  userProgress.completed_at = tryToGetCompletedAt(badge, userProgress, backfillData.progress.tiers, 'at')
+
+  const validation = validateUserProgress(userProgress, badge)
+  if (!validation.ok) {
+    throw new Error(
+      `User progress validation failed: ${JSON.stringify(validation.errors)}. User: ${userAddress}. Badge: ${badge.id}`
+    )
   }
 
   return userProgress

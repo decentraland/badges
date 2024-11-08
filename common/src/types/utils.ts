@@ -10,8 +10,8 @@ const createEventBadgeTiers = (tierEvent: TierEvent, daysLabel: TierDay): BadgeT
   const numberOfDays = getOrdinalForTierDay(daysLabel)
   return Array.from({ length: numberOfDays }, (_, key) => ({
     tierId: `${tierEvent}-day-${daysLabel}` as TierId,
-    tierName: `Day ${daysLabel}`,
-    description: `Day ${daysLabel} in the ${tierEvent.split('-').join(' ')}`,
+    tierName: `${daysLabel} day`,
+    description: `${daysLabel} day in the ${tierEvent.split('-').join(' ')}`,
     criteria: { steps: key + 1 }
   }))
 }

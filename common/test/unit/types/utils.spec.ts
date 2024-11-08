@@ -22,8 +22,8 @@ describe('types utils', () => {
       result.forEach((tier, index) => {
         expect(tier).toEqual({
           tierId: `${TierEvent.MUSIC_FESTIVAL}-day-${TierDay.FOUR}` as TierId,
-          tierName: `Day ${TierDay.FOUR}`,
-          description: `Day ${TierDay.FOUR} in the ${TierEvent.MUSIC_FESTIVAL.split('-').join(' ')}`,
+          tierName: `${TierDay.FOUR} day`,
+          description: `${TierDay.FOUR} day in the ${TierEvent.MUSIC_FESTIVAL.split('-').join(' ')}`,
           criteria: { steps: index + 1 }
         })
       })

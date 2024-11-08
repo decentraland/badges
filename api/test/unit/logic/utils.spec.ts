@@ -9,7 +9,7 @@ import {
   validateUserProgress,
   validateEventTiers
 } from '../../../src/logic/utils'
-import { TierDay, TierEvent, TierId } from '@badges/common/src/types/tiers'
+import { TierDay, TierEvent, TierEventType, TierId } from '@badges/common/src/types/tiers'
 
 describe('Utils', () => {
   describe('when parsing a badge id', () => {
@@ -332,8 +332,11 @@ describe('Utils', () => {
   })
 
   describe('validateEventTiers', () => {
-    it('should return true if the tier exists in the badgeTiers array', () => {
-      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`
+    it('should return true if all tiers exist in the badgeTiers array with matching steps', () => {
+      const tiers = [
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}` as TierEventType, at: 2 }
+      ]
       const badgeTiers: BadgeTier[] = [
         {
           tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
@@ -349,11 +352,14 @@ describe('Utils', () => {
         }
       ]
 
-      expect(validateEventTiers(tier, badgeTiers)).toBe(true)
+      expect(validateEventTiers(tiers, badgeTiers)).toBe(true)
     })
 
-    it('should return false if the tier does not exist in the badgeTiers array', () => {
-      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.THREE}`
+    it('should return false if a tier exists in badgeTiers but steps do not match', () => {
+      const tiers = [
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}` as TierEventType, at: 3 }
+      ]
       const badgeTiers: BadgeTier[] = [
         {
           tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
@@ -369,14 +375,57 @@ describe('Utils', () => {
         }
       ]
 
-      expect(validateEventTiers(tier, badgeTiers)).toBe(false)
+      expect(validateEventTiers(tiers, badgeTiers)).toBe(false)
+    })
+
+    it('should return false if any tier is missing in the badgeTiers array', () => {
+      const tiers = [
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.THREE}` as TierEventType, at: 3 }
+      ]
+      const badgeTiers: BadgeTier[] = [
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierName: 'Day 1',
+          description: 'Day 1 of Music Festival',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierName: 'Day 2',
+          description: 'Day 2 of Music Festival',
+          criteria: { steps: 2 }
+        }
+      ]
+
+      expect(validateEventTiers(tiers, badgeTiers)).toBe(false)
     })
 
     it('should return false if the badgeTiers array is empty', () => {
-      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`
+      const tiers = [{ id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 }]
       const badgeTiers: BadgeTier[] = []
 
-      expect(validateEventTiers(tier, badgeTiers)).toBe(false)
+      expect(validateEventTiers(tiers, badgeTiers)).toBe(false)
+    })
+
+    it('should return true if tiers array is empty', () => {
+      const tiers: { id: TierEventType; at: number }[] = []
+      const badgeTiers: BadgeTier[] = [
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierName: 'Day 1',
+          description: 'Day 1 of Music Festival',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierName: 'Day 2',
+          description: 'Day 2 of Music Festival',
+          criteria: { steps: 2 }
+        }
+      ]
+
+      expect(validateEventTiers(tiers, badgeTiers)).toBe(true)
     })
   })
 })
