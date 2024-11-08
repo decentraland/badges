@@ -1,4 +1,4 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
 import {
   parseBadgeId,
   getCompletedAt,
@@ -6,9 +6,10 @@ import {
   getBadgeAchievedTiers,
   tryToGetAchievedTiers,
   tryToGetCompletedAt,
-  validateUserProgress
+  validateUserProgress,
+  validateEventTiers
 } from '../../../src/logic/utils'
-import { TierId } from '@badges/common/src/types/tiers'
+import { TierDay, TierEvent, TierId } from '@badges/common/src/types/tiers'
 
 describe('Utils', () => {
   describe('when parsing a badge id', () => {
@@ -327,6 +328,55 @@ describe('Utils', () => {
       const result = validateUserProgress(userProgress, badge)
       expect(result.ok).toBe(false)
       expect(result.errors).toHaveLength(1)
+    })
+  })
+
+  describe('validateEventTiers', () => {
+    it('should return true if the tier exists in the badgeTiers array', () => {
+      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`
+      const badgeTiers: BadgeTier[] = [
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierName: 'Day 1',
+          description: 'Day 1 of Music Festival',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierName: 'Day 2',
+          description: 'Day 2 of Music Festival',
+          criteria: { steps: 2 }
+        }
+      ]
+
+      expect(validateEventTiers(tier, badgeTiers)).toBe(true)
+    })
+
+    it('should return false if the tier does not exist in the badgeTiers array', () => {
+      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.THREE}`
+      const badgeTiers: BadgeTier[] = [
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierName: 'Day 1',
+          description: 'Day 1 of Music Festival',
+          criteria: { steps: 1 }
+        },
+        {
+          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierName: 'Day 2',
+          description: 'Day 2 of Music Festival',
+          criteria: { steps: 2 }
+        }
+      ]
+
+      expect(validateEventTiers(tier, badgeTiers)).toBe(false)
+    })
+
+    it('should return false if the badgeTiers array is empty', () => {
+      const tier: TierId = `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`
+      const badgeTiers: BadgeTier[] = []
+
+      expect(validateEventTiers(tier, badgeTiers)).toBe(false)
     })
   })
 })
