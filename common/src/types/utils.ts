@@ -1,21 +1,19 @@
 import { BadgeTier } from './badge-definitions'
 import { TierBadge, TierDay, TierEvent, TierId, TierLevel } from './tiers'
 
-function getEnumKeyPosition(value: string): number {
+function getOrdinalForTierDay(value: TierDay): number {
   const keys = Object.keys(TierDay)
   return keys.indexOf(Object.keys(TierDay).find((key) => TierDay[key as keyof typeof TierDay] === value)!) + 1
 }
 
 const createEventBadgeTiers = (tierEvent: TierEvent, daysLabel: TierDay): BadgeTier[] => {
-  const numerOfDays = getEnumKeyPosition(daysLabel)
-  return Array(numerOfDays).map((day) => {
-    return {
-      tierId: `${tierEvent}-day-${daysLabel}` as TierId,
-      tierName: `Day ${daysLabel}`,
-      description: `Day ${daysLabel} in the ${tierEvent.split('_').join(' ')}`,
-      criteria: { steps: day }
-    }
-  })
+  const numberOfDays = getOrdinalForTierDay(daysLabel)
+  return Array.from({ length: numberOfDays }, (_, key) => ({
+    tierId: `${tierEvent}-day-${daysLabel}` as TierId,
+    tierName: `Day ${daysLabel}`,
+    description: `Day ${daysLabel} in the ${tierEvent.split('-').join(' ')}`,
+    criteria: { steps: key + 1 }
+  }))
 }
 
 const capitalize = (text: string): string => {
@@ -41,4 +39,4 @@ const createLevelBadgeTiers = (tierBadge: TierBadge, steps: number[], descriptio
   })
 }
 
-export { getEnumKeyPosition, createEventBadgeTiers, createLevelBadgeTiers, capitalize }
+export { getOrdinalForTierDay, createEventBadgeTiers, createLevelBadgeTiers, capitalize }

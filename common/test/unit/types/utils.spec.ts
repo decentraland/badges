@@ -1,15 +1,16 @@
 import { TierDay, TierEvent, TierId, TierBadge, TierLevel } from '../../../src/types/tiers'
-import { getEnumKeyPosition, createEventBadgeTiers, createLevelBadgeTiers, capitalize } from '../../../src/types/utils'
+import {
+  getOrdinalForTierDay,
+  createEventBadgeTiers,
+  createLevelBadgeTiers,
+  capitalize
+} from '../../../src/types/utils'
 
 describe('types utils', () => {
   describe('get the position of the enum', () => {
     it('should return the correct position of the enum key', () => {
-      expect(getEnumKeyPosition(TierDay.ONE)).toBe(1)
-      expect(getEnumKeyPosition(TierDay.FIVE)).toBe(5)
-    })
-
-    it('should throw an error if the value is not in the enum', () => {
-      expect(() => getEnumKeyPosition('INVALID_DAY')).toThrow()
+      expect(getOrdinalForTierDay(TierDay.ONE)).toBe(1)
+      expect(getOrdinalForTierDay(TierDay.FIVE)).toBe(5)
     })
   })
 
