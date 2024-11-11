@@ -159,15 +159,16 @@ Progress should be a JSON object that stores useful information to track which a
 
 To create a new badge, follow these steps:
 
-1. Add the event definition in the schemas (`src/platform/events`).
+1. Add the event definition in the [common schemas library](https://github.com/decentraland/schemas) (`src/platform/events`).
 2. Expose the event definition as an event (add the new badge definition to the `Event` type in `src/platform/events/base.ts`).
 3. If the badge needs to handle an event not currently delivered through the event-driven architecture:
-   - a. For explorer events, ask the Data team to deliver it to the webhook exposed in the `events-notifier` service, and add the necessary event parsing in `src/adapters/event-parser.ts`.
-   - b. For blockchain events, add the appropriate producer in `src/adapters/producers`.
+   - a. In the [`events-notifier`](https://github.com/decentraland/events-notifier) repository, do the following:
+     - i. For explorer events: ask the Data team to deliver it to the webhook exposed in the `events-notifier` service. Then, add the necessary event parsing in `src/adapters/event-parser.ts`.
+     - ii. For blockchain events: add the appropriate producer in `src/adapters/producers`.
+   - b. Next, after producing and mapping the new event correctly, check the `processor/src/adapters/event-parser.ts` file and type the new event correctly to be handled later by the corresponding observers.
 4. Create the badge ID in `common/src/types/badge-definitions.ts` in the Badge repository.
-   - a. Ensure that the texture is uploaded to the `assets-cdn` S3 bucket, using the directory name as the BadgeId for correct mapping.
+   - a. Ensure the textures are uploaded to the `assets-cdn` S3 bucket, using BadgeId as directory name for correct mapping.
 5. Add the badge definition in `common/src/types/badges.ts`.
-   - a. The badge details are available in the Google spreadsheet linked in the `#project-badges` Slack channel.
 6. Add the badge handler in `processor/src/logic/badges` and register it in `processor/src/components.ts`.
    - a. Follow naming conventions (`snake_case`) in the database (e.g., `this_is_an_example_of_a_property_name`).
 7. (Optional) If needed, add the badge backfill process to' API/src/logic/backfills` and register it in `api/src/logic/backfill-merger.ts`.
