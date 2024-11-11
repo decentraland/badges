@@ -1,22 +1,10 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents } from '../../../../src/types'
-import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, MoveToParcelEvent } from '@dcl/schemas'
 import { createDecentralandCitizenObserver } from '../../../../src/logic/badges/decentraland-citizen'
-import { BadgeId, createBadgeStorage } from '@badges/common'
+import { BadgeId } from '@badges/common'
+import { getMockedComponents } from '../../../utils'
 
 describe('Decentraland Citizen badge handler should', () => {
   const testAddress = '0xTest'
-
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
-    }
-  }
 
   it('grant badge when a user moves to a parcel by first-time (log-in into world)', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
@@ -46,11 +34,9 @@ describe('Decentraland Citizen badge handler should', () => {
       }
     }
 
-    const mockUserProgress = undefined
-
     const handler = createDecentralandCitizenObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith({
       user_address: testAddress,

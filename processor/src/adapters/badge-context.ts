@@ -2,7 +2,7 @@ import { Entity } from '@dcl/schemas'
 import { createContentClient } from 'dcl-catalyst-client'
 import { AppComponents, IBadgeContext } from '../types'
 import { getTokenIdAndAssetUrn, isExtendedUrn, parseUrn } from '@dcl/urn-resolver'
-import retry from '../utils/retryer'
+import { retry } from '../utils/retryer'
 
 export async function createBadgeContext({
   fetch,

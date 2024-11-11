@@ -1,9 +1,7 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { AppComponents } from '../../../../src/types'
-import { createDbMock } from '../../../mocks/db-mock'
 import { AuthLinkType, Events, VerticalHeightReachedEvent } from '@dcl/schemas'
-import { Badge, BadgeId, createBadgeStorage } from '@badges/common'
+import { BadgeId } from '@badges/common'
 import { createVerticalVoyagerObserver } from '../../../../src/logic/badges/vertical-voyager'
+import { createExpectedResult, getMockedComponents } from '../../../utils'
 
 describe('Vertical Voyager badge handler should', () => {
   const testAddress = '0xTest'
@@ -14,14 +12,12 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 500 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
-    const expectedUserProgress = createExpectedUserProgress({ heightReached: 500, completed: true })
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedUserProgress = getExpectedUserProgress({ heightReached: 500, completed: true })
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -32,14 +28,12 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 501 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
-    const expectedUserProgress = createExpectedUserProgress({ heightReached: 501, completed: true })
-    const expectedResult = createExpectedResult(handler.badge)
+    const expectedUserProgress = getExpectedUserProgress({ heightReached: 501, completed: true })
+    const expectedResult = createExpectedResult(handler.badge, testAddress)
 
     expect(db.saveUserProgress).toHaveBeenCalledWith(expectedUserProgress)
     expect(result).toMatchObject(expectedResult)
@@ -50,11 +44,9 @@ describe('Vertical Voyager badge handler should', () => {
 
     const event: VerticalHeightReachedEvent = createVerticalHeightReachedEvent({ height: 499 })
 
-    const mockUserProgress = undefined
-
     const handler = createVerticalVoyagerObserver({ db, logs, badgeStorage })
 
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(db.saveUserProgress).not.toHaveBeenCalled()
     expect(result).toBe(undefined)
@@ -83,16 +75,6 @@ describe('Vertical Voyager badge handler should', () => {
     expect(result).toBe(undefined)
   })
 
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
-    }
-  }
-
   function createVerticalHeightReachedEvent(
     metadata?: Partial<VerticalHeightReachedEvent['metadata']>
   ): VerticalHeightReachedEvent {
@@ -118,7 +100,7 @@ describe('Vertical Voyager badge handler should', () => {
     }
   }
 
-  function createExpectedUserProgress({
+  function getExpectedUserProgress({
     heightReached,
     completed = false
   }: {
@@ -133,13 +115,6 @@ describe('Vertical Voyager badge handler should', () => {
         steps: completed ? 1 : 0,
         height_reached: heightReached
       }
-    }
-  }
-
-  function createExpectedResult(badgeGranted: Badge) {
-    return {
-      badgeGranted,
-      userAddress: testAddress
     }
   }
 })

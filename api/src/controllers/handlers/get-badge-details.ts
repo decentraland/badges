@@ -1,18 +1,12 @@
 import { IHttpServerComponent } from '@well-known-components/interfaces'
 import { Badge, BadgeId } from '@badges/common'
 import { HandlerContextWithPath } from '../../types'
+import { parseBadgeId } from '../../logic/utils'
 
 type Response = {
   data: {
     badge: Badge
   }
-}
-
-function parseBadgeId(id: string): BadgeId | undefined {
-  if (Object.values(BadgeId).includes(id as BadgeId)) {
-    return id as BadgeId
-  }
-  return undefined
 }
 
 export async function getBadgeDetailsHandler(

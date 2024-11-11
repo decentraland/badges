@@ -1,10 +1,6 @@
 import { sleep } from './timer'
 
-export default async function retry<T>(
-  action: () => Promise<T>,
-  retries: number = 3,
-  waitTime: number = 300
-): Promise<T> {
+export async function retry<T>(action: () => Promise<T>, retries: number = 3, waitTime: number = 300): Promise<T> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       return await action()

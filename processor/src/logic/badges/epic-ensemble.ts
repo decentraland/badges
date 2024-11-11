@@ -38,12 +38,12 @@ export function createEpicEnsembleObserver({
     const wearablesWithRarity: Entity[] = await badgeContext.getWearablesWithRarity(
       event.entity.metadata.avatars[0].avatar.wearables
     )
-    const rareWearablesEquipped = wearablesWithRarity.filter((wearable) => wearable.metadata?.rarity === Rarity.EPIC)
+    const epicWearablesEquipped = wearablesWithRarity.filter((wearable) => wearable.metadata?.rarity === Rarity.EPIC)
 
-    if (rareWearablesEquipped.length >= AMOUNT_OF_EPIC_WEARABLES_REQUIRED) {
+    if (epicWearablesEquipped.length >= AMOUNT_OF_EPIC_WEARABLES_REQUIRED) {
       userProgress.completed_at = Date.now()
       userProgress.progress = {
-        completed_with: rareWearablesEquipped.map((wearable) => wearable.metadata.id),
+        completed_with: epicWearablesEquipped.map((wearable) => wearable.metadata.id),
         steps: 1
       }
       await db.saveUserProgress(userProgress)

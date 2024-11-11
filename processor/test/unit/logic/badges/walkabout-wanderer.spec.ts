@@ -1,9 +1,12 @@
-import { createLogComponent } from '@well-known-components/logger'
-import { createDbMock } from '../../../mocks/db-mock'
-import { AppComponents } from '../../../../src/types'
 import { AuthLinkType, Events, WalkedDistanceEvent } from '@dcl/schemas'
-import { Badge, BadgeId, badges, createBadgeStorage, UserBadge } from '@badges/common'
-import { timestamps } from '../../../utils'
+import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import {
+  getExpectedUserProgressForBadgeBuilder,
+  getMockedComponents,
+  getMockedUserProgressForBadgeWithTiersBuilder,
+  mapBadgeToHaveTierNth,
+  timestamps
+} from '../../../utils'
 import { createWalkaboutWandererObserver } from '../../../../src/logic/badges/walkabout-wanderer'
 
 describe('Walkabout Wanderer badge handler should', () => {
@@ -11,14 +14,21 @@ describe('Walkabout Wanderer badge handler should', () => {
   const testSessionId = 'testSessionid'
 
   const badge = badges.get(BadgeId.WALKABOUT_WANDERER) as Badge
+  const createMockedUserProgress = getMockedUserProgressForBadgeWithTiersBuilder(
+    BadgeId.WALKABOUT_WANDERER,
+    testAddress
+  )
+  const createExpectedUserProgress = getExpectedUserProgressForBadgeBuilder(BadgeId.WALKABOUT_WANDERER, testAddress)
 
   it('do nothing if the user already has completed all the badge tiers', async () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent()
 
-    const mockUserProgress = getMockedUserProgress({
-      completed_at: timestamps.twoMinutesBefore(timestamps.now()),
-      steps: 10000000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 10000000
+      },
+      completed_at: timestamps.twoMinutesBefore(timestamps.now())
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -32,13 +42,11 @@ describe('Walkabout Wanderer badge handler should', () => {
     const { db, logs, badgeStorage } = await getMockedComponents()
     const event: WalkedDistanceEvent = createWalkedDistanceEvent({ stepCount: 10 })
 
-    const mockUserProgress = undefined
-
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
-    const result = await handler.handle(event, mockUserProgress)
+    const result = await handler.handle(event)
 
     expect(result).toBeUndefined()
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10 }))
   })
 
   it('increase the steps walked by the user and grant the first tier of the badge if the user reaches 10k steps', async () => {
@@ -47,8 +55,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 9500
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 9500
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -58,7 +68,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(0, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10000 }))
   })
 
   it('increase the steps walked by the user and grant the second tier of the badge if the user reaches 40k steps', async () => {
@@ -67,8 +77,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 25000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 15000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 15000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -78,7 +90,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(1, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 40000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 40000 }))
   })
 
   it('increase the steps walked by the user and grant the third tier of the badge if the user reaches 150k steps', async () => {
@@ -87,8 +99,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 1
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 149999
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 149999
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -98,7 +112,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(2, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 150000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 150000 }))
   })
 
   it('increase the steps walked by the user and grant the fourth tier of the badge if the user reaches 600k steps', async () => {
@@ -107,8 +121,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 300000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 300000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 300000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -118,7 +134,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(3, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 600000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 600000 }))
   })
 
   it('increase the steps walked by the user and grant the fifth tier of the badge if the user reaches 2.5M steps', async () => {
@@ -127,8 +143,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 500000
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 2000000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 2000000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -138,7 +156,7 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(4, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 2500000 }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 2500000 }))
   })
 
   it('increase the steps walked by the user and grant the sixth tier of the badge if the user reaches 10M steps', async () => {
@@ -147,8 +165,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       stepCount: 2500010
     })
 
-    const mockUserProgress = getMockedUserProgress({
-      steps: 7500000
+    const mockUserProgress = createMockedUserProgress({
+      progress: {
+        steps: 7500000
+      }
     })
 
     const handler = createWalkaboutWandererObserver({ db, logs, badgeStorage })
@@ -158,20 +178,10 @@ describe('Walkabout Wanderer badge handler should', () => {
       badgeGranted: mapBadgeToHaveTierNth(5, handler.badge),
       userAddress: testAddress
     })
-    expect(db.saveUserProgress).toHaveBeenCalledWith(createExpectedUserProgress({ steps: 10000010, completed: true }))
+    expect(db.saveUserProgress).toHaveBeenCalledWith(getExpectedUserProgress({ steps: 10000010, completed: true }))
   })
 
   // Helpers
-  async function getMockedComponents(): Promise<Pick<AppComponents, 'db' | 'logs' | 'badgeStorage'>> {
-    return {
-      db: createDbMock(),
-      logs: await createLogComponent({ config: { requireString: jest.fn(), getString: jest.fn() } as any }),
-      badgeStorage: await createBadgeStorage({
-        config: { requireString: jest.fn().mockResolvedValue('https://any-url.tld') } as any
-      })
-    }
-  }
-
   function createWalkedDistanceEvent(
     options: { sessionId?: string; timestamp?: number; stepCount?: number } = {
       sessionId: testSessionId,
@@ -201,46 +211,13 @@ describe('Walkabout Wanderer badge handler should', () => {
     }
   }
 
-  function getMockedUserProgress(progress: { steps: number; completed_at?: number }) {
-    const { steps, completed_at } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WALKABOUT_WANDERER,
-      progress: {
-        steps
-      },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: timestamps.twoMinutesBefore(timestamps.now())
-        })),
-      completed_at
-    }
-  }
-
-  function createExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
+  function getExpectedUserProgress(progress: { steps: number; completed?: boolean }): Omit<UserBadge, 'updated_at'> {
     const { steps, completed } = progress
-    return {
-      user_address: testAddress,
-      badge_id: BadgeId.WALKABOUT_WANDERER,
+    return createExpectedUserProgress({
       progress: {
         steps
       },
-      achieved_tiers: badge.tiers
-        .filter((tier) => steps >= tier.criteria.steps)
-        .map((tier) => ({
-          tier_id: tier.tierId,
-          completed_at: expect.any(Number)
-        })),
-      completed_at: completed ? expect.any(Number) : undefined
-    }
-  }
-
-  function mapBadgeToHaveTierNth(index: number, badge: Badge): Badge {
-    return {
-      ...badge,
-      tiers: [badge.tiers[index]]
-    }
+      completed
+    })
   }
 })

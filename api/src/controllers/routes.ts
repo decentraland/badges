@@ -9,7 +9,7 @@ import { getBadgeDetailsHandler } from './handlers/get-badge-details'
 import { getBadgeTiersHandler } from './handlers/get-badge-tiers'
 import { getUserBadgesPreviewHandler } from './handlers/get-user-badges-preview'
 import { resetUserProgressHandler } from './handlers/reset-user-progress'
-import { badgesBackfillHandler } from './handlers/badges-backfiller-handler'
+import { badgesBackfillHandler } from './handlers/badges-backfill-handler'
 
 export async function setupRouter(context: GlobalContext): Promise<Router<GlobalContext>> {
   const router = new Router<GlobalContext>()
@@ -27,12 +27,15 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
   router.get('/status', getStatusHandler)
 
   // manage workflow
-  const shouldExposeEndpointsToManageWorkflows = (await context.components.config.getString('ENV')) === 'dev'
+  const env = await context.components.config.getString('ENV')
+  const shouldExposeEndpointsToManageWorkflows = env === 'dev' || env === 'test'
+
   if (shouldExposeEndpointsToManageWorkflows) {
     router.delete('/users/:address/badges/:id', resetUserProgressHandler)
   }
 
   const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
+
   if (!!adminToken) {
     router.post('/badges/:id/backfill', bearerTokenMiddleware(adminToken), badgesBackfillHandler)
   }
