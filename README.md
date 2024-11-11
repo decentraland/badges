@@ -167,7 +167,7 @@ To create a new badge, follow these steps:
      - ii. For blockchain events: add the appropriate producer in `src/adapters/producers`.
    - b. Next, after producing and mapping the new event correctly, check the `processor/src/adapters/event-parser.ts` file and type the new event correctly to be handled later by the corresponding observers.
 4. Create the badge ID in `common/src/types/badge-definitions.ts` in the Badge repository.
-   - a. Ensure the textures are uploaded to the `assets-cdn` S3 bucket, using the directory name as the BadgeId for correct mapping.
+   - a. Ensure the textures are uploaded to the `assets-cdn` S3 bucket, using BadgeId as directory name for correct mapping.
 5. Add the badge definition in `common/src/types/badges.ts`.
    - a. The badge details should be available in the Google spreadsheet linked in the `#project-badges` Slack channel.
 6. Add the badge handler in `processor/src/logic/badges` and register it in `processor/src/components.ts`.
