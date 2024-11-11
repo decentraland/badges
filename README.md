@@ -169,7 +169,6 @@ To create a new badge, follow these steps:
 4. Create the badge ID in `common/src/types/badge-definitions.ts` in the Badge repository.
    - a. Ensure the textures are uploaded to the `assets-cdn` S3 bucket, using BadgeId as directory name for correct mapping.
 5. Add the badge definition in `common/src/types/badges.ts`.
-   - a. The badge details should be available in the Google spreadsheet linked in the `#project-badges` Slack channel.
 6. Add the badge handler in `processor/src/logic/badges` and register it in `processor/src/components.ts`.
    - a. Follow naming conventions (`snake_case`) in the database (e.g., `this_is_an_example_of_a_property_name`).
 7. (Optional) If needed, add the badge backfill process to' API/src/logic/backfills` and register it in `api/src/logic/backfill-merger.ts`.
