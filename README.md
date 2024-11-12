@@ -51,9 +51,7 @@ export type BadgeGrantedEvent = BaseEvent & {
 The `badges-api` exposes the endpoints required to interact with badges:
 
 - `GET https://badges.decentraland.{{tld}}/status`
-
   - Returns the service status.
-
 - `GET https://badges.decentraland.{{tld}}/categories`
   - Returns all badge categories.
 - `GET https://badges.decentraland.{{tld}}/badges`
@@ -63,13 +61,9 @@ The `badges-api` exposes the endpoints required to interact with badges:
 - `GET https://badges.decentraland.{{tld}}/badges/<id>/tiers`
   - Returns tier information for a specific badge. If no tiers are defined, the response will be empty.
 - `GET https://badges.decentraland.{{tld}}/users/<address>/badges?includeNotAchieved=true|false|undefined`
-
   - Returns the user's status for all badges in which they have made progress. If `includeNotAchieved` is set to `true`, badges the user has not started or made progress in will also be included. This endpoint is used by the explorer to render the user's passport view, showing all progress.
-
 - `GET https://badges.decentraland.{{tld}}/users/<address>/preview`
-
   - Returns the last 5 badges the user has achieved. If multiple tiers of the same badge have been achieved (e.g., `traveler bronze` and `traveler silver`), each tier will be returned as a separate badge.
-
 - `POST https://badges.decentraland.{{tld}}/users/<address>/backfill`
   - This endpoint is restricted by an `Authorization` header that must contain a specific token set through the `API_ADMIN_TOKEN` environment variable. It is used to retroactively assign badges by merging users’ progress data in the database.
 
