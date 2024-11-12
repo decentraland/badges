@@ -16,21 +16,21 @@ describe('types utils', () => {
 
   describe('create tiers for events with type BadgeTiers', () => {
     it('should create the correct number of badge tiers for the given event and days', () => {
-      const result = createEventBadgeTiers(TierEvent.MUSIC_FESTIVAL, TierDay.FOUR)
+      const result = createEventBadgeTiers(TierEvent.EXAMPLE, TierDay.FOUR)
 
       expect(result).toHaveLength(4)
       result.forEach((tier, index) => {
         expect(tier).toEqual({
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-day-${TierDay.FOUR}` as TierId,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.FOUR}` as TierId,
           tierName: `${TierDay.FOUR} day`,
-          description: `${TierDay.FOUR} day in the ${TierEvent.MUSIC_FESTIVAL.split('-').join(' ')}`,
+          description: `${TierDay.FOUR} day in the ${TierEvent.EXAMPLE.split('-').join(' ')}`,
           criteria: { steps: index + 1 }
         })
       })
     })
 
     it('should handle single-day events', () => {
-      const result = createEventBadgeTiers(TierEvent.MUSIC_FESTIVAL, TierDay.ONE)
+      const result = createEventBadgeTiers(TierEvent.EXAMPLE, TierDay.ONE)
       expect(result).toHaveLength(1)
       expect(result[0].criteria.steps).toBe(1)
     })

@@ -20,7 +20,7 @@ enum TierLevel {
 }
 
 enum TierEvent {
-  MUSIC_FESTIVAL = 'music-festival'
+  EXAMPLE = 'example'
 }
 
 enum TierDay {
@@ -37,7 +37,7 @@ enum TierDay {
 
 type TierBadgeLevelType = `${TierBadge}-${TierLevel}`
 
-type TierEventType = `${TierEvent}-${TierDay}`
+type TierEventType = `${TierEvent}-day-${TierDay}`
 
 type TierId = TierBadgeLevelType | TierEventType
 

@@ -1,6 +1,6 @@
 import { Badge, BadgeCategory, BadgeId } from '.'
-import { TierBadge, TierDay, TierEvent } from './tiers'
-import { createEventBadgeTiers, createLevelBadgeTiers } from './utils'
+import { TierBadge } from './tiers'
+import { createLevelBadgeTiers } from './utils'
 
 const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
   [
@@ -314,10 +314,9 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     BadgeId.MUSIC_FESTIVAL,
     {
       id: BadgeId.MUSIC_FESTIVAL,
-      name: 'Music Festival',
+      name: 'Decentraland Music Festival 2024',
       category: BadgeCategory.EXPLORER,
-      description: 'TierDay in events',
-      tiers: createEventBadgeTiers(TierEvent.MUSIC_FESTIVAL, TierDay.FOUR)
+      description: 'Jumped in and attended Decentraland Music Festival 2024'
     }
   ]
 ])

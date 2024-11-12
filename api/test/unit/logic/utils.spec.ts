@@ -334,18 +334,18 @@ describe('Utils', () => {
   describe('validateEventTiers', () => {
     it('should return true if all tiers exist in the badgeTiers array with matching steps', () => {
       const tiers = [
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}` as TierEventType, at: 2 }
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}` as TierEventType, at: 2 }
       ]
       const badgeTiers: BadgeTier[] = [
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}`,
           tierName: 'Day 1',
           description: 'Day 1 of Music Festival',
           criteria: { steps: 1 }
         },
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}`,
           tierName: 'Day 2',
           description: 'Day 2 of Music Festival',
           criteria: { steps: 2 }
@@ -357,18 +357,18 @@ describe('Utils', () => {
 
     it('should return false if a tier exists in badgeTiers but steps do not match', () => {
       const tiers = [
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}` as TierEventType, at: 3 }
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}` as TierEventType, at: 3 }
       ]
       const badgeTiers: BadgeTier[] = [
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}`,
           tierName: 'Day 1',
           description: 'Day 1 of Music Festival',
           criteria: { steps: 1 }
         },
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}`,
           tierName: 'Day 2',
           description: 'Day 2 of Music Festival',
           criteria: { steps: 2 }
@@ -380,18 +380,18 @@ describe('Utils', () => {
 
     it('should return false if any tier is missing in the badgeTiers array', () => {
       const tiers = [
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 },
-        { id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.THREE}` as TierEventType, at: 3 }
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}` as TierEventType, at: 1 },
+        { id: `${TierEvent.EXAMPLE}-day-${TierDay.THREE}` as TierEventType, at: 3 }
       ]
       const badgeTiers: BadgeTier[] = [
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}`,
           tierName: 'Day 1',
           description: 'Day 1 of Music Festival',
           criteria: { steps: 1 }
         },
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}`,
           tierName: 'Day 2',
           description: 'Day 2 of Music Festival',
           criteria: { steps: 2 }
@@ -402,7 +402,7 @@ describe('Utils', () => {
     })
 
     it('should return false if the badgeTiers array is empty', () => {
-      const tiers = [{ id: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}` as TierEventType, at: 1 }]
+      const tiers = [{ id: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}` as TierEventType, at: 1 }]
       const badgeTiers: BadgeTier[] = []
 
       expect(validateEventTiers(tiers, badgeTiers)).toBe(false)
@@ -412,13 +412,13 @@ describe('Utils', () => {
       const tiers: { id: TierEventType; at: number }[] = []
       const badgeTiers: BadgeTier[] = [
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.ONE}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.ONE}`,
           tierName: 'Day 1',
           description: 'Day 1 of Music Festival',
           criteria: { steps: 1 }
         },
         {
-          tierId: `${TierEvent.MUSIC_FESTIVAL}-${TierDay.TWO}`,
+          tierId: `${TierEvent.EXAMPLE}-${TierDay.TWO}`,
           tierName: 'Day 2',
           description: 'Day 2 of Music Festival',
           criteria: { steps: 2 }

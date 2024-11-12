@@ -43,8 +43,7 @@ export function mergeEventDCLProgress(
     badge_id: backfillData.badgeId,
     completed_at: undefined,
     progress: {
-      steps: 0,
-      tiers: []
+      steps: 0
     },
     achieved_tiers: []
   }

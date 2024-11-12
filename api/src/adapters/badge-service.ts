@@ -118,7 +118,7 @@ export async function createBadgeService({
               category: badge.category,
               isTier: !!isTierBadge,
               completedAt: null,
-              assets: isTierBadge && badge.tiers![0].assets ? badge.tiers![0].assets : badge.assets,
+              assets: isTierBadge ? badge.tiers![0].assets : badge.assets,
               progress: {
                 stepsDone: badgeProgress.progress.steps,
                 nextStepsTarget: isTierBadge ? badge.tiers![0].criteria.steps : badge.criteria.steps,
