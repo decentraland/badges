@@ -1,4 +1,6 @@
 import { Badge, BadgeCategory, BadgeId } from '.'
+import { TierBadge } from './tiers'
+import { createLevelBadgeTiers } from './utils'
 
 const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
   [
@@ -88,44 +90,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       name: 'Traveler',
       category: BadgeCategory.EXPLORER,
       description: `Starter: 1 Genesis City scene explored (for at least 1 min);Bronze: 50 Genesis City scenes explored (for at least 1 min);Silver: 250 Genesis City scenes explored (for at least 1 min);Gold: 1,000 Genesis City scenes explored (for at least 1 min);Platinum: 2,500 Genesis City scenes explored (for at least 1 min);Diamond: 10,000 Genesis City scenes explored (for at least 1 min)`,
-      tiers: [
-        {
-          tierId: 'traveler-starter',
-          tierName: 'Starter',
-          description: '1 Genesis City scene explored (for at least 1 min)',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'traveler-bronze',
-          tierName: 'Bronze',
-          description: '50 Genesis City scenes explored (for at least 1 min)',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'traveler-silver',
-          tierName: 'Silver',
-          description: '250 Genesis City scenes explored (for at least 1 min)',
-          criteria: { steps: 250 }
-        },
-        {
-          tierId: 'traveler-gold',
-          tierName: 'Gold',
-          description: '1,000 Genesis City scenes explored (for at least 1 min)',
-          criteria: { steps: 1000 }
-        },
-        {
-          tierId: 'traveler-platinum',
-          tierName: 'Platinum',
-          description: '2,500 Genesis City scenes explored (for at least 1 min)',
-          criteria: { steps: 2500 }
-        },
-        {
-          tierId: 'traveler-diamond',
-          tierName: 'Diamond',
-          description: '10,000 Genesis City scenes explored (for at least 1 min)',
-          criteria: { steps: 10000 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.TRAVELER,
+        [1, 50, 250, 1000, 2500, 10000],
+        [
+          '1 Genesis City scene explored (for at least 1 min)',
+          '50 Genesis City scenes explored (for at least 1 min)',
+          '250 Genesis City scenes explored (for at least 1 min)',
+          '1,000 Genesis City scenes explored (for at least 1 min)',
+          '2,500 Genesis City scenes explored (for at least 1 min)',
+          '10,000 Genesis City scenes explored (for at least 1 min)'
+        ]
+      )
     }
   ],
   [
@@ -146,44 +122,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.COLLECTOR,
       description:
         'Starter: 1 Emote purchased;Bronze: 10 Emotes purchased;Silver: 25 Emotes purchased;Gold: 50 Emotes purchased;Platinum: 150 Emotes purchased;Diamond: 300  Emotes purchased',
-      tiers: [
-        {
-          tierId: 'emotionista-starter',
-          tierName: 'Starter',
-          description: '1 Emote purchased',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'emotionista-bronze',
-          tierName: 'Bronze',
-          description: '10 Emotes purchased',
-          criteria: { steps: 10 }
-        },
-        {
-          tierId: 'emotionista-silver',
-          tierName: 'Silver',
-          description: '25 Emotes purchased',
-          criteria: { steps: 25 }
-        },
-        {
-          tierId: 'emotionista-gold',
-          tierName: 'Gold',
-          description: '50 Emotes purchased',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'emotionista-platinum',
-          tierName: 'Platinum',
-          description: '150 Emotes purchased',
-          criteria: { steps: 150 }
-        },
-        {
-          tierId: 'emotionista-diamond',
-          tierName: 'Diamond',
-          description: '300  Emotes purchased',
-          criteria: { steps: 300 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.EMOTIONISTA,
+        [1, 10, 25, 50, 150, 300],
+        [
+          '1 Emote purchased',
+          '10 Emotes purchased',
+          '25 Emotes purchased',
+          '50 Emotes purchased',
+          '150 Emotes purchased',
+          '300  Emotes purchased'
+        ]
+      )
     }
   ],
   [
@@ -194,44 +144,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.COLLECTOR,
       description:
         'Starter: 1 Wearable purchased;Bronze: 25 Wearables purchased;Silver: 75 Wearables purchased;Gold: 250 Wearables purchased;Platinum: 500 Wearables purchased;Diamond: 1,500 Wearables purchased',
-      tiers: [
-        {
-          tierId: 'fashionista-starter',
-          tierName: 'Starter',
-          description: '1 Wearable purchased',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'fashionista-bronze',
-          tierName: 'Bronze',
-          description: '25 Wearables purchased',
-          criteria: { steps: 25 }
-        },
-        {
-          tierId: 'fashionista-silver',
-          tierName: 'Silver',
-          description: '75 Wearables purchased',
-          criteria: { steps: 75 }
-        },
-        {
-          tierId: 'fashionista-gold',
-          tierName: 'Gold',
-          description: '250 Wearables purchased',
-          criteria: { steps: 250 }
-        },
-        {
-          tierId: 'fashionista-platinum',
-          tierName: 'Platinum',
-          description: '500 Wearables purchased',
-          criteria: { steps: 500 }
-        },
-        {
-          tierId: 'fashionista-diamond',
-          tierName: 'Diamond',
-          description: '1,500 Wearables purchased',
-          criteria: { steps: 1500 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.FASHIONISTA,
+        [1, 25, 75, 250, 500, 1500],
+        [
+          '1 Wearable purchased',
+          '25 Wearables purchased',
+          '75 Wearables purchased',
+          '250 Wearables purchased',
+          '500 Wearables purchased',
+          '1,500 Wearables purchased'
+        ]
+      )
     }
   ],
   [
@@ -242,44 +166,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.EXPLORER,
       description:
         'Starter: 1 Events attended (for at least 5 min);Bronze: 50 Events attended (for at least 5 min);Silver: 100 Events attended (for at least 5 min);Gold: 500 Events attended (for at least 5 min);Platinum: 1000 Events attended (for at least 5 min);Diamond: 2000 Events attended (for at least 5 min)',
-      tiers: [
-        {
-          tierId: 'event-enthusiast-starter',
-          tierName: 'Starter',
-          description: '1 Events attended (for at least 5 min)',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'event-enthusiast-bronze',
-          tierName: 'Bronze',
-          description: '50 Events attended (for at least 5 min)',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'event-enthusiast-silver',
-          tierName: 'Silver',
-          description: '100 Events attended (for at least 5 min)',
-          criteria: { steps: 100 }
-        },
-        {
-          tierId: 'event-enthusiast-gold',
-          tierName: 'Gold',
-          description: '500 Events attended (for at least 5 min)',
-          criteria: { steps: 500 }
-        },
-        {
-          tierId: 'event-enthusiast-platinum',
-          tierName: 'Platinum',
-          description: '1000 Events attended (for at least 5 min)',
-          criteria: { steps: 1000 }
-        },
-        {
-          tierId: 'event-enthusiast-diamond',
-          tierName: 'Diamond',
-          description: '2000 Events attended (for at least 5 min)',
-          criteria: { steps: 2000 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.EVENT_ENTHUSIAST,
+        [1, 50, 100, 500, 1000, 2000],
+        [
+          '1 Events attended (for at least 5 min)',
+          '50 Events attended (for at least 5 min)',
+          '100 Events attended (for at least 5 min)',
+          '500 Events attended (for at least 5 min)',
+          '1000 Events attended (for at least 5 min)',
+          '2000 Events attended (for at least 5 min)'
+        ]
+      )
     }
   ],
   [
@@ -290,44 +188,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.EXPLORER,
       description:
         'Starter: Emoted 100 times (max 1/min);Bronze: Emoted 1,000 times (max 1/min);Silver: Emoted 5,000 times (max 1/min);Gold: Emoted 10,000 times (max 1/min);Platinum: Emoted 100,000 times (max 1/min);Diamond: Emoted 500,000 times (max 1/min)',
-      tiers: [
-        {
-          tierId: 'moves-master-starter',
-          tierName: 'Starter',
-          description: 'Emoted 100 times (max 1/min)',
-          criteria: { steps: 100 }
-        },
-        {
-          tierId: 'moves-master-bronze',
-          tierName: 'Bronze',
-          description: 'Emoted 1,000 times (max 1/min)',
-          criteria: { steps: 1000 }
-        },
-        {
-          tierId: 'moves-master-silver',
-          tierName: 'Silver',
-          description: 'Emoted 5,000 times (max 1/min)',
-          criteria: { steps: 5000 }
-        },
-        {
-          tierId: 'moves-master-gold',
-          tierName: 'Gold',
-          description: 'Emoted 10,000 times (max 1/min)',
-          criteria: { steps: 10000 }
-        },
-        {
-          tierId: 'moves-master-platinum',
-          tierName: 'Platinum',
-          description: 'Emoted 100,000 times (max 1/min)',
-          criteria: { steps: 100000 }
-        },
-        {
-          tierId: 'moves-master-diamond',
-          tierName: 'Diamond',
-          description: 'Emoted 500,000 times (max 1/min)',
-          criteria: { steps: 500000 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.MOVES_MASTER,
+        [100, 1000, 5000, 10000, 100000, 500000],
+        [
+          'Emoted 100 times (max 1/min)',
+          'Emoted 1,000 times (max 1/min)',
+          'Emoted 5,000 times (max 1/min)',
+          'Emoted 10,000 times (max 1/min)',
+          'Emoted 100,000 times (max 1/min)',
+          'Emoted 500,000 times (max 1/min)'
+        ]
+      )
     }
   ],
   [
@@ -338,44 +210,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.SOCIALIZER,
       description:
         'Starter: 1 Profile viewed;Bronze: 50 Profiles viewed;Silver: 100 Profiles viewed;Gold: 250 Profiles viewed;Platinum: 500 Profiles viewed;Diamond: 1,000 Profiles viewed',
-      tiers: [
-        {
-          tierId: 'social-butterfly-starter',
-          tierName: 'Starter',
-          description: '1 Profile viewed',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'social-butterfly-bronze',
-          tierName: 'Bronze',
-          description: '50 Profiles viewed',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'social-butterfly-silver',
-          tierName: 'Silver',
-          description: '100 Profiles viewed',
-          criteria: { steps: 100 }
-        },
-        {
-          tierId: 'social-butterfly-gold',
-          tierName: 'Gold',
-          description: '250 Profiles viewed',
-          criteria: { steps: 250 }
-        },
-        {
-          tierId: 'social-butterfly-platinum',
-          tierName: 'Platinum',
-          description: '500 Profiles viewed',
-          criteria: { steps: 500 }
-        },
-        {
-          tierId: 'social-butterfly-diamond',
-          tierName: 'Diamond',
-          description: '1,000 Profiles viewed',
-          criteria: { steps: 1000 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.SOCIAL_BUTTERFLY,
+        [1, 50, 100, 250, 500, 1000],
+        [
+          '1 Profile viewed',
+          '50 Profiles viewed',
+          '100 Profiles viewed',
+          '250 Profiles viewed',
+          '500 Profiles viewed',
+          '1,000 Profiles viewed'
+        ]
+      )
     }
   ],
   [
@@ -396,44 +242,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.EXPLORER,
       description:
         'Starter: 10k Steps walked in Decentraland;Bronze: 40k Steps walked in Decentraland;Silver: 150k Steps walked in Decentraland;Gold: 600k Steps walked in Decentraland;Platinum: 2.5M Steps walked in Decentraland;Diamond: 10M Steps walked in Decentraland',
-      tiers: [
-        {
-          tierId: 'walkabout-wanderer-starter',
-          tierName: 'Starter',
-          description: '10k Steps walked in Decentraland',
-          criteria: { steps: 10000 }
-        },
-        {
-          tierId: 'walkabout-wanderer-bronze',
-          tierName: 'Bronze',
-          description: '40k Steps walked in Decentraland',
-          criteria: { steps: 40000 }
-        },
-        {
-          tierId: 'walkabout-wanderer-silver',
-          tierName: 'Silver',
-          description: '150k Steps walked in Decentraland',
-          criteria: { steps: 150000 }
-        },
-        {
-          tierId: 'walkabout-wanderer-gold',
-          tierName: 'Gold',
-          description: '600k Steps walked in Decentraland',
-          criteria: { steps: 600000 }
-        },
-        {
-          tierId: 'walkabout-wanderer-platinum',
-          tierName: 'Platinum',
-          description: '2.5M Steps walked in Decentraland',
-          criteria: { steps: 2500000 }
-        },
-        {
-          tierId: 'walkabout-wanderer-diamond',
-          tierName: 'Diamond',
-          description: '10M Steps walked in Decentraland',
-          criteria: { steps: 10000000 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.WALKABOUT_WANDERER,
+        [10000, 40000, 150000, 600000, 2500000, 10000000],
+        [
+          '10k Steps walked in Decentraland',
+          '40k Steps walked in Decentraland',
+          '150k Steps walked in Decentraland',
+          '600k Steps walked in Decentraland',
+          '2.5M Steps walked in Decentraland',
+          '10M Steps walked in Decentraland'
+        ]
+      )
     }
   ],
   [
@@ -454,44 +274,18 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.CREATOR,
       description:
         'Starter: 1 Emote published;Bronze: 5 Emotes published;Silver: 10 Emotes published;Gold: 20 Emotes published;Platinum: 50 Emotes published;Diamond: 100 Emotes published',
-      tiers: [
-        {
-          tierId: 'emote-creator-starter',
-          tierName: 'Starter',
-          description: '1 Emote published',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'emote-creator-bronze',
-          tierName: 'Bronze',
-          description: '5 Emotes published',
-          criteria: { steps: 5 }
-        },
-        {
-          tierId: 'emote-creator-silver',
-          tierName: 'Silver',
-          description: '10 Emotes published',
-          criteria: { steps: 10 }
-        },
-        {
-          tierId: 'emote-creator-gold',
-          tierName: 'Gold',
-          description: '20 Emotes published',
-          criteria: { steps: 20 }
-        },
-        {
-          tierId: 'emote-creator-platinum',
-          tierName: 'Platinum',
-          description: '50 Emotes published',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'emote-creator-diamond',
-          tierName: 'Diamond',
-          description: '100 Emotes published',
-          criteria: { steps: 100 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.EMOTE_CREATOR,
+        [1, 5, 10, 20, 50, 100],
+        [
+          '1 Emote published',
+          '5 Emotes published',
+          '10 Emotes published',
+          '20 Emotes published',
+          '50 Emotes published',
+          '100 Emotes published'
+        ]
+      )
     }
   ],
   [
@@ -502,44 +296,28 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       category: BadgeCategory.CREATOR,
       description:
         'Starter: 1 Wearable published;Bronze: 5 Wearables published;Silver: 25 Wearables published;Gold: 50 Wearables published;Platinum: 175 Wearables published;Diamond: 350 Wearables published',
-      tiers: [
-        {
-          tierId: 'wearable-designer-starter',
-          tierName: 'Starter',
-          description: '1 Wearable published',
-          criteria: { steps: 1 }
-        },
-        {
-          tierId: 'wearable-designer-bronze',
-          tierName: 'Bronze',
-          description: '5 Wearables published',
-          criteria: { steps: 5 }
-        },
-        {
-          tierId: 'wearable-designer-silver',
-          tierName: 'Silver',
-          description: '25 Wearables published',
-          criteria: { steps: 25 }
-        },
-        {
-          tierId: 'wearable-designer-gold',
-          tierName: 'Gold',
-          description: '50 Wearables published',
-          criteria: { steps: 50 }
-        },
-        {
-          tierId: 'wearable-designer-platinum',
-          tierName: 'Platinum',
-          description: '175 Wearables published',
-          criteria: { steps: 175 }
-        },
-        {
-          tierId: 'wearable-designer-diamond',
-          tierName: 'Diamond',
-          description: '350 Wearables published',
-          criteria: { steps: 350 }
-        }
-      ]
+      tiers: createLevelBadgeTiers(
+        TierBadge.WEARABLE_DESIGNER,
+        [1, 5, 25, 50, 175, 350],
+        [
+          '1 Wearable published',
+          '5 Wearables published',
+          '25 Wearables published',
+          '50 Wearables published',
+          '175 Wearables published',
+          '350 Wearables published'
+        ]
+      )
+    }
+  ],
+  [
+    BadgeId.MUSIC_FESTIVAL,
+    {
+      id: BadgeId.MUSIC_FESTIVAL,
+      name: 'Decentraland Music Festival 2024',
+      category: BadgeCategory.EXPLORER,
+      description: 'Jumped in and attended Decentraland Music Festival 2024',
+      criteria: { steps: 1 }
     }
   ]
 ])

@@ -1,6 +1,7 @@
 import { Badge, BadgeId, UserBadge } from '@badges/common'
 import { AppComponents, BadgeProcessorResult, IObserver } from '../../types'
 import { Entity, EthAddress, Events, MoveToParcelEvent } from '@dcl/schemas'
+import { TierId } from '@badges/common/src/types/tiers'
 
 export function createTravelerObserver({
   db,
@@ -117,7 +118,7 @@ export function createTravelerObserver({
       (badge) =>
         badge.criteria.steps <= userProgress.progress.steps &&
         !userProgress.achieved_tiers!.find(
-          (achievedTier: { tier_id: string; completed_at: number }) => achievedTier.tier_id === badge.tierId
+          (achievedTier: { tier_id: TierId; completed_at: number }) => achievedTier.tier_id === badge.tierId
         )
     )
 

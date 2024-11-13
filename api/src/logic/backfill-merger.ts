@@ -12,7 +12,8 @@ import {
   mergeEmoteCreatorProgress,
   mergeWearableDesignerProgress,
   mergeProfileProProgress,
-  mergeOpenForBusinessProgress
+  mergeOpenForBusinessProgress,
+  mergeUniqueEventProgress
 } from './backfills'
 
 export function createBackfillMergerComponent({
@@ -109,6 +110,13 @@ export function createBackfillMergerComponent({
             userAddress,
             currentUserProgress,
             badgeService.getBadge(BadgeId.OPEN_FOR_BUSINESS),
+            backfillData
+          )
+        case BadgeId.MUSIC_FESTIVAL:
+          return mergeUniqueEventProgress(
+            userAddress,
+            currentUserProgress,
+            badgeService.getBadge(badgeId),
             backfillData
           )
 

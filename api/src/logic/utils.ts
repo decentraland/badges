@@ -1,4 +1,5 @@
-import { Badge, BadgeId, UserBadge } from '@badges/common'
+import { Badge, BadgeId, BadgeTier, UserBadge } from '@badges/common'
+import { TierEventType, TierId } from '@badges/common/src/types/tiers'
 
 export function parseBadgeId(id: string): BadgeId | undefined {
   if (Object.values(BadgeId).includes(id as BadgeId)) {
@@ -47,7 +48,10 @@ export function tryToGetAchievedTiers<T, TK extends KeyOfWithValue<T, number>>(
   userProgress: UserBadge,
   sortedItems: T[],
   timestampKey: TK
-): { tier_id: string; completed_at: number }[] {
+): {
+  tier_id: TierId
+  completed_at: number
+}[] {
   const achievedTiers = getBadgeAchievedTiers(badge, userProgress)
 
   return achievedTiers.map((tier) => {
@@ -147,4 +151,16 @@ export function validateUserProgress(
   }
 
   return { ok: errors.length === 0, errors }
+}
+
+export function validateEventTiers(
+  tiers: {
+    id: TierEventType
+    at: number
+  }[],
+  badgeTiers: BadgeTier[]
+): boolean {
+  return tiers.every((tier) =>
+    badgeTiers.some((badgeTier) => badgeTier.tierId === tier.id && badgeTier.criteria.steps === tier.at)
+  )
 }

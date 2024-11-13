@@ -15,7 +15,8 @@ import {
   mergeProfileProProgress,
   mergeSocialButterflyProgress,
   mergeWearableDesignerProgress,
-  mergeWearablesEquipmentProgress
+  mergeWearablesEquipmentProgress,
+  mergeUniqueEventProgress
 } from '../../../src/logic/backfills'
 
 jest.mock('../../../src/logic/backfills')
@@ -68,7 +69,8 @@ describe('Backfill Merger', () => {
     [BadgeId.SOCIAL_BUTTERFLY, mergeSocialButterflyProgress],
     [BadgeId.LAND_ARCHITECT, mergeLandArchitectProgress],
     [BadgeId.PROFILE_PRO, mergeProfileProProgress],
-    [BadgeId.OPEN_FOR_BUSINESS, mergeOpenForBusinessProgress]
+    [BadgeId.OPEN_FOR_BUSINESS, mergeOpenForBusinessProgress],
+    [BadgeId.MUSIC_FESTIVAL, mergeUniqueEventProgress]
   ])('should merge the progress for the user when the badge id is %s', (badgeId: BadgeId, merger: jest.Mock) => {
     const mergerMock = merger as jest.Mock
 

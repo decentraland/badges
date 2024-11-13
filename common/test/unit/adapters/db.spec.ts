@@ -1,6 +1,7 @@
 import { IPgComponent } from '@well-known-components/pg-component'
 import { BadgeId, createDbComponent, DbComponent } from '../../../src'
 import { EthAddress } from '@dcl/schemas'
+import { TierId } from '../../../src/types/tiers'
 
 describe('db', () => {
   const userAddress: EthAddress = '0x1234567890abcdef1234567890abcdef12345678'
@@ -94,7 +95,7 @@ describe('db', () => {
     it('should save the user progress for a badge with tiers', async () => {
       const achievedTiers = [
         {
-          tier_id: 'tierId',
+          tier_id: 'tierId' as TierId,
           completed_at: Date.now()
         }
       ]
@@ -150,7 +151,7 @@ describe('db', () => {
       progress: {
         steps: i
       },
-      achieved_tiers: i % 2 === 0 ? [{ tier_id: 'tierId', completed_at: Date.now() }] : undefined,
+      achieved_tiers: i % 2 === 0 ? [{ tier_id: 'tierId' as TierId, completed_at: Date.now() }] : undefined,
       completed_at: Date.now()
     }))
 

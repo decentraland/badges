@@ -3,6 +3,7 @@ import { createDbMock } from '../mocks/db-mock'
 import { AppComponents, IBadgeService, TierProgress, UserBadgesPreview } from '../../../src/types'
 import { createBadgeService } from '../../../src/adapters/badge-service'
 import { EthAddress } from '@dcl/schemas'
+import { TierId } from '@badges/common/src/types/tiers'
 
 const MOCK_ASSET_URL = 'https://any-url.tld'
 
@@ -75,7 +76,7 @@ describe('Badge Service', () => {
     it('should return the latest achieved badges either with or without tiers', async () => {
       const userBadges: UserBadge[] = [
         getMockedUserBadge(BadgeId.DECENTRALAND_CITIZEN, userAddress),
-        getMockedUserBadgeWithTiers(BadgeId.EMOTE_CREATOR, userAddress, ['emote-creator-starter'])
+        getMockedUserBadgeWithTiers(BadgeId.EMOTE_CREATOR, userAddress, ['emote-creator-starter' as TierId])
       ]
       db.getLatestUserBadges = jest.fn().mockResolvedValueOnce(userBadges)
 
@@ -114,7 +115,7 @@ describe('Badge Service', () => {
       badgeWithTiersUserProgress = getMockedUserBadgeWithTiers(
         BadgeId.EMOTE_CREATOR,
         userAddress,
-        ['emote-creator-starter'],
+        ['emote-creator-starter' as TierId],
         { steps: 1 }
       )
 
@@ -238,7 +239,7 @@ describe('Badge Service', () => {
   function getMockedUserBadgeWithTiers(
     badgeId: BadgeId,
     userAddress: EthAddress,
-    tiers: string[],
+    tiers: TierId[],
     progress?: UserBadge['progress']
   ): UserBadge {
     const badge = badgeStorage.getBadge(badgeId)

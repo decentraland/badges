@@ -1,6 +1,7 @@
 import { Badge, BadgeId, badges, BadgeTier, UserBadge } from '@badges/common'
 import { Response } from '@well-known-components/interfaces'
 import { test } from '../components'
+import { TierBadge, TierLevel } from '@badges/common/src/types/tiers'
 
 const PREVIEW_LIMIT = 5
 
@@ -53,11 +54,11 @@ test('GET /users/:address/preview', function ({ components }) {
         },
         achieved_tiers: [
           {
-            tier_id: 'emotionista-starter',
+            tier_id: `${TierBadge.EMOTIONISTA}-${TierLevel.STARTER}`,
             completed_at: completedAt - 2
           },
           {
-            tier_id: 'emotionista-bronze',
+            tier_id: `${TierBadge.EMOTIONISTA}-${TierLevel.BRONZE}`,
             completed_at: completedAt + 2
           }
         ]
@@ -78,19 +79,19 @@ test('GET /users/:address/preview', function ({ components }) {
         },
         achieved_tiers: [
           {
-            tier_id: 'walkabout-wanderer-starter',
+            tier_id: `${TierBadge.WALKABOUT_WANDERER}-${TierLevel.STARTER}`,
             completed_at: completedAt - 4
           },
           {
-            tier_id: 'walkabout-wanderer-bronze',
+            tier_id: `${TierBadge.WALKABOUT_WANDERER}-${TierLevel.BRONZE}`,
             completed_at: completedAt - 3
           },
           {
-            tier_id: 'walkabout-wanderer-silver',
+            tier_id: `${TierBadge.WALKABOUT_WANDERER}-${TierLevel.SILVER}`,
             completed_at: completedAt - 2
           },
           {
-            tier_id: 'walkabout-wanderer-gold',
+            tier_id: `${TierBadge.WALKABOUT_WANDERER}-${TierLevel.GOLD}`,
             completed_at: completedAt + 4
           }
         ]
