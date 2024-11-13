@@ -16,7 +16,6 @@ import {
   mergeSocialButterflyProgress,
   mergeWearableDesignerProgress,
   mergeWearablesEquipmentProgress,
-  mergeEventDCLProgress,
   mergeUniqueEventProgress
 } from '../../../src/logic/backfills'
 

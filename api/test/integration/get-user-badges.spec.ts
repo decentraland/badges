@@ -1,4 +1,4 @@
-import { Badge, BadgeId, badges, UserBadge } from '@badges/common'
+import { BadgeId, UserBadge } from '@badges/common'
 import { test } from '../components'
 import { getExpectedAchievedBadge, getExpectedNotAchievedBadges } from '../utils'
 
