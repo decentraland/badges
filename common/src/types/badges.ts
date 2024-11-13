@@ -316,7 +316,8 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       id: BadgeId.MUSIC_FESTIVAL,
       name: 'Decentraland Music Festival 2024',
       category: BadgeCategory.EXPLORER,
-      description: 'Jumped in and attended Decentraland Music Festival 2024'
+      description: 'Jumped in and attended Decentraland Music Festival 2024',
+      criteria: { steps: 1 }
     }
   ]
 ])
