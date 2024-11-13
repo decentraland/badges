@@ -418,7 +418,7 @@ describe('Utils', () => {
           criteria: { steps: 1 }
         },
         {
-          tierId: `${TierEvent.EXAMPLE}-${TierDay.TWO}`,
+          tierId: `${TierEvent.EXAMPLE}-day-${TierDay.TWO}`,
           tierName: 'Day 2',
           description: 'Day 2 of Music Festival',
           criteria: { steps: 2 }
