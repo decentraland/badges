@@ -1,6 +1,7 @@
 import { EthAddress, Event, Events } from '@dcl/schemas'
-import { AppComponents, IEventDispatcher, IObserver } from '../types'
+import { AppComponents, EventHandlerResponse, IEventDispatcher, IObserver } from '../types'
 import { BadgeId, UserBadge } from '@badges/common'
+import { retry } from '../utils/retryer'
 
 export function createEventDispatcher({
   logs,
@@ -29,10 +30,14 @@ export function createEventDispatcher({
     }
   }
 
-  async function handleEvent(observer: IObserver, event: Event, userProgress: UserBadge | undefined): Promise<any> {
+  async function handleEvent(
+    observer: IObserver,
+    event: Event,
+    userProgress: UserBadge | undefined
+  ): Promise<EventHandlerResponse> {
     try {
-      const result = await observer.handle(event, userProgress)
-      return result
+      const result = await retry(() => observer.handle(event, userProgress))
+      return { ok: true, result }
     } catch (error: any) {
       metrics.increment('handler_failures_count', {
         event_type: event.type,
@@ -51,6 +56,8 @@ export function createEventDispatcher({
         rootStack: JSON.stringify(error?.cause?.stack),
         eventKey: event?.key
       })
+
+      return { ok: false, error }
     }
   }
 
@@ -101,7 +108,10 @@ export function createEventDispatcher({
           return handleEvent(observer, event, userProgress)
         })
 
-      const badgesToGrant = (await Promise.all(asyncResults)).filter(Boolean).flat()
+      const results = await Promise.all(asyncResults)
+
+      const badgesToGrant = results.filter(({ ok, result }) => ok && !!result).map(({ result }) => result)
+      const handlersToRetry = results.filter(({ ok }) => !ok)
 
       metrics.increment('events_correctly_handled_count', {
         event_type: event.type,
