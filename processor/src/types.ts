@@ -127,6 +127,12 @@ export class ParsingEventError extends Error {
   }
 }
 
+export type EventProcessingResult = {
+  ok: boolean
+  result?: BadgeProcessorResult | undefined
+  error?: Error
+}
+
 export type BadgeProcessorResult = {
   badgeGranted: Badge
   userAddress: string
