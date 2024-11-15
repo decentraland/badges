@@ -127,9 +127,9 @@ export class ParsingEventError extends Error {
   }
 }
 
-export type EventHandlerResponse = {
+export type EventProcessingResult = {
   ok: boolean
-  result?: any
+  result?: BadgeProcessorResult | undefined
   error?: Error
 }
 

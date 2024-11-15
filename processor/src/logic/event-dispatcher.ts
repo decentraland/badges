@@ -1,5 +1,5 @@
 import { EthAddress, Event, Events } from '@dcl/schemas'
-import { AppComponents, EventHandlerResponse, IEventDispatcher, IObserver } from '../types'
+import { AppComponents, EventProcessingResult, IEventDispatcher, IObserver } from '../types'
 import { BadgeId, UserBadge } from '@badges/common'
 import { retry } from '../utils/retryer'
 
@@ -34,7 +34,7 @@ export function createEventDispatcher({
     observer: IObserver,
     event: Event,
     userProgress: UserBadge | undefined
-  ): Promise<EventHandlerResponse> {
+  ): Promise<EventProcessingResult> {
     try {
       const result = await retry(() => observer.handle(event, userProgress))
       return { ok: true, result }
