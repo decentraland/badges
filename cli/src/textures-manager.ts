@@ -4,86 +4,9 @@ import path from 'path'
 import AWS from 'aws-sdk'
 import mime from 'mime-types'
 
+import { logAllFilesWithinDirectory, parseTexturesDirectoryName, trimBadgeName } from './utils'
+
 const outputDirectory = path.join(__dirname, '../../textures-output')
-
-const toSnakeCase = (directoryName: string): string => {
-  if (
-    directoryName === '2d' ||
-    directoryName === '3d' ||
-    directoryName.includes('2d') ||
-    (directoryName.includes('3d') &&
-      (directoryName.includes('starter') ||
-        directoryName.includes('bronze') ||
-        directoryName.includes('silver') ||
-        directoryName.includes('gold') ||
-        directoryName.includes('platinum') ||
-        directoryName.includes('diamond') ||
-        directoryName.includes('base')))
-  ) {
-    return directoryName // Leave '2d' and '3d' unchanged
-  }
-  return directoryName
-    .replace(/([a-z])([A-Z])/g, '$1_$2') // Convert PascalCase to snake_case
-    .replace(/([a-zA-Z])(\d)/g, '$1_$2') // Add underscore between letters and numbers
-    .replace(/(\d)([a-zA-Z])/g, '$1_$2') // Add underscore between numbers and letters
-    .toLowerCase()
-}
-
-const trimBadgeName = (name: string, badgeName: string) => {
-  return name.replace(new RegExp(`^${badgeName}`, 'i'), '').toLowerCase()
-}
-
-// const renameAndCopyFiles = (srcDir: string, destDir: string, badgeName: string) => {
-//   fs.readdir(srcDir, (err, files) => {
-//     if (err) throw err
-
-//     files.forEach((file) => {
-//       const srcFilePath = path.join(srcDir, file)
-//       const stat = fs.statSync(srcFilePath)
-
-//       if (stat.isDirectory()) {
-//         const trimmedName = trimBadgeName(file, badgeName)
-//         let newDirectoryName: string = toSnakeCase(trimmedName)
-
-//         const match = newDirectoryName.match(/2d|3d/)
-//         if (match) {
-//           newDirectoryName = match[0]
-//         }
-
-//         // if directory is called base rename it to starter
-//         if (newDirectoryName === 'base') {
-//           newDirectoryName = 'starter'
-//         }
-
-//         const newDestDir = path.join(destDir, newDirectoryName)
-
-//         fs.mkdirSync(newDestDir, { recursive: true })
-
-//         // Recursively process the directory
-//         renameAndCopyFiles(srcFilePath, newDestDir, badgeName)
-//       } else {
-//         if (file !== '.DS_Store') {
-//           let newFileName = file
-
-//           if (newFileName.includes('_basecolor')) {
-//             newFileName = 'basecolor.png'
-//           } else if (newFileName.includes('_hrm')) {
-//             newFileName = 'hrm.png'
-//           } else if (newFileName.includes('_normal') || newFileName.match(/\.png$/)) {
-//             newFileName = 'normal.png'
-//           }
-
-//           const destFilePath = path.join(destDir, newFileName)
-
-//           // Copy the file to the new location with the new name
-//           fs.copyFileSync(srcFilePath, destFilePath)
-//         }
-//       }
-//     })
-//   })
-// }
-
-// Function to start processing from the root directory
 
 const renameAndCopyFiles = (srcDir: string, destDir: string, badgeName: string) => {
   fs.readdir(srcDir, (err, files) => {
@@ -95,7 +18,7 @@ const renameAndCopyFiles = (srcDir: string, destDir: string, badgeName: string) 
 
       if (stat.isDirectory()) {
         const trimmedName = trimBadgeName(file, badgeName)
-        let newDirectoryName: string = toSnakeCase(trimmedName)
+        let newDirectoryName: string = parseTexturesDirectoryName(trimmedName)
 
         const match = trimmedName.match(/2d|3d/i) // Check for "2d" or "3d"
         if (match) {
@@ -147,7 +70,7 @@ const processDirectory = (srcRoot: string, destRoot: string) => {
       const stat = fs.statSync(srcDirPath)
 
       if (stat.isDirectory()) {
-        const newDirName = toSnakeCase(dir)
+        const newDirName = parseTexturesDirectoryName(dir)
         const newDestDirPath = path.join(destRoot, newDirName)
 
         fs.mkdirSync(newDestDirPath, { recursive: true })
@@ -167,7 +90,7 @@ export async function uploadTextures() {
   })
 
   processDirectory(directory.src, outputDirectory)
-  logDirectory(outputDirectory)
+  logAllFilesWithinDirectory(outputDirectory)
 
   const shouldWeContinue = await prompts({
     type: 'confirm',
@@ -196,7 +119,7 @@ export async function uploadTextures() {
       name: 'key',
       message: 'Enter your AWS Access Key ID:'
     })
-  
+
     const awsSecretAccessKey = await prompts({
       type: 'text',
       name: 'key',
@@ -211,29 +134,6 @@ export async function uploadTextures() {
 
     await uploadDirectory(s3, selection.bucket, outputDirectory)
   }
-}
-
-const logDirectory = (dir: string) => {
-  // read files of the textures directory and log the structure
-  fs.readdir(dir, (err, files) => {
-    if (err) throw err
-
-    files.forEach((file) => {
-      // if it is a directory log files inside
-      if (fs.statSync(path.join(outputDirectory, file)).isDirectory()) {
-        fs.readdir(path.join(outputDirectory, file), (err, subFiles) => {
-          if (err) throw err
-
-          console.log(file)
-          subFiles.forEach((subFile) => {
-            console.log(`  ${subFile}`)
-          })
-        })
-      } else {
-        console.log(file)
-      }
-    })
-  })
 }
 
 const uploadDirectory = async (s3Client: AWS.S3, bucketName: string, dirPath: string, s3Folder: string = '') => {
