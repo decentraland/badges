@@ -39,9 +39,11 @@ export function mergeOpenForBusinessProgress(
   try {
     const { completedAt, collectionCreatedAt, storeCreatedAt } = backfillData.progress
 
-    userProgress.progress.steps = [collectionCreatedAt, storeCreatedAt].filter(Boolean).length
-    userProgress.progress.store_completed = !!storeCreatedAt
-    userProgress.progress.collection_submitted = !!collectionCreatedAt
+    if (!userProgress.completed_at) {
+      userProgress.progress.steps = [collectionCreatedAt, storeCreatedAt].filter(Boolean).length
+      userProgress.progress.store_completed = !!storeCreatedAt
+      userProgress.progress.collection_submitted = !!collectionCreatedAt
+    }
 
     if (completedAt) {
       userProgress.completed_at = Math.min(userProgress.completed_at || Date.now(), completedAt)
