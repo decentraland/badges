@@ -4,6 +4,7 @@ dotenv.config({ path: './.env.local' })
 
 import * as Events from './events'
 import { publishEvent } from './publisher'
+import { uploadTextures } from './textures-manager'
 
 async function askUser(choices: { title: string; value: string }[]) {
   return await prompts({
@@ -17,7 +18,7 @@ async function askUser(choices: { title: string; value: string }[]) {
 async function main() {
   const choices = [
     { title: 'Publish Move to Parcel event', value: 'move_to_parcel' },
-    { title: 'Publish Test event', value: 'test' },
+    { title: 'Upload badge textures', value: 'upload_textures' },
     { title: 'Exit', value: 'exit' }
   ]
 
@@ -27,6 +28,9 @@ async function main() {
     switch (response.action) {
       case 'move_to_parcel':
         await publishEvent(JSON.stringify(Events.MoveToParcelEvent))
+        break
+      case 'upload_textures':
+        await uploadTextures()
         break
       case 'test':
         await publishEvent(JSON.stringify(Events.TestEvent))
