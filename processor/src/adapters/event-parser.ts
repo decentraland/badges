@@ -20,10 +20,12 @@ type EventParser = (event: any) => Event
 type EventParsersMap = Partial<Record<Events.Type, Partial<Record<SubType, EventParser>>>>
 
 export async function createEventParser({
+  config,
   logs,
   badgeContext
 }: Pick<AppComponents, 'config' | 'logs' | 'badgeContext'>): Promise<IEventParser> {
   const logger = logs.getLogger('event-parser')
+  const loadBalancer = await config.requireString('CATALYST_CONTENT_URL_LOADBALANCER')
 
   const eventParsers: EventParsersMap = {
     [Events.Type.BLOCKCHAIN]: {
@@ -41,10 +43,10 @@ export async function createEventParser({
   }
 
   async function parseCatalystEvent(event: any): Promise<CatalystDeploymentEvent | undefined> {
-    const { contentServerUrls } = event
+    const contentUrl = event.contentServerUrls ? event.contentServerUrls[0] : loadBalancer
 
     const fetchedEntity: Entity | undefined = (
-      await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentServerUrls[0] })
+      await badgeContext.getEntitiesByPointers(event.entity.pointers, { contentServerUrl: contentUrl })
     ).at(0)
 
     if (!fetchedEntity) {
