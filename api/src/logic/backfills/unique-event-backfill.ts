@@ -3,7 +3,6 @@ import { EthAddress } from '@dcl/schemas'
 
 type BackfillData = {
   progress: {
-    step: number
     completedAt: number
   }
 }

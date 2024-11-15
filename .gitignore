@@ -9,3 +9,6 @@ yarn-error.log
 .env.local
 *.log
 api/src/migrations
+
+cli/textures-output
+cli/textures
