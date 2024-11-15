@@ -111,7 +111,8 @@ export function createEventDispatcher({
       const results = await Promise.all(asyncResults)
 
       const badgesToGrant = results.filter(({ ok, result }) => ok && !!result).map(({ result }) => result)
-      const handlersToRetry = results.filter(({ ok }) => !ok)
+      // If we go with the retry queue, we could use the following to retry only the handlers that fail
+      // const handlersToRetry = results.filter(({ ok }) => !ok)
 
       metrics.increment('events_correctly_handled_count', {
         event_type: event.type,
