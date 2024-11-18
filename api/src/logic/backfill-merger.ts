@@ -112,7 +112,7 @@ export function createBackfillMergerComponent({
             badgeService.getBadge(BadgeId.OPEN_FOR_BUSINESS),
             backfillData
           )
-        case BadgeId.MUSIC_FESTIVAL:
+        case BadgeId.MUSIC_FESTIVAL_2024:
           return mergeUniqueEventProgress(
             userAddress,
             currentUserProgress,
