@@ -3,12 +3,18 @@ import { EthAddress } from '@dcl/schemas'
 
 type BackfillData = {
   progress: {
-    completedAt: number
+    completedAt?: number
+    collectionCreatedAt?: number
+    storeCreatedAt?: number
   }
 }
 
 function validateOpenForBusinessBackfillData(data: BackfillData): boolean {
-  return Number.isInteger(data.progress.completedAt)
+  const { completedAt, collectionCreatedAt, storeCreatedAt } = data.progress
+
+  return [completedAt, collectionCreatedAt, storeCreatedAt].every(
+    (value) => value === undefined || Number.isInteger(value)
+  )
 }
 
 export function mergeOpenForBusinessProgress(
@@ -31,10 +37,17 @@ export function mergeOpenForBusinessProgress(
   }
 
   try {
-    userProgress.progress.steps = 2
-    userProgress.progress.store_completed = true
-    userProgress.progress.collection_submitted = true
-    userProgress.completed_at = Math.min(userProgress.completed_at || Date.now(), backfillData.progress.completedAt)
+    const { completedAt, collectionCreatedAt, storeCreatedAt } = backfillData.progress
+
+    if (!userProgress.completed_at) {
+      userProgress.progress.steps = [collectionCreatedAt, storeCreatedAt].filter(Boolean).length
+      userProgress.progress.store_completed = !!storeCreatedAt
+      userProgress.progress.collection_submitted = !!collectionCreatedAt
+    }
+
+    if (completedAt) {
+      userProgress.completed_at = Math.min(userProgress.completed_at || Date.now(), completedAt)
+    }
 
     return userProgress
   } catch (error) {
