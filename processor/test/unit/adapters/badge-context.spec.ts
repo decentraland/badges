@@ -1,3 +1,4 @@
+import { Entity } from '@dcl/schemas'
 import { createBadgeContext } from '../../../src/adapters/badge-context'
 import { IBadgeContext } from '../../../src/types'
 import { getMockedComponents } from '../../utils'
@@ -11,7 +12,25 @@ jest.mock('dcl-catalyst-client', () => ({
   })
 }))
 
-const LOAD_BALANCER_URL = 'http://localhost:5000'
+jest.mock('dcl-catalyst-client/dist/contracts-snapshots', () => ({
+  getCatalystServersFromCache: jest
+    .fn()
+    .mockReturnValue([
+      { address: 'http://catalyst-server-1.com' },
+      { address: 'http://catalyst-server-2.com' },
+      { address: 'http://catalyst-server-3.com' }
+    ])
+}))
+
+jest.mock('../../../src/utils/array', () => ({
+  shuffleArray: jest.fn((array) => array) // for predictability
+}))
+
+jest.mock('../../../src/utils/timer', () => ({
+  sleep: jest.fn()
+}))
+
+const LOAD_BALANCER_URL = 'http://catalyst-server.com'
 
 describe('Badge Context', () => {
   let badgeContext: IBadgeContext
@@ -59,10 +78,17 @@ describe('Badge Context', () => {
   })
 
   describe('getEntityById', () => {
-    it('should fetch entity by ID with retries and default values', async () => {
-      const entityId = 'some-entity-id'
-      const entity = { id: entityId }
+    let entityId: string
+    let entity: Pick<Entity, 'id'>
+    let customContentServer: string
 
+    beforeEach(() => {
+      entityId = 'some-entity-id'
+      entity = { id: entityId }
+      customContentServer = 'http://custom-content-server.com'
+    })
+
+    it('should fetch entity by ID with retries and default values', async () => {
       // Simulate failure on the first try, success on the second
       contentClientMock.fetchEntityById = jest
         .fn()
@@ -76,9 +102,6 @@ describe('Badge Context', () => {
     })
 
     it('should fetch entity by ID with custom retries and wait time', async () => {
-      const entityId = 'some-entity-id'
-      const entity = { id: entityId }
-
       contentClientMock.fetchEntityById = jest
         .fn()
         .mockRejectedValueOnce(new Error('Failure'))
@@ -90,24 +113,64 @@ describe('Badge Context', () => {
       expect(result).toEqual(entity)
     })
 
-    it('should fetch entity by ID from custom content server', async () => {
-      const entityId = 'some-entity-id'
-      const entity = { id: entityId }
-      const customContentServer = 'http://custom-content-server.com'
-
+    it('should fetch entity by ID from custom content server on the first attempt', async () => {
       contentClientMock.fetchEntityById = jest.fn().mockResolvedValue(entity)
 
       const result = await badgeContext.getEntityById(entityId, { contentServerUrl: customContentServer })
 
+      expectContentClientToHaveBeenCalledWithUrl(customContentServer)
+      expect(contentClientMock.fetchEntityById).toHaveBeenCalledTimes(1)
+
       expect(result).toEqual(entity)
+    })
+
+    it('should rotate among catalyst server URLs on subsequent attempts', async () => {
+      contentClientMock.fetchEntityById = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Failure on first attempt'))
+        .mockRejectedValueOnce(new Error('Failure on second attempt'))
+        .mockResolvedValueOnce(entity)
+
+      await badgeContext.getEntityById(entityId)
+
+      expectContentClientToHaveBeenCalledWithUrl(LOAD_BALANCER_URL)
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com')
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com')
+
+      expect(contentClientMock.fetchEntityById).toHaveBeenCalledTimes(3)
+    })
+
+    it('should not reuse the same catalyst server URL on different attempts', async () => {
+      contentClientMock.fetchEntityById = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Failure on first attempt'))
+        .mockRejectedValueOnce(new Error('Failure on second attempt'))
+        .mockRejectedValueOnce(new Error('Failure on third attempt'))
+
+      await badgeContext.getEntityById(entityId, { retries: 3 }).catch(() => {})
+
+      const createContentClientMock = createContentClient as jest.Mock
+      const currentCalls = createContentClientMock.mock.calls.slice(1) // Avoid the first call which is the one made in the beforeEach
+
+      const urlsUsed = currentCalls.map((args) => args[0].url)
+      const uniqueUrls = new Set(urlsUsed)
+
+      expect(uniqueUrls.size).toBe(urlsUsed.length)
     })
   })
 
   describe('getEntitiesByPointers', () => {
-    it('should fetch entities by pointers with retries and default values', async () => {
-      const pointers = ['pointer1', 'pointer2']
-      const entities = [{ id: 'entity1' }, { id: 'entity2' }]
+    let pointers: string[]
+    let entities: Pick<Entity, 'id'>[]
+    let customContentServer: string
 
+    beforeEach(() => {
+      pointers = ['pointer1', 'pointer2']
+      entities = [{ id: 'entity1' }, { id: 'entity2' }]
+      customContentServer = 'http://custom-content-server.com'
+    })
+
+    it('should fetch entities by pointers with retries and default values', async () => {
       contentClientMock.fetchEntitiesByPointers = jest
         .fn()
         .mockRejectedValueOnce(new Error('Failure on first attempt'))
@@ -120,9 +183,6 @@ describe('Badge Context', () => {
     })
 
     it('should fetch entities by pointers with custom retries and wait time', async () => {
-      const pointers = ['pointer1', 'pointer2']
-      const entities = [{ id: 'entity1' }, { id: 'entity2' }]
-
       contentClientMock.fetchEntitiesByPointers = jest
         .fn()
         .mockRejectedValueOnce(new Error('Failure'))
@@ -134,16 +194,58 @@ describe('Badge Context', () => {
       expect(result).toEqual(entities)
     })
 
-    it('should fetch entities by pointers from custom content server', async () => {
-      const pointers = ['pointer1', 'pointer2']
-      const entities = [{ id: 'entity1' }, { id: 'entity2' }]
-      const customContentServer = 'http://custom-content-server.com'
-
+    it('should fetch entities by pointers from custom content server on the first attempt', async () => {
       contentClientMock.fetchEntitiesByPointers = jest.fn().mockResolvedValue(entities)
 
       const result = await badgeContext.getEntitiesByPointers(pointers, { contentServerUrl: customContentServer })
 
+      expectContentClientToHaveBeenCalledWithUrl(customContentServer)
+      expect(contentClientMock.fetchEntitiesByPointers).toHaveBeenCalledTimes(1)
+
       expect(result).toEqual(entities)
     })
+
+    it('should rotate among catalyst server URLs on subsequent attempts', async () => {
+      contentClientMock.fetchEntitiesByPointers = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Failure on first attempt'))
+        .mockRejectedValueOnce(new Error('Failure on second attempt'))
+        .mockResolvedValueOnce(entities)
+
+      await badgeContext.getEntitiesByPointers(pointers)
+
+      expectContentClientToHaveBeenCalledWithUrl(LOAD_BALANCER_URL)
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com')
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com')
+
+      expect(contentClientMock.fetchEntitiesByPointers).toHaveBeenCalledTimes(3)
+    })
+
+    it('should not reuse the same catalyst server URL on different attempts', async () => {
+      contentClientMock.fetchEntitiesByPointers = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Failure on first attempt'))
+        .mockRejectedValueOnce(new Error('Failure on second attempt'))
+        .mockRejectedValueOnce(new Error('Failure on third attempt'))
+
+      await badgeContext.getEntitiesByPointers(pointers, { retries: 3 }).catch(() => {})
+
+      const createContentClientMock = createContentClient as jest.Mock
+      const currentCalls = createContentClientMock.mock.calls.slice(1) // Avoid the first call which is the one made in the beforeEach
+
+      const urlsUsed = currentCalls.map((args) => args[0].url)
+      const uniqueUrls = new Set(urlsUsed)
+
+      expect(uniqueUrls.size).toBe(urlsUsed.length)
+    })
   })
+
+  // Helpers
+  function expectContentClientToHaveBeenCalledWithUrl(url: string) {
+    expect(createContentClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url
+      })
+    )
+  }
 })
