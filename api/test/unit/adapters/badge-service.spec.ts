@@ -40,7 +40,7 @@ describe('Badge Service', () => {
   describe('getAllBadges', () => {
     it('should return an array with all the badges definitions', async () => {
       const allBadges = badgeService.getAllBadges()
-      const allExpectedBadges = Array.from(badgeStorage.getBadges().values())
+      const allExpectedBadges = Array.from(badgeStorage.getBadges().values()).filter((badge) => badge.id !== BadgeId.MUSIC_FESTIVAL_2024)
 
       expect(allBadges).toStrictEqual(allExpectedBadges)
     })
