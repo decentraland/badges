@@ -70,7 +70,7 @@ describe('Backfill Merger', () => {
     [BadgeId.LAND_ARCHITECT, mergeLandArchitectProgress],
     [BadgeId.PROFILE_PRO, mergeProfileProProgress],
     [BadgeId.OPEN_FOR_BUSINESS, mergeOpenForBusinessProgress],
-    // [BadgeId.MUSIC_FESTIVAL, mergeUniqueEventProgress]
+    [BadgeId.MUSIC_FESTIVAL, mergeUniqueEventProgress]
   ])('should merge the progress for the user when the badge id is %s', (badgeId: BadgeId, merger: jest.Mock) => {
     const mergerMock = merger as jest.Mock
 
