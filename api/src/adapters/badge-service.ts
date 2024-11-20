@@ -21,7 +21,7 @@ export async function createBadgeService({
   }
 
   function getAllBadges(): Badge[] {
-    return Array.from(badges.values()).filter((badge) => badge.id !== BadgeId.MUSIC_FESTIVAL_2024)
+    return Array.from(badges.values())
   }
 
   async function getUserStates(address: EthAddress) {
