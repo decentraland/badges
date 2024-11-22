@@ -5,4 +5,4 @@ on:
 
 jobs:
   build:
-    uses: decentraland/platform-actions/.github/workflows/apps-with-db-build.yml@main
+    uses: decentraland/platform-actions/.github/workflows/apps-with-db-build.yml@9b4c5cc5b2213cf1e4e2617d46e3339955bd105b
