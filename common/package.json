@@ -14,7 +14,7 @@
   "dependencies": {
     "@dcl/schemas": "^15.3.0",
     "@well-known-components/interfaces": "^1.4.3",
-    "@well-known-components/pg-component": "^0.2.3"
+    "@well-known-components/pg-component": "^1.1.0"
   },
   "devDependencies": {
     "@dcl/eslint-config": "^2.1.0",
