@@ -12,7 +12,7 @@
     "lint:fix": "eslint '**/*.{js,ts}' --fix"
   },
   "dependencies": {
-    "@dcl/schemas": "^15.1.2",
+    "@dcl/schemas": "^15.3.0",
     "@well-known-components/interfaces": "^1.4.3",
     "@well-known-components/pg-component": "^0.2.3"
   },
