@@ -57,7 +57,7 @@ export async function createBadgeContext({
     return (attempt: number): Promise<T> => {
       if (attempt > 1 && catalystServers.length > 0) {
         const [catalystServerUrl] = catalystServers.splice(attempt % catalystServers.length, 1)
-        contentClientToUse = getContentClientOrDefault(catalystServerUrl)
+        contentClientToUse = getContentClientOrDefault(`${catalystServerUrl}/content`)
       }
 
       return executeClientRequest(contentClientToUse)

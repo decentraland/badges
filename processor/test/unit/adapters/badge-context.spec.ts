@@ -30,7 +30,7 @@ jest.mock('../../../src/utils/timer', () => ({
   sleep: jest.fn()
 }))
 
-const LOAD_BALANCER_URL = 'http://catalyst-server.com'
+const CATALYST_CONTENT_URL_LOADBALANCER = 'http://catalyst-server.com/content'
 
 describe('Badge Context', () => {
   let badgeContext: IBadgeContext
@@ -40,9 +40,9 @@ describe('Badge Context', () => {
     const { fetch, config } = await getMockedComponents()
     badgeContext = await createBadgeContext({
       fetch,
-      config: { ...config, requireString: jest.fn().mockReturnValueOnce(LOAD_BALANCER_URL) }
+      config: { ...config, requireString: jest.fn().mockReturnValueOnce(CATALYST_CONTENT_URL_LOADBALANCER) }
     })
-    contentClientMock = createContentClient({ fetcher: fetch, url: LOAD_BALANCER_URL })
+    contentClientMock = createContentClient({ fetcher: fetch, url: CATALYST_CONTENT_URL_LOADBALANCER })
   })
 
   afterEach(() => {
@@ -85,7 +85,7 @@ describe('Badge Context', () => {
     beforeEach(() => {
       entityId = 'some-entity-id'
       entity = { id: entityId }
-      customContentServer = 'http://custom-content-server.com'
+      customContentServer = 'http://custom-content-server.com/content'
     })
 
     it('should fetch entity by ID with retries and default values', async () => {
@@ -133,9 +133,9 @@ describe('Badge Context', () => {
 
       await badgeContext.getEntityById(entityId)
 
-      expectContentClientToHaveBeenCalledWithUrl(LOAD_BALANCER_URL)
-      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com')
-      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com')
+      expectContentClientToHaveBeenCalledWithUrl(CATALYST_CONTENT_URL_LOADBALANCER)
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com/content')
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com/content')
 
       expect(contentClientMock.fetchEntityById).toHaveBeenCalledTimes(3)
     })
@@ -214,9 +214,9 @@ describe('Badge Context', () => {
 
       await badgeContext.getEntitiesByPointers(pointers)
 
-      expectContentClientToHaveBeenCalledWithUrl(LOAD_BALANCER_URL)
-      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com')
-      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com')
+      expectContentClientToHaveBeenCalledWithUrl(CATALYST_CONTENT_URL_LOADBALANCER)
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-3.com/content')
+      expectContentClientToHaveBeenCalledWithUrl('http://catalyst-server-2.com/content')
 
       expect(contentClientMock.fetchEntitiesByPointers).toHaveBeenCalledTimes(3)
     })
