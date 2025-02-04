@@ -10,6 +10,7 @@ import { getBadgeTiersHandler } from './handlers/get-badge-tiers'
 import { getUserBadgesPreviewHandler } from './handlers/get-user-badges-preview'
 import { resetUserProgressHandler } from './handlers/reset-user-progress'
 import { badgesBackfillHandler } from './handlers/badges-backfill-handler'
+import { getUserBadgeDetailsHandler } from './handlers/get-user-badge-details'
 
 export async function setupRouter(context: GlobalContext): Promise<Router<GlobalContext>> {
   const router = new Router<GlobalContext>()
@@ -26,18 +27,17 @@ export async function setupRouter(context: GlobalContext): Promise<Router<Global
 
   router.get('/status', getStatusHandler)
 
-  // manage workflow
-  const env = await context.components.config.getString('ENV')
-  const shouldExposeEndpointsToManageWorkflows = env === 'dev' || env === 'test'
-
-  if (shouldExposeEndpointsToManageWorkflows) {
-    router.delete('/users/:address/badges/:id', resetUserProgressHandler)
-  }
-
   const adminToken = await context.components.config.getString('API_ADMIN_TOKEN')
+  const env = await context.components.config.getString('ENV')
 
   if (!!adminToken) {
+    const shouldExposeEndpointsToManageWorkflows = env === 'dev' || env === 'test'
+
+    if (shouldExposeEndpointsToManageWorkflows) {
+      router.delete('/users/:address/badges/:id', bearerTokenMiddleware(adminToken), resetUserProgressHandler)
+    }
     router.post('/badges/:id/backfill', bearerTokenMiddleware(adminToken), badgesBackfillHandler)
+    router.get('/users/:address/badges/:id', bearerTokenMiddleware(adminToken), getUserBadgeDetailsHandler)
   }
 
   return router

@@ -28,7 +28,8 @@ test('DELETE /users/:address/badges/:id', function ({ components }) {
       method: 'DELETE',
       redirect: 'manual',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${await components.config.getString('API_ADMIN_TOKEN')}`
       }
     })
 
@@ -49,7 +50,8 @@ test('DELETE /users/:address/badges/:id', function ({ components }) {
       method: 'DELETE',
       redirect: 'manual',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${await components.config.getString('API_ADMIN_TOKEN')}`
       }
     })
     expect(response.status).toBe(204)
