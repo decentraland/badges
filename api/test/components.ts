@@ -29,7 +29,9 @@ export const test = createRunner<TestComponents>({
 async function initComponents(): Promise<TestComponents> {
   const components = await originalInitComponents()
 
-  const config = await createDotEnvConfigComponent({ path: ['.env.test'] })
+  const config = await createDotEnvConfigComponent({ path: ['.env.test'] }, {
+    API_ADMIN_TOKEN: 'test'
+  })
 
   let databaseUrl: string | undefined = await config.getString('PG_COMPONENT_PSQL_CONNECTION_STRING')
   if (!databaseUrl) {
