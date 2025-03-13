@@ -94,6 +94,10 @@ describe('Vertical Voyager badge handler should', () => {
         height,
         sessionId: sessionId,
         timestamp: 1708380838504,
+        timestamps: {
+          reportedAt: 1708380838504 - 1000,
+          receivedAt: 1708380838504 - 500
+        },
         userAddress: testAddress,
         realm: 'main'
       }
