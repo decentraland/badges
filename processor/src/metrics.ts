@@ -51,6 +51,11 @@ export const metricDeclarations = {
     type: IMetricsComponent.CounterType,
     help: 'Count of explorer events arriving to badges',
     labelNames: ['event_type']
+  },
+  end_to_end_event_delay_in_seconds_total: {
+    type: IMetricsComponent.CounterType,
+    help: 'Delay between webhook and badge handling event',
+    labelNames: ['event_type']
   }
 }
 
