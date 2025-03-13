@@ -36,7 +36,7 @@ export function createMessagesConsumerComponent({
         let parsedMessage: Event | undefined
 
         try {
-          const message = JSON.parse(JSON.parse(Body!).Message)
+          const message = JSON.parse(Body!)
           parsedMessage = await eventParser.parse(message)
 
           if (!parsedMessage) {
