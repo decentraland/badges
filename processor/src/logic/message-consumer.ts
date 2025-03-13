@@ -1,4 +1,4 @@
-import { Event } from '@dcl/schemas'
+import { Event, Events } from '@dcl/schemas'
 import { AppComponents, MessageConsumerComponent } from '../types'
 import { sleep } from '../utils/timer'
 
@@ -31,6 +31,7 @@ export function createMessagesConsumerComponent({
       }
 
       for (const message of messages) {
+        const messageReceivedAt = Date.now()
         const { Body, ReceiptHandle } = message
         let parsedMessage: Event | undefined
 
@@ -53,6 +54,23 @@ export function createMessagesConsumerComponent({
         }
 
         try {
+          if (parsedMessage.type === Events.Type.CLIENT) {
+            // check also done in events-notifier to prevent invalid reports
+            if (!(parsedMessage.metadata.timestamps.reportedAt > parsedMessage.metadata.timestamps.receivedAt)) {
+              const delayCalculation = (messageReceivedAt - parsedMessage.timestamp) / 1000
+              metrics.increment(
+                'webhook_badges_event_delay_in_seconds_total',
+                {
+                  event_type: parsedMessage.subType
+                },
+                delayCalculation
+              )
+              metrics.increment('explorer_events_arriving_to_badges_count', {
+                event_type: parsedMessage.subType
+              })
+            }
+          }
+
           await messageProcessor.process(parsedMessage)
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         } catch (error: any) {

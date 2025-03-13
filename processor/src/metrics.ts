@@ -41,6 +41,16 @@ export const metricDeclarations = {
     help: 'Count of available badges',
     type: IMetricsComponent.GaugeType,
     labelNames: ['badge_name', 'badge_category']
+  },
+  webhook_badges_event_delay_in_seconds_total: {
+    type: IMetricsComponent.CounterType,
+    help: 'Delay between webhook and badge handling event',
+    labelNames: ['event_type']
+  },
+  explorer_events_arriving_to_badges_count: {
+    type: IMetricsComponent.CounterType,
+    help: 'Count of explorer events arriving to badges',
+    labelNames: ['event_type']
   }
 }
 
