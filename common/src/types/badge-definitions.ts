@@ -67,7 +67,8 @@ export enum BadgeId {
   LAND_ARCHITECT = 'land_architect',
   EMOTE_CREATOR = 'emote_creator',
   WEARABLE_DESIGNER = 'wearable_designer',
-  MUSIC_FESTIVAL_2024 = 'music_festival_2024'
+  MUSIC_FESTIVAL_2024 = 'music_festival_2024',
+  FASHION_WEEK_2025 = 'fashion_week_2025'
 }
 
 export enum BadgeCategory {

@@ -319,6 +319,16 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
       description: 'Jumped in and attended Decentraland Music Festival 2024',
       criteria: { steps: 1 }
     }
+  ],
+  [
+    BadgeId.FASHION_WEEK_2025,
+    {
+      id: BadgeId.FASHION_WEEK_2025,
+      name: 'Metaverse Fashion Week 2025',
+      category: BadgeCategory.EXPLORER,
+      description: 'Jumped in and attended Metaverse Fashion Week 2025',
+      criteria: { steps: 1 }
+    }
   ]
 ])
 
