@@ -29,6 +29,10 @@ describe('Decentraland Citizen badge handler should', () => {
         },
         sessionId: 'testsessionid',
         timestamp: 1708380838504,
+        timestamps: {
+          reportedAt: 1708380838504 - 1000,
+          receivedAt: 1708380838504 - 500
+        },
         userAddress: testAddress,
         realm: 'main'
       }
@@ -76,6 +80,10 @@ describe('Decentraland Citizen badge handler should', () => {
         },
         sessionId: 'testSessionId',
         timestamp: 1708380838504,
+        timestamps: {
+          reportedAt: 1708380838504 - 1000,
+          receivedAt: 1708380838504 - 500
+        },
         userAddress: testAddress,
         realm: 'main'
       }
