@@ -58,6 +58,11 @@ export function createMessagesConsumerComponent({
             // check also done in events-notifier to prevent invalid reports
             if (!(parsedMessage.metadata.timestamps.reportedAt > parsedMessage.metadata.timestamps.receivedAt)) {
               const delayCalculation = (messageReceivedAt - parsedMessage.timestamp) / 1000
+              logger.info('Delay calculation', {
+                delayCalculation,
+                messageReceivedAt,
+                parsedMessageTimestamp: parsedMessage.timestamp
+              })
               metrics.increment(
                 'webhook_badges_event_delay_in_seconds_total',
                 {
