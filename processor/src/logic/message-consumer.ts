@@ -58,6 +58,7 @@ export function createMessagesConsumerComponent({
             // check also done in events-notifier to prevent invalid reports
             if (!(parsedMessage.metadata.timestamps.reportedAt > parsedMessage.metadata.timestamps.receivedAt)) {
               const delayCalculation = (messageReceivedAt - parsedMessage.timestamp) / 1000
+              const endToEndDelay = (messageReceivedAt - parsedMessage.metadata.timestamps.reportedAt) / 1000
               logger.info('Delay calculation', {
                 delayCalculation,
                 messageReceivedAt,
@@ -69,6 +70,13 @@ export function createMessagesConsumerComponent({
                   event_type: parsedMessage.subType
                 },
                 delayCalculation
+              )
+              metrics.increment(
+                'end_to_end_event_delay_in_seconds_total',
+                {
+                  event_type: parsedMessage.subType
+                },
+                endToEndDelay
               )
               metrics.increment('explorer_events_arriving_to_badges_count', {
                 event_type: parsedMessage.subType
