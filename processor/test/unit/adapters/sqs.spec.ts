@@ -27,7 +27,7 @@ describe('sqs', () => {
       expect(mockClient.send).toHaveBeenCalledWith(
         createMockExpectedCommand({
           QueueUrl: MOCK_ENDPOINT,
-          MessageBody: JSON.stringify({ Message: JSON.stringify(message) })
+          MessageBody: JSON.stringify(message)
         })
       )
     })
