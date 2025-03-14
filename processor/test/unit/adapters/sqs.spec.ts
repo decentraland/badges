@@ -33,7 +33,7 @@ describe('sqs', () => {
     })
   })
 
-  describe('when call receiveSingleMessage', () => {
+  describe('when call receiveMessages', () => {
     it('should receive a message from the sqs client', async () => {
       const messages = []
       mockClient.send = jest.fn().mockResolvedValueOnce({ Messages: messages })
