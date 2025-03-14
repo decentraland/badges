@@ -10,7 +10,6 @@ export function createMessagesConsumerComponent({
   eventParser
 }: Pick<AppComponents, 'logs' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
-  const intervalToWaitInSeconds = 5 // wait time when no messages are found in the queue
   let isRunning = false
 
   async function removeMessageFromQueue(messageHandle: string, entityId: string) {
@@ -25,8 +24,6 @@ export function createMessagesConsumerComponent({
       const messages = await queue.receiveMessages(10)
 
       if (!messages || messages.length === 0) {
-        logger.info(`No messages found in queue, waiting ${intervalToWaitInSeconds} seconds to check again`)
-        await sleep(intervalToWaitInSeconds * 1000)
         continue
       }
 
