@@ -48,7 +48,7 @@ describe('MessageConsumer', () => {
     publisher = await createSnsComponent({ config })
     queue = {
       ...(await createSqsAdapter('endpoint')),
-      receiveSingleMessage: jest.fn(),
+      receiveMessages: jest.fn(),
       deleteMessage: jest.fn()
     }
     messageProcessor = await createMessageProcessorComponent({ logs, config, metrics, eventDispatcher, publisher })
@@ -84,7 +84,7 @@ describe('MessageConsumer', () => {
 
     await consumeMessages()
 
-    expect(queue.receiveSingleMessage).toHaveBeenCalled()
+    expect(queue.receiveMessages).toHaveBeenCalled()
     expect(eventParser.parse).toHaveBeenCalledWith(event)
     expect(messageProcessor.process).toHaveBeenCalledWith(event)
     expect(queue.deleteMessage).toHaveBeenCalledWith(messageHandle)
@@ -96,7 +96,7 @@ describe('MessageConsumer', () => {
 
     await consumeMessages()
 
-    expect(queue.receiveSingleMessage).toHaveBeenCalled()
+    expect(queue.receiveMessages).toHaveBeenCalled()
     expect(eventParser.parse).toHaveBeenCalledWith(event)
     expect(messageProcessor.process).not.toHaveBeenCalled()
     expect(queue.deleteMessage).toHaveBeenCalledWith(messageHandle)
@@ -108,7 +108,7 @@ describe('MessageConsumer', () => {
 
     await consumeMessages()
 
-    expect(queue.receiveSingleMessage).toHaveBeenCalled()
+    expect(queue.receiveMessages).toHaveBeenCalled()
     expect(eventParser.parse).toHaveBeenCalledWith(event)
     expect(messageProcessor.process).not.toHaveBeenCalled()
     expect(queue.deleteMessage).toHaveBeenCalledWith(messageHandle)
@@ -121,7 +121,7 @@ describe('MessageConsumer', () => {
 
     await consumeMessages()
 
-    expect(queue.receiveSingleMessage).toHaveBeenCalled()
+    expect(queue.receiveMessages).toHaveBeenCalled()
     expect(eventParser.parse).toHaveBeenCalledWith(event)
     expect(messageProcessor.process).toHaveBeenCalledWith(event)
     expect(queue.deleteMessage).toHaveBeenCalledWith(messageHandle)
