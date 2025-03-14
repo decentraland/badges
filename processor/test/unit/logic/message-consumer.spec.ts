@@ -60,7 +60,7 @@ describe('MessageConsumer', () => {
     messageHandle = 'receipt-handle-123'
     event = getMockEvent(Events.Type.BLOCKCHAIN, Events.SubType.Blockchain.ITEM_SOLD, testUserAddress)
     message = {
-      Body: JSON.stringify({ Message: JSON.stringify(event) }),
+      Body: JSON.stringify(event),
       ReceiptHandle: messageHandle
     }
   })
@@ -70,15 +70,13 @@ describe('MessageConsumer', () => {
   })
 
   it('should handle no messages found in the queue', async () => {
-    jest.spyOn(queue, 'receiveSingleMessage').mockResolvedValueOnce([])
+    jest.spyOn(queue, 'receiveMessages').mockResolvedValueOnce([])
 
     await consumeMessages()
-
-    expect(sleep).toHaveBeenCalled()
   })
 
   it('should process a valid message and remove it from the queue', async () => {
-    jest.spyOn(queue, 'receiveSingleMessage').mockResolvedValueOnce([message])
+    jest.spyOn(queue, 'receiveMessages').mockResolvedValueOnce([message])
     jest.spyOn(eventParser, 'parse').mockResolvedValue(event)
     jest.spyOn(messageProcessor, 'process').mockResolvedValue(undefined)
 
@@ -91,7 +89,7 @@ describe('MessageConsumer', () => {
   })
 
   it('should remove the message from the queue without processing it when the message could not be parsed', async () => {
-    jest.spyOn(queue, 'receiveSingleMessage').mockResolvedValueOnce([message])
+    jest.spyOn(queue, 'receiveMessages').mockResolvedValueOnce([message])
     jest.spyOn(eventParser, 'parse').mockResolvedValue(undefined)
 
     await consumeMessages()
@@ -103,7 +101,7 @@ describe('MessageConsumer', () => {
   })
 
   it('should remove a message from the queue without processing it when the parse fails', async () => {
-    jest.spyOn(queue, 'receiveSingleMessage').mockResolvedValueOnce([message])
+    jest.spyOn(queue, 'receiveMessages').mockResolvedValueOnce([message])
     jest.spyOn(eventParser, 'parse').mockRejectedValue(new Error('Failed to parse event'))
 
     await consumeMessages()
@@ -115,7 +113,7 @@ describe('MessageConsumer', () => {
   })
 
   it('should process a valid message and remove it from the queue even when the message processor fails', async () => {
-    jest.spyOn(queue, 'receiveSingleMessage').mockResolvedValueOnce([message])
+    jest.spyOn(queue, 'receiveMessages').mockResolvedValueOnce([message])
     jest.spyOn(eventParser, 'parse').mockResolvedValue(event)
     jest.spyOn(messageProcessor, 'process').mockRejectedValue(new Error('Failed to process event'))
 

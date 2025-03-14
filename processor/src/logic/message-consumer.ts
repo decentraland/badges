@@ -1,6 +1,5 @@
 import { Event, Events } from '@dcl/schemas'
 import { AppComponents, MessageConsumerComponent } from '../types'
-import { sleep } from '../utils/timer'
 
 export function createMessagesConsumerComponent({
   logs,
