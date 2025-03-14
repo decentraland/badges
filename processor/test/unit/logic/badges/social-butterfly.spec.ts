@@ -215,6 +215,10 @@ describe('Social Butterfly badge handler should', () => {
         },
         sessionId: options.sessionId,
         timestamp: options.timestamp,
+        timestamps: {
+          reportedAt: options.timestamp - 1000,
+          receivedAt: options.timestamp - 500
+        },
         userAddress: testAddress,
         realm: 'main'
       }

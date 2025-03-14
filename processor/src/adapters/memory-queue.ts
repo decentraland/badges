@@ -17,14 +17,14 @@ export function createMemoryQueueAdapter(): QueueComponent {
     return
   }
 
-  async function receiveSingleMessage(): Promise<Message[]> {
-    const message = queue.size > 0 ? queue.values().next().value : undefined
-    return !!message ? [message] : []
+  async function receiveMessages(amount: number): Promise<Message[]> {
+    const messages = Array.from(queue.values()).slice(0, amount)
+    return messages
   }
 
   async function deleteMessage(receiptHandle: string): Promise<void> {
     queue.delete(receiptHandle)
   }
 
-  return { send, receiveSingleMessage, deleteMessage }
+  return { send, receiveMessages, deleteMessage }
 }
