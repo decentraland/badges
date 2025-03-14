@@ -19,10 +19,10 @@ export async function createSqsAdapter(endpoint: string): Promise<QueueComponent
     await client.send(sendCommand)
   }
 
-  async function receiveSingleMessage(): Promise<Message[]> {
+  async function receiveMessages(amount: number): Promise<Message[]> {
     const receiveCommand = new ReceiveMessageCommand({
       QueueUrl: endpoint,
-      MaxNumberOfMessages: 1,
+      MaxNumberOfMessages: amount,
       VisibilityTimeout: 60 // 1 minute
     })
     const { Messages = [] } = await client.send(receiveCommand)
@@ -40,7 +40,7 @@ export async function createSqsAdapter(endpoint: string): Promise<QueueComponent
 
   return {
     send,
-    receiveSingleMessage,
+    receiveMessages,
     deleteMessage
   }
 }
