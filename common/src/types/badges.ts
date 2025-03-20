@@ -315,7 +315,7 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     {
       id: BadgeId.MUSIC_FESTIVAL_2024,
       name: 'Decentraland Music Festival 2024',
-      category: BadgeCategory.EXPLORER,
+      category: BadgeCategory.SOCIALIZER,
       description: 'Jumped in and attended Decentraland Music Festival 2024',
       criteria: { steps: 1 }
     }
@@ -325,8 +325,28 @@ const badges: Map<BadgeId, Badge> = new Map<BadgeId, Badge>([
     {
       id: BadgeId.FASHION_WEEK_2025,
       name: 'Metaverse Fashion Week 2025',
-      category: BadgeCategory.EXPLORER,
+      category: BadgeCategory.SOCIALIZER,
       description: 'Jumped in and attended Metaverse Fashion Week 2025',
+      criteria: { steps: 1 }
+    }
+  ],
+  [
+    BadgeId.BUILDER_TALENT_TRAIL_2025,
+    {
+      id: BadgeId.BUILDER_TALENT_TRAIL_2025,
+      name: 'Builder Talent Trail 2025',
+      category: BadgeCategory.SOCIALIZER,
+      description: 'Jumped in and attended Builder Talent Trail 2025',
+      criteria: { steps: 1 }
+    }
+  ],
+  [
+    BadgeId.MUSIC_TALENT_TRAIL_2025,
+    {
+      id: BadgeId.MUSIC_TALENT_TRAIL_2025,
+      name: 'Music Talent Trail 2025',
+      category: BadgeCategory.SOCIALIZER,
+      description: 'Jumped in and attended Music Talent Trail 2025',
       criteria: { steps: 1 }
     }
   ]
