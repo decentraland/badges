@@ -1,6 +1,5 @@
-import { Event } from '@dcl/schemas'
+import { Event, Events } from '@dcl/schemas'
 import { AppComponents, MessageConsumerComponent } from '../types'
-import { sleep } from '../utils/timer'
 
 export function createMessagesConsumerComponent({
   logs,
@@ -10,7 +9,6 @@ export function createMessagesConsumerComponent({
   eventParser
 }: Pick<AppComponents, 'logs' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
-  const intervalToWaitInSeconds = 5 // wait time when no messages are found in the queue
   let isRunning = false
 
   async function removeMessageFromQueue(messageHandle: string, entityId: string) {
@@ -22,20 +20,19 @@ export function createMessagesConsumerComponent({
     logger.info('Starting to listen messages from queue')
     isRunning = true
     while (isRunning) {
-      const messages = await queue.receiveSingleMessage()
+      const messages = await queue.receiveMessages(10)
 
       if (!messages || messages.length === 0) {
-        logger.info(`No messages found in queue, waiting ${intervalToWaitInSeconds} seconds to check again`)
-        await sleep(intervalToWaitInSeconds * 1000)
         continue
       }
 
       for (const message of messages) {
+        const messageReceivedAt = Date.now()
         const { Body, ReceiptHandle } = message
         let parsedMessage: Event | undefined
 
         try {
-          const message = JSON.parse(JSON.parse(Body!).Message)
+          const message = JSON.parse(Body!)
           parsedMessage = await eventParser.parse(message)
 
           if (!parsedMessage) {
@@ -53,6 +50,36 @@ export function createMessagesConsumerComponent({
         }
 
         try {
+          if (parsedMessage.type === Events.Type.CLIENT) {
+            // check also done in events-notifier to prevent invalid reports
+            if (!(parsedMessage.metadata.timestamps.reportedAt > parsedMessage.metadata.timestamps.receivedAt)) {
+              const delayCalculation = (messageReceivedAt - parsedMessage.timestamp) / 1000
+              const endToEndDelay = (messageReceivedAt - parsedMessage.metadata.timestamps.reportedAt) / 1000
+              logger.info('Delay calculation', {
+                delayCalculation,
+                messageReceivedAt,
+                parsedMessageTimestamp: parsedMessage.timestamp
+              })
+              metrics.increment(
+                'webhook_badges_event_delay_in_seconds_total',
+                {
+                  event_type: parsedMessage.subType
+                },
+                delayCalculation
+              )
+              metrics.increment(
+                'end_to_end_event_delay_in_seconds_total',
+                {
+                  event_type: parsedMessage.subType
+                },
+                endToEndDelay
+              )
+              metrics.increment('explorer_events_arriving_to_badges_count', {
+                event_type: parsedMessage.subType
+              })
+            }
+          }
+
           await messageProcessor.process(parsedMessage)
           await removeMessageFromQueue(ReceiptHandle!, parsedMessage.key)
         } catch (error: any) {

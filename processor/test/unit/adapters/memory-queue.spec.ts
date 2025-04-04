@@ -11,7 +11,7 @@ describe('Memory Queue', () => {
     const message = { id: '1', body: 'hello' }
     await queue.send(message)
 
-    const messages = await queue.receiveSingleMessage()
+    const messages = await queue.receiveMessages(1)
     expect(messages).toHaveLength(1)
     expect(messages[0].Body).toBe(JSON.stringify({ Message: JSON.stringify(message) }))
   })
@@ -24,7 +24,7 @@ describe('Memory Queue', () => {
 
     await queue.deleteMessage(mockReceiptHandle)
 
-    const messagesAfterDelete = await queue.receiveSingleMessage()
+    const messagesAfterDelete = await queue.receiveMessages(1)
     expect(messagesAfterDelete).toHaveLength(0)
   })
 })

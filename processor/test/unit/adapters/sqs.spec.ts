@@ -27,17 +27,17 @@ describe('sqs', () => {
       expect(mockClient.send).toHaveBeenCalledWith(
         createMockExpectedCommand({
           QueueUrl: MOCK_ENDPOINT,
-          MessageBody: JSON.stringify({ Message: JSON.stringify(message) })
+          MessageBody: JSON.stringify(message)
         })
       )
     })
   })
 
-  describe('when call receiveSingleMessage', () => {
+  describe('when call receiveMessages', () => {
     it('should receive a message from the sqs client', async () => {
       const messages = []
       mockClient.send = jest.fn().mockResolvedValueOnce({ Messages: messages })
-      const receivedMessages = await sqs.receiveSingleMessage()
+      const receivedMessages = await sqs.receiveMessages(1)
       expect(mockClient.send).toHaveBeenCalledWith(
         createMockExpectedCommand({
           QueueUrl: MOCK_ENDPOINT,
