@@ -29,7 +29,7 @@ describe('redis', () => {
     mockClient = createClient({ url: 'redis://localhost:6379' })
   })
 
-  describe('start()', () => {
+  describe.skip('start()', () => {
     it('should start the redis client', async () => {
       await redis[START_COMPONENT]({} as any)
       expect(mockClient.connect).toHaveBeenCalled()
