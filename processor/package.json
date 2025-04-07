@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-sns": "^3.600.0",
     "@aws-sdk/client-sqs": "^3.600.0",
-    "@dcl/schemas": "^16.1.0",
+    "@dcl/schemas": "^16.2.0",
     "@dcl/urn-resolver": "^3.6.0",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^2.0.2",
