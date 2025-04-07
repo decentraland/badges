@@ -71,6 +71,8 @@ export async function createRedisComponent(
   return {
     get,
     set,
+    start,
+    stop,
     [START_COMPONENT]: start,
     [STOP_COMPONENT]: stop
   }
