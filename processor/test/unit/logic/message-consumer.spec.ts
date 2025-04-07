@@ -14,8 +14,9 @@ import { createMessagesConsumerComponent } from '../../../src/logic/message-cons
 import { createSqsAdapter } from '../../../src/adapters/sqs'
 import { createEventParser } from '../../../src/adapters/event-parser'
 import { Event, Events } from '@dcl/schemas'
-import { sleep } from '../../../src/utils/timer'
 import { Message } from '@aws-sdk/client-sqs'
+import { STOP_COMPONENT } from '@well-known-components/interfaces'
+import { START_COMPONENT } from '@well-known-components/interfaces'
 
 jest.mock('../../../src/utils/timer', () => ({
   sleep: jest.fn()
@@ -52,7 +53,7 @@ describe('MessageConsumer', () => {
       deleteMessage: jest.fn()
     }
     messageProcessor = await createMessageProcessorComponent({ logs, config, metrics, eventDispatcher, publisher })
-    messageConsumer = await createMessagesConsumerComponent({ logs, metrics, queue, messageProcessor, eventParser })
+    messageConsumer = createMessagesConsumerComponent({ logs, metrics, queue, messageProcessor, eventParser })
 
     messageProcessor.process = jest.fn()
     eventParser.parse = jest.fn()
@@ -127,8 +128,8 @@ describe('MessageConsumer', () => {
 
   // Helpers
   async function consumeMessages() {
-    const startPromise = messageConsumer.start({} as any)
-    messageConsumer.stop()
+    const startPromise = messageConsumer[START_COMPONENT]({} as any)
+    messageConsumer[STOP_COMPONENT]()
     await startPromise
   }
 })

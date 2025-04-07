@@ -1,4 +1,6 @@
 import { createClient } from 'redis'
+import { START_COMPONENT, STOP_COMPONENT } from '@well-known-components/interfaces'
+
 import { AppComponents, ICacheStorage } from '../types'
 
 const TWO_HOURS_IN_SECONDS = 60 * 60 * 2
@@ -69,7 +71,7 @@ export async function createRedisComponent(
   return {
     get,
     set,
-    start,
-    stop
+    [START_COMPONENT]: start,
+    [STOP_COMPONENT]: stop
   }
 }

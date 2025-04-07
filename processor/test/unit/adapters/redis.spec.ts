@@ -1,9 +1,8 @@
 import { createClient } from 'redis'
 import { createRedisComponent } from '../../../src/adapters/redis'
-import { create } from 'domain'
-import { disconnect } from 'process'
 import { ICacheStorage } from '../../../src/types'
 import { getMockedComponents } from '../../utils'
+import { START_COMPONENT, STOP_COMPONENT } from '@well-known-components/interfaces'
 
 jest.mock('redis', () => ({
   createClient: jest.fn().mockReturnValue({
@@ -32,13 +31,13 @@ describe('redis', () => {
 
   describe('start()', () => {
     it('should start the redis client', async () => {
-      await redis.start({} as any)
+      await redis[START_COMPONENT]({} as any)
       expect(mockClient.connect).toHaveBeenCalled()
     })
 
     it('when connect fails, should throw an error', async () => {
       mockClient.connect = jest.fn().mockRejectedValueOnce(new Error('Connection failed'))
-      await expect(redis.start({} as any)).rejects.toThrow('Connection failed')
+      await expect(redis[START_COMPONENT]({} as any)).rejects.toThrow('Connection failed')
     })
   })
 
@@ -76,13 +75,13 @@ describe('redis', () => {
 
   describe('stop()', () => {
     it('should stop the redis client', async () => {
-      await redis.stop()
+      await redis[STOP_COMPONENT]()
       expect(mockClient.disconnect).toHaveBeenCalled()
     })
 
     it('when disconnect fails, should throw an error', async () => {
       mockClient.disconnect = jest.fn().mockRejectedValueOnce(new Error('Disconnection failed'))
-      await redis.stop()
+      await redis[STOP_COMPONENT]()
       expect(mockClient.disconnect).toHaveBeenCalled()
     })
   })
