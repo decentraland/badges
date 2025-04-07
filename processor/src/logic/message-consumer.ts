@@ -1,4 +1,6 @@
 import { Event, Events } from '@dcl/schemas'
+import { STOP_COMPONENT, START_COMPONENT } from '@well-known-components/interfaces'
+
 import { AppComponents, MessageConsumerComponent } from '../types'
 
 export function createMessagesConsumerComponent({
@@ -107,7 +109,7 @@ export function createMessagesConsumerComponent({
   }
 
   return {
-    start,
-    stop
+    [START_COMPONENT]: start,
+    [STOP_COMPONENT]: stop
   }
 }
