@@ -1,6 +1,5 @@
 import { Event, Events } from '@dcl/schemas'
 import { STOP_COMPONENT, START_COMPONENT } from '@well-known-components/interfaces'
-
 import { AppComponents, MessageConsumerComponent } from '../types'
 
 export function createMessagesConsumerComponent({
@@ -12,15 +11,15 @@ export function createMessagesConsumerComponent({
 }: Pick<AppComponents, 'logs' | 'metrics' | 'queue' | 'eventParser' | 'messageProcessor'>): MessageConsumerComponent {
   const logger = logs.getLogger('messages-consumer')
   let isRunning = false
+  let processLoopPromise: Promise<void> | null = null
 
   async function removeMessageFromQueue(messageHandle: string, entityId: string) {
     logger.info('Removing message from queue', { messageHandle, entityId })
     await queue.deleteMessage(messageHandle)
   }
 
-  async function start() {
-    logger.info('Starting to listen messages from queue')
-    isRunning = true
+  async function processLoop() {
+    logger.info('Starting message processing loop')
     while (isRunning) {
       const messages = await queue.receiveMessages(10)
 
@@ -102,10 +101,31 @@ export function createMessagesConsumerComponent({
         }
       }
     }
+    logger.info('Message processing loop stopped')
+  }
+
+  async function start() {
+    logger.info('Starting messages consumer component')
+    isRunning = true
+
+    // Start the processing loop in the background
+    processLoopPromise = processLoop().catch((error) => {
+      logger.error('Fatal error in message processing loop:', error)
+      isRunning = false
+    })
+
+    // Return immediately to not block other components
+    return Promise.resolve()
   }
 
   async function stop() {
+    logger.info('Stopping messages consumer component')
     isRunning = false
+
+    if (processLoopPromise) {
+      await processLoopPromise
+      processLoopPromise = null
+    }
   }
 
   return {
