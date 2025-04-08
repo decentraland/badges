@@ -109,10 +109,7 @@ export function createMessagesConsumerComponent({
     isRunning = true
 
     // Start the processing loop in the background
-    processLoopPromise = processLoop().catch((error) => {
-      logger.error('Fatal error in message processing loop:', error)
-      isRunning = false
-    })
+    processLoopPromise = processLoop()
 
     // Return immediately to not block other components
     return Promise.resolve()
