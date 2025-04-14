@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@dcl/platform-server-commons": "^0.0.5",
-    "@dcl/schemas": "^16.2.0",
+    "@dcl/schemas": "^16.3.0",
     "@well-known-components/env-config-provider": "^1.2.0",
     "@well-known-components/fetch-component": "^3.0.0",
     "@well-known-components/http-server": "^2.1.0",
